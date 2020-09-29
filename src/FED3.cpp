@@ -1,5 +1,5 @@
 /*
-  Feeding experimentation device 3 (FED3) library version 1.0.122
+  Feeding experimentation device 3 (FED3) library version 1.0.2
   Code by Lex Kravitz, adapted to this library by Eric Lin
   alexxai@wustl.edu
   erclin@ucdavis.edu

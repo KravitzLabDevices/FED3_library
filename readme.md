@@ -6,7 +6,7 @@ The goal of this library is to automate most of the housekeeping functions of FE
 ## Installation instructions
 1. Download the supporting libraries for FED3: [FED3_support_libraries.zip](https://github.com/KravitzLabDevices/FED3_library/raw/master/extras/FED3_support_libraries.zip). Unzip the contents of this file to your Arduino libraries folder (usually located at: Documents\Arduino\libraries). 
 
-2. Download this directory as a zip file
+2. Download this directory as a [zip file](https://github.com/KravitzLabDevices/FED3_library/archive/master.zip)
 
 3. Open the Arduino IDE and install the FED3 library by clicking Sketch > Include library > Add .ZIP library 
 ![AddLibary](https://raw.githubusercontent.com/KravitzLabDevices/FED3/master/photos/AddZipLibrary.bmp)

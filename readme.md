@@ -1,4 +1,4 @@
-## This is the FED3 library, version 1.0.1 (beta)
+## This is the FED3 library (beta)
 This library is in development and almost certainly contains bugs, please only use it for testing purposes. Documentation is pending.
 
 The goal of this library is to automate most of the housekeeping functions of FED3 behind the scenes, and let the user focus on writing the behavioral control.  Learn more about FED3 here: https://github.com/KravitzLabDevices/FED3

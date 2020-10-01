@@ -1,9 +1,9 @@
 /*
-Feeding experimentation device 3 (FED3) library version 1.0.1
-Code by Lex Kravitz, adapted to this library by Eric Lin
+Feeding experimentation device 3 (FED3) library version 1.0.2
+Code by Lex Kravitz, adapted to Arduino library format by Eric Lin
 alexxai@wustl.edu
 erclin@ucdavis.edu
-Released in August of 2020
+October 2020
 
 FED was originally developed by Nguyen at al and published in 2016:
 https://www.ncbi.nlm.nih.gov/pubmed/27060385
@@ -26,8 +26,9 @@ This device includes hardware and code from:
 #ifndef FED3_H
 #define FED3_H
 
-#define VER "1.0.1"
+#define VER "1.0.2"
 
+//include these libraries
 #include <Adafruit_BusIO_Register.h>
 #include <Adafruit_I2CDevice.h>
 #include <Adafruit_I2CRegister.h>
@@ -124,6 +125,7 @@ class FED3 {
 
         // Stimuli
         void ConditionedStimulus();
+        void Click();
         void RConditionedStim();
         void ErrorStim();
         void leftStimulus();
@@ -169,9 +171,10 @@ class FED3 {
         bool PelletAvailable = false;
         bool pellet = false;  // this true for pellet event, false for poke event
 
-        // pellet stats
+        // timing variables
         int retInterval = 0;
         int pelletTime = 0;
+        int unixtime = 0;
 
         // flags
         bool CountReady = false;

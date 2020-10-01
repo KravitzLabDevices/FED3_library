@@ -1,9 +1,9 @@
 /*
   Feeding experimentation device 3 (FED3) library version 1.0.2
-  Code by Lex Kravitz, adapted to this library by Eric Lin
+  Code by Lex Kravitz, adapted to Arduino library format by Eric Lin
   alexxai@wustl.edu
   erclin@ucdavis.edu
-  Released in August of 2020
+  October 2020
 
   FED was originally developed by Nguyen at al and published in 2016:
   https://www.ncbi.nlm.nih.gov/pubmed/27060385
@@ -55,6 +55,10 @@ static void outsideRightTriggerHandler(void) {
   FED3 main loop 
 **********************************************/
 void FED3::run() {
+  //This function should be called at least once per loop.  It updates the timestamp, 
+  //checks the pokes, updates the display, and goes to sleep if appropriate
+  DateTime now = rtc.now();
+  unixtime  = now.unixtime();
   CheckPokes();
   UpdateDisplay();
   goToSleep();
@@ -75,8 +79,11 @@ void FED3::CheckPokes() {
       Ratio_Met = true;
     }
   }
+  //Enable LeftReady and RightReady flags only if pokes are empty to stop him just keeping his nose in there
+  if (Left==false) LeftReady=true;  
+  if (Right==false) RightReady=true;
 
-  if (Left) {
+  if (Left and LeftReady==true and PelletAvailable == false) {
     LeftCount ++;
     display.fillCircle(25, 59, 5, BLACK);
     display.refresh();
@@ -86,9 +93,10 @@ void FED3::CheckPokes() {
       CheckRatio();
     }
     CheckReset();
+    LeftReady = false;
   }
 
-  if (Right) {
+  if (Right and RightReady==true and PelletAvailable == false) {
     RightCount ++;
     display.fillCircle(25, 79, 5, BLACK);
     display.refresh();
@@ -98,6 +106,7 @@ void FED3::CheckPokes() {
       CheckRatio();
     }
     CheckReset();
+    RightReady=false;
   }
 }
 
@@ -254,6 +263,10 @@ void FED3::ConditionedStimulus() {
   tone (BUZZER, 4000, 300);
   colorWipe(strip.Color(0, 2, 2), 40); // Color wipe
   colorWipe(strip.Color(0, 0, 0), 20); // OFF
+}
+
+void FED3::Click() {
+  tone (BUZZER, 800, 8);
 }
 
 void FED3::RConditionedStim() {
@@ -1321,11 +1334,14 @@ void FED3::versionDisplay(){
   display.setTextSize(3);
   display.setTextColor(BLACK);
   display.clearDisplay();
-  display.setCursor(15, 60);
+  display.setCursor(15, 55);
   display.print("FED3");
  
   display.setTextSize(1);
-  display.setCursor(1, 135);
+  display.setCursor(2, 138);
+  display.print(filename);
+
+  display.setCursor(2, 119);
   display.print("v: ");
   display.print(VER);
   display.print("_sketch");
@@ -1364,7 +1380,7 @@ void FED3::versionDisplay(){
 
     display.refresh();
     delay (80);
-    display.fillRoundRect (i - 25, 75, 80, 35, 1, WHITE);
+    display.fillRoundRect (i - 25, 75, 80, 32, 1, WHITE);
   }
 }
 
@@ -1398,8 +1414,7 @@ void FED3::begin() {
   display.begin();
   const int minorHalfSize = min(display.width(), display.height()) / 2;
   display.setFont(&FreeSans9pt7b);
-  versionDisplay();
-
+ 
   // Initialize SD card and create the datafile
   SdFile::dateTimeCallback(dateTime);
   CreateFile();
@@ -1415,8 +1430,8 @@ void FED3::begin() {
   writeHeader();
   EndTime = 0;
   
-  // Clear display
+  // Startup display
+  versionDisplay();
   display.clearDisplay();
   display.refresh();
-
 }

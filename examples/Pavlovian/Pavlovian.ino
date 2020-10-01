@@ -9,13 +9,13 @@
 */
 
 #include <FED3.h>                //Include the FED3 library 
-int sketch = 3;                  //Name the sketch with a unique integer
+int sketch = 4;                  //Name the sketch with a unique integer
 FED3 fed3 (sketch);              //Start the FED3 object
 
 void setup() {
   fed3.begin();                  //Setup the FED3 hardware
-  fed3.FEDmode = 0;                                     //Customize the display options to FEDmode 0 for an free pellet session
-  fed3.EnableSleep=false;                               //Set to false to inhibit sleeping to use the Serial port; Set to true to reduce battery power
+  fed3.FEDmode = 0;              //Customize the display options to FEDmode 0 for an free pellet session
+  fed3.EnableSleep = false;      //Set to false to inhibit sleeping to use the Serial port; Set to true to reduce battery power
 }
 
 void loop() {
@@ -26,13 +26,24 @@ void loop() {
   ////////////////////////////////////////////////////
 
   fed3.ConditionedStimulus();     //Play conditioned stimulus (light and tones)
-  delay (5000);                   //Wait 5 seconds
+  delay (2000);                   //Wait 2 seconds
   fed3.Feed();                    //Drop pellet
+  
   while (digitalRead (PELLET_WELL) == LOW) {  // Wait here while there's a pellet in the well
   }
-  ////////////////////////////////////////////////////
-  // Use Serial.print statements for debugging
-  ////////////////////////////////////////////////////
+  
+  serialOutput();                 //Print data to Serial Monitor
+  delay (30000);                  //Wait 30 seconds after pellet is removed before starting over again
+}
+
+////////////////////////////////////////////////////
+// Display data via the serial monitor (click Tools > Serial Monitor)
+////////////////////////////////////////////////////
+void serialOutput() {
+  Serial.println(" ");
+  Serial.println ("Pavlovian Session");
+  Serial.print ("Unixtime is: ");
+  Serial.println(fed3.unixtime);
   Serial.println("Pellets   RightPokes   LeftPokes");
   Serial.print("   ");
   Serial.print(fed3.PelletCount);
@@ -41,6 +52,5 @@ void loop() {
   Serial.print("          ");
   Serial.println(fed3.LeftCount);
   Serial.println(" ");
-  
-  delay (30000);                  //Wait 30 seconds after pellet is removed before starting over again
+  Serial.println("**********************************");
 }

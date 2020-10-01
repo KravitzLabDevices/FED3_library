@@ -1,6 +1,6 @@
 /*
   Feeding experimentation device 3 (FED3)
-  Arbitrary Fixed Ratio Example
+  Customizable Fixed Ratio Example
 
   Lex Kravitz
   alexxai@wustl.edu
@@ -8,10 +8,10 @@
 */
 
 ////////////////////////////////////////////////////
-// Set the ratio for the fixed ratio session
+// Customize the fixed ratio session
 ////////////////////////////////////////////////////
 int FR = 5;
-bool LeftActive = false;                                 //Set to false to make right poke active
+bool LeftActive = true;                                 //Set to false to make right poke active
 
 ////////////////////////////////////////////////////
 // Start FED3 library and make the fed3 object

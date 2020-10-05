@@ -99,8 +99,7 @@ class FED3 {
         void colorWipe(uint32_t c, uint8_t wait);
         void RcolorWipe(uint32_t c, uint8_t wait);
         void Blink(byte PIN, byte DELAY_MS, byte loops);
-        void BNC_out(byte DELAY_MS, byte loops);
-
+        
         // Display functions
         void UpdateDisplay();
         void DisplaySDError();
@@ -130,8 +129,9 @@ class FED3 {
         void ErrorStim();
         void leftStimulus();
         void rightStimulus();
+        void BNC(byte DELAY_MS, byte loops);
         
-        // Functions
+        // Pelet and poke functions
         void CheckRatio();
         void CheckPokes();
         void CheckReset();

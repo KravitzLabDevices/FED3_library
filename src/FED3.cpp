@@ -147,11 +147,10 @@ void FED3::Feed() {
 
       if (digitalRead (PELLET_WELL) == LOW) {
         Ratio_Met = false;
-        PelletAvailable = true;
         PelletCount++;
         logdata();
         ratio = ratio + round ((5 * exp (0.2 * PelletCount)) - 5); // this is a formula from Richardson and Roberts (1996) https://www.ncbi.nlm.nih.gov/pubmed/8794935
-
+        PelletAvailable = true;
       }
       
       //When to initiate jam clearing movements
@@ -327,12 +326,12 @@ void FED3::Blink(byte PIN, byte DELAY_MS, byte loops) {
   }
 }
 
-//Short helper function for pulsing on BNC out port
-void FED3::BNC_out(byte DELAY_MS, byte loops) {
+//Short helper function for controlling the BNC port
+void FED3::BNC(byte DELAY_MS, byte loops) {
   for (byte i = 0; i < loops; i++)  {
-    digitalWrite(A0, HIGH);
+    digitalWrite(BNC_OUT, HIGH);
     delay(DELAY_MS);
-    digitalWrite(A0, LOW);
+    digitalWrite(BNC_OUT, LOW);
     delay(DELAY_MS);
   }
 }
@@ -1262,7 +1261,6 @@ void FED3::pelletTrigger() {
   }
   else {
     PelletAvailable = false;
-    BNC_out(500,1);
   }
 }
 

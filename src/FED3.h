@@ -158,6 +158,7 @@ class FED3 {
         int FR = 1;
         byte FEDmode;
         byte previousFEDmode = FEDmode;
+        String sessiontype = "FR1";  //sessiontype defaults to "FR1" but can be overwritten with fed3.sessiontype
 
         // event counters
         int LeftCount = 0;

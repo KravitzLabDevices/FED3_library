@@ -841,9 +841,9 @@ void FED3::WriteToSD() {
   logfile.print(now.second());
   logfile.print(",");
 
-  logfile.print(VER); // Print device name
+  logfile.print(VER); // Print library version
   logfile.print("sketch");
-  logfile.print(sketch);
+  logfile.print(sketch);  //print Sketch number
   logfile.print(",");
 
   logfile.print(FED); // Print device name
@@ -908,8 +908,7 @@ void FED3::WriteToSD() {
   }
 
   else {
-    logfile.print("FR"); // Print ratio
-    logfile.print(FR); // Print ratio
+    logfile.print(sessiontype); // Print sessiontype
     logfile.print(",");
   }
 
@@ -1307,10 +1306,11 @@ void FED3::ReleaseMotor () {
 /********************************************************
   initialize FED3 object
 ********************************************************/
-FED3::FED3(int rev) {
+FED3::FED3(int rev, String sessiontype) {
   if (rev) {
     sketch = rev;
   }
+  sessiontype = "test";
 }
 
 /********************************************************

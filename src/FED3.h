@@ -1,5 +1,5 @@
 /*
-Feeding experimentation device 3 (FED3) library version 1.0.2
+Feeding experimentation device 3 (FED3) library 
 Code by Lex Kravitz, adapted to Arduino library format by Eric Lin
 alexxai@wustl.edu
 erclin@ucdavis.edu
@@ -23,12 +23,13 @@ This device includes hardware and code from:
   Copyright (c) 2019, 2020 Lex Kravitz
 */
 
+#define VER "1.0.5"  
+
 #ifndef FED3_H
 #define FED3_H
 
-#define VER "1.0.2"
-
 //include these libraries
+#include <Arduino.h>
 #include <Adafruit_BusIO_Register.h>
 #include <Adafruit_I2CDevice.h>
 #include <Adafruit_I2CRegister.h>
@@ -68,11 +69,14 @@ extern bool Left;
 class FED3 {
     // Members
     public:
-        FED3(int rev = 0);
-        void begin();
-        void classInterruptHandler(void);
-        void run();
+        FED3(String sketch);
+        String sketch = "undef";
+        String sessiontype = "undef";
 
+        void classInterruptHandler(void);
+        void begin();
+        void run();
+        
         // SD logging
         SdFat SD;
         File logfile;       // Create file object
@@ -92,7 +96,7 @@ class FED3 {
         void getFilename(char *filename);
 
         // Battery
-        float measuredvbat = 1.00;
+        float measuredvbat = 1.0;
         void ReadBatteryLevel();
 
         // Neopixel
@@ -158,12 +162,13 @@ class FED3 {
         int FR = 1;
         byte FEDmode;
         byte previousFEDmode = FEDmode;
-        String sessiontype = "FR1";  //sessiontype defaults to "FR1" but can be overwritten with fed3.sessiontype
-
+  
         // event counters
         int LeftCount = 0;
         int RightCount = 0;
         int PelletCount = 0;
+        float LeftPokeTime = 0.0;
+        float RightPokeTime = 0.0;
 
         // state variables
         bool activePoke = 1;  // 0 for right, 1 for left, defaults to left poke active
@@ -173,7 +178,7 @@ class FED3 {
         bool pellet = false;  // this true for pellet event, false for poke event
 
         // timing variables
-        int retInterval = 0;
+        unsigned long retInterval = 0;
         int pelletTime = 0;
         int unixtime = 0;
 
@@ -188,7 +193,6 @@ class FED3 {
 
         int EndTime = 0;
         int ratio = 1;
-        int sketch = 0;
         int previousFR = FR;
         int previousFED = FED;
 

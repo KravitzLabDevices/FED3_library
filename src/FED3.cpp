@@ -1,5 +1,5 @@
 /*
-  Feeding experimentation device 3 (FED3) library version 1.0.2
+  Feeding experimentation device 3 (FED3) library
   Code by Lex Kravitz, adapted to Arduino library format by Eric Lin
   alexxai@wustl.edu
   erclin@ucdavis.edu
@@ -92,7 +92,6 @@ void FED3::CheckPokes() {
     if (activePoke == 1) {
       CheckRatio();
     }
-    CheckReset();
     LeftReady = false;
   }
 
@@ -105,7 +104,6 @@ void FED3::CheckPokes() {
     if (activePoke == 0) {
       CheckRatio();
     }
-    CheckReset();
     RightReady=false;
   }
 }
@@ -142,18 +140,31 @@ void FED3::Feed() {
       }
       digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver
 
-      dispenseTimer();
+      dispenseTimer();  //special delay between pellets that also checks pellet well n
       numMotorTurns++;
-
+      
+      //If pellet is detected
       if (digitalRead (PELLET_WELL) == LOW) {
+        pelletTime = millis();
+        display.fillCircle(25, 99, 5, BLACK);
+        display.refresh();
+        while (digitalRead (PELLET_WELL) == LOW and retInterval < 60000) {  //After pellet is detected, hang here for up to 1 minute to detect when it is removed
+            retInterval = (millis()-pelletTime);
+            DisplayRetrievalInt();
+        }
         Ratio_Met = false;
         PelletCount++;
+        pellet=true;
         logdata();
+        Serial.print("Retrieval Interval: ");
+        Serial.println(retInterval);
+        retInterval = 0;
         ratio = ratio + round ((5 * exp (0.2 * PelletCount)) - 5); // this is a formula from Richardson and Roberts (1996) https://www.ncbi.nlm.nih.gov/pubmed/8794935
         PelletAvailable = true;
+        UpdateDisplay();
       }
       
-      //When to initiate jam clearing movements
+      //Jam clearing movements
       if (numMotorTurns == 5 or numMotorTurns == 15 or numMotorTurns == 25){
         MinorJam();
       }
@@ -260,8 +271,8 @@ void FED3::CheckReset() {
 // Stimuli
 void FED3::ConditionedStimulus() {
   tone (BUZZER, 4000, 300);
-  colorWipe(strip.Color(0, 2, 2), 40); // Color wipe
-  colorWipe(strip.Color(0, 0, 0), 20); // OFF
+  colorWipe(strip.Color(0, 2, 2), 15); // Color wipe
+  colorWipe(strip.Color(0, 0, 0), 15); // OFF
 }
 
 void FED3::Click() {
@@ -270,8 +281,8 @@ void FED3::Click() {
 
 void FED3::RConditionedStim() {
   tone (BUZZER, 4000, 300);
-  RcolorWipe(strip.Color(0, 2, 2), 40); // Color wipe
-  RcolorWipe(strip.Color(0, 0, 0), 20); // OFF
+  RcolorWipe(strip.Color(0, 2, 2), 15); // Color wipe
+  RcolorWipe(strip.Color(0, 0, 0), 15); // OFF
 }
 
 void FED3::ErrorStim() {
@@ -447,13 +458,11 @@ void FED3::UpdateDisplay() {
 
   if (FEDmode > 0 & FEDmode != 11) {
     display.setCursor(35, 65);
-    display.setTextSize(1);
     display.print("Left: ");
     display.setCursor(95, 65);
     display.print(LeftCount);
 
     display.setCursor(35, 85);
-    display.setTextSize(1);
     display.print("Right:  ");
     display.setCursor(95, 85);
     display.print(RightCount);
@@ -461,13 +470,9 @@ void FED3::UpdateDisplay() {
 
   if (FEDmode != 5 && FEDmode != 9 && FEDmode != 10) {  //don't show pellets if extinction or opto session
     display.setCursor(35, 105);
-    display.setTextSize(1);
     display.print("Pellets:");
     display.setCursor(95, 105);
     display.print(PelletCount);
-    //    display.print("  ");
-    //    display.print(rewardedTrial);
-
   }
 
   //  Battery graphic showing bars indicating voltage levels
@@ -577,7 +582,7 @@ void FED3::DisplaySDError() {
   display.setRotation(3);
   display.setTextColor(BLACK);
   display.setCursor(20, 40);
-  display.setTextSize(2);
+  display.setTextSize(1);
   display.println("   Check");
   display.setCursor(10, 60);
   display.println("  SD Card!");
@@ -619,14 +624,12 @@ void FED3::DisplaySleep() {
   display.refresh();
 }
 
-//Display pellet retreival interval
+//Display pellet retrieval interval
 void FED3::DisplayRetrievalInt() {
-  if (retInterval < 120) { //only display a retrieval interval if it's less than 2 minutes
-    display.setCursor(120, 105);
+    display.fillRoundRect (99, 22, 50, 15, 1, WHITE);  //erase the pellet data on screen without clearing the entire screen by pasting a white box over it
+    display.setCursor(100, 34);
     display.print (retInterval);
-    display.print("s");
     display.refresh();
-  }
 }
 
 /********************************************************
@@ -787,7 +790,7 @@ void FED3::CreateDataFile () {
 //Write the header to the datafile
 void FED3::writeHeader() {
   // Write data header to file of uSD.
-  logfile.println("MM:DD:YYYY hh:mm:ss,FED_Version,Device_Number,Battery_Voltage,Motor_Turns,Session_Type,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Retrieval_Time");
+  logfile.println("MM:DD:YYYY hh:mm:ss,LibaryVersion_Sketch,Device_Number,Battery_Voltage,Motor_Turns,Trial_Info,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Retrieval_Time");
 }
 
 //write a configfile (this contains the FED device number)
@@ -842,8 +845,8 @@ void FED3::WriteToSD() {
   logfile.print(",");
 
   logfile.print(VER); // Print library version
-  logfile.print("sketch");
-  logfile.print(sketch);  //print Sketch number
+  logfile.print("_");
+  logfile.print(sessiontype);  //print Sketch identifier
   logfile.print(",");
 
   logfile.print(FED); // Print device name
@@ -908,7 +911,8 @@ void FED3::WriteToSD() {
   }
 
   else {
-    logfile.print(sessiontype); // Print sessiontype
+    logfile.print("FR"); // Print FR 
+    logfile.print(FR); // Print FR ratio
     logfile.print(",");
   }
 
@@ -928,7 +932,7 @@ void FED3::WriteToSD() {
 
   logfile.print(LeftCount); // Print Left poke count
   logfile.print(",");
-
+    
   logfile.print(RightCount); // Print Right poke count
   logfile.print(",");
 
@@ -939,12 +943,12 @@ void FED3::WriteToSD() {
     logfile.println(sqrt (-1)); // print NaN if it's not a pellet line!
   }
 
-  else if (retInterval < 120 ) {  // only log retrieval intervals below 2 minutes
-    logfile.println(retInterval); // print interval between pellet dispensing and being taken
+  else if (retInterval < 60000 ) {  // only log retrieval intervals below 2 minutes
+    logfile.println(retInterval/1000.000); // print interval between pellet dispensing and being taken
   }
 
-  else if (retInterval >= 120) {
-    logfile.println("Timed_out"); // print "Timed_out" if retreival interval is >120
+  else if (retInterval >= 60000) {
+    logfile.println("Timed_out"); // print "Timed_out" if retreival interval is >60s
   }
 
   else {
@@ -1044,6 +1048,7 @@ void FED3::SelectMode() {
     colorWipe(strip.Color(0, 0, 0), 20); // OFF
     EndTime = millis();
     SetFED = true;
+    setTimed = true;
     SetDeviceNumber();
   }
 
@@ -1107,23 +1112,19 @@ void FED3::SelectMode() {
 
 // Change device number
 void FED3::SetDeviceNumber() {
-  // This code is activated when both pokes are pressed simultaneously
-  // from the start screen, allowing the user to set the device #
-  // of the FED right from the device
+  // This code is activated when both pokes are pressed simultaneously from the 
+  //start screen, allowing the user to set the device # of the FED on the device
 
   while (SetFED == true) {
     //adjust FED device number
     display.fillRoundRect (0, 0, 200, 80, 0, WHITE);
     display.setCursor(5, 46);
     display.println("Set Device Number");
-
-    display.fillRoundRect (36, 122, 30, 18, 0, WHITE);
-    display.fillRoundRect (65, 122, 140, 18, 0, WHITE);
-
+    display.fillRoundRect (36, 122, 180, 28, 0, WHITE);
     delay (100);
     display.refresh();
 
-    display.setCursor(35, 135);
+    display.setCursor(35, 138);
     if (FED < 100 & FED >= 10) {
       display.print ("0");
     }
@@ -1152,7 +1153,6 @@ void FED3::SetDeviceNumber() {
     }
     if (millis() - EndTime > 3000) {  // if 3 seconds passes confirm device #
       SetFED = false;
-      setTimed = true;
       display.setCursor(5, 70);
       display.println("...Set!");
       delay (500);
@@ -1208,7 +1208,6 @@ void FED3::SetDeviceNumber() {
       writeFEDmode();
       writeConfigFile();
       NVIC_SystemReset();      // processor software reset
-
     }
   }
 }
@@ -1238,17 +1237,18 @@ void FED3::Timeout() {
 
 //Read battery level
 void FED3::ReadBatteryLevel() {
+  analogReadResolution(10);
   measuredvbat = analogRead(VBATPIN);
   measuredvbat *= 2;    // we divided by 2, so multiply back
   measuredvbat *= 3.3;  // Multiply by 3.3V, our reference voltage
   measuredvbat /= 1024; // convert to voltage
 }
 
-//Function for cutting off the Feed loop if a pellet is detected
+//Function for delaying between motor movements, but also cutting off the Feed loop if a pellet is detected
 void FED3::dispenseTimer() {
   for (int i = 1; i < 300; i++) {
     if (digitalRead (PELLET_WELL) == HIGH && PelletAvailable == false) {
-      delay(10);
+      delay(5);
     }
   }
 }
@@ -1290,8 +1290,9 @@ void FED3::goToSleep () {
   ReleaseMotor();
   UpdateDisplay();
   if (EnableSleep==true){
-    LowPower.sleep(1000);  //Comment this out if you want to use the Serial connection, LowPower.sleep breaks it
+    LowPower.sleep(1000);  
   }
+  pelletTrigger();       //Every second check pellet well to make sure it's not stuck thinking there's a pellet when there's not
 }
 
 //Pull all motor pins low to de-energize stepper and save power, also disable motor driver with the EN pin
@@ -1306,11 +1307,8 @@ void FED3::ReleaseMotor () {
 /********************************************************
   initialize FED3 object
 ********************************************************/
-FED3::FED3(int rev) {
-  if (rev) {
-    sketch = rev;
-  }
-  sessiontype = "test";
+FED3::FED3(String sketch) {
+  sessiontype = sketch;
 }
 
 /********************************************************
@@ -1334,22 +1332,22 @@ void FED3::versionDisplay(){
   display.clearDisplay();
   display.setCursor(15, 55);
   display.print("FED3");
- 
+  
+  //print filename on screen
   display.setTextSize(1);
   display.setCursor(2, 138);
   display.print(filename);
 
+  //Display FED verison number at startup
   display.setCursor(2, 119);
   display.print("v: ");
   display.print(VER);
-  display.print("_sketch");
-  display.print(sketch);
+  display.print("_");
+  display.print(sessiontype);
   display.refresh();
     
-  //Display FED verison number at startup
+  //Draw animated mouse...
   for (int i = -50; i < 200; i += 15) {
-    //Draw animated mouse...
-
     display.fillRoundRect (i + 25, 77, 15, 10, 6, BLACK);    //head
     display.fillRoundRect (i + 22, 75, 8, 5, 3, BLACK);      //ear
     display.fillRoundRect (i + 30, 79, 1, 1, 1, WHITE);      //eye
@@ -1379,6 +1377,21 @@ void FED3::versionDisplay(){
     display.refresh();
     delay (80);
     display.fillRoundRect (i - 25, 75, 80, 32, 1, WHITE);
+    
+      // Push both pokes to edit device number
+    if ((digitalRead(LEFT_POKE) == LOW) && (digitalRead(RIGHT_POKE) == LOW)) {
+        setTimed = false;
+        tone (BUZZER, 1000, 200);
+        delay(400);
+        tone (BUZZER, 1000, 500);
+        delay(200);
+        tone (BUZZER, 3000, 600);
+        colorWipe(strip.Color(2, 2, 2), 40); // Color wipe
+        colorWipe(strip.Color(0, 0, 0), 20); // OFF
+        EndTime = millis();
+        SetFED = true;
+        SetDeviceNumber();
+    }
   }
 }
 
@@ -1412,6 +1425,10 @@ void FED3::begin() {
   display.begin();
   const int minorHalfSize = min(display.width(), display.height()) / 2;
   display.setFont(&FreeSans9pt7b);
+  display.setRotation(3);
+  display.setTextColor(BLACK);
+  display.setTextSize(1);
+  display.refresh();
  
   // Initialize SD card and create the datafile
   SdFile::dateTimeCallback(dateTime);
@@ -1427,6 +1444,9 @@ void FED3::begin() {
   CreateDataFile();
   writeHeader();
   EndTime = 0;
+  
+  //read battery level
+  ReadBatteryLevel();
   
   // Startup display
   versionDisplay();

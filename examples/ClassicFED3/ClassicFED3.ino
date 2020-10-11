@@ -8,7 +8,7 @@
 */
 
 #include <FED3.h>                //Include the FED3 library 
-int sketch = 1;                  //Name the sketch with a unique integer
+String sketch = "Classic";      //Unique identifier text for each sketch      
 FED3 fed3 (sketch);              //Start the FED3 object
 
 void setup() {

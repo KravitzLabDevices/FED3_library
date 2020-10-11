@@ -17,13 +17,13 @@ bool LeftActive = true;                                 //Set to false to make r
 // Start FED3 library and make the fed3 object
 ////////////////////////////////////////////////////
 #include <FED3.h>                                       //Include the FED3 library 
-int sketch = 3;                                         //Name the sketch with a unique integer
+String sketch = "FRCustom";                             //Unique identifier text for each sketch      
 FED3 fed3 (sketch);                                     //Start the FED3 object
 
 void setup() {
   fed3.begin();                                         //Setup the FED3 hardware
   fed3.FEDmode = 1;                                     //Customize the display options to FEDmode 1 for an operant session
-  fed3.FR = FR;                                         //Share the FR ratio with the fed3 library so it is logged on the SD card and displayed on the screen
+  fed3.FR =  ;                                         //Share the FR ratio with the fed3 library so it is logged on the SD card and displayed on the screen
   fed3.EnableSleep = false;                             //Set to false to inhibit sleeping to use the Serial port; Set to true to reduce battery power
 }
 

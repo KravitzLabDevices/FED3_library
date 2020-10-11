@@ -1306,7 +1306,7 @@ void FED3::ReleaseMotor () {
 /********************************************************
   initialize FED3 object
 ********************************************************/
-FED3::FED3(int rev, String sessiontype) {
+FED3::FED3(int rev) {
   if (rev) {
     sketch = rev;
   }

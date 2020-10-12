@@ -100,9 +100,10 @@ class FED3 {
         void ReadBatteryLevel();
 
         // Neopixel
-        void colorWipe(uint32_t c, uint8_t wait);
-        void RcolorWipe(uint32_t c, uint8_t wait);
+        void pixelsOn(uint32_t c);
+        void pixelsOff();
         void Blink(byte PIN, byte DELAY_MS, byte loops);
+        void colorWipe(uint32_t c, uint8_t wait);
         
         // Display functions
         void UpdateDisplay();
@@ -129,13 +130,13 @@ class FED3 {
         // Stimuli
         void ConditionedStimulus();
         void Click();
-        void RConditionedStim();
         void ErrorStim();
         void leftStimulus();
         void rightStimulus();
         void BNC(byte DELAY_MS, byte loops);
         
         // Pelet and poke functions
+        int pokeDelay = 200;
         void CheckRatio();
         void CheckPokes();
         void CheckReset();
@@ -176,7 +177,7 @@ class FED3 {
         bool Right = false;
         bool PelletAvailable = false;
         bool pellet = false;  // this true for pellet event, false for poke event
-
+        
         // timing variables
         unsigned long retInterval = 0;
         int pelletTime = 0;

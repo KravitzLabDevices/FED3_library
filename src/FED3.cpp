@@ -84,28 +84,34 @@ void FED3::CheckPokes() {
   if (Right==false) RightReady=true;
 
   if (Left and LeftReady==true and PelletAvailable == false) {
-    LeftCount ++;
-    display.fillCircle(25, 59, 5, BLACK);
-    display.refresh();
-    pellet = false;
-    logdata();
-    if (activePoke == 1) {
-      CheckRatio();
-    }
-    LeftReady = false;
+    delay (pokeDelay);
+    if (Left and LeftReady==true and PelletAvailable == false) {
+        LeftCount ++;
+        display.fillCircle(25, 59, 5, BLACK);
+        display.refresh();
+        pellet = false;
+        logdata();
+        if (activePoke == 1) {
+          CheckRatio();
+        }
+        LeftReady = false;
+     }
   }
-
+  
   if (Right and RightReady==true and PelletAvailable == false) {
-    RightCount ++;
-    display.fillCircle(25, 79, 5, BLACK);
-    display.refresh();
-    pellet = false;
-    logdata();
-    if (activePoke == 0) {
-      CheckRatio();
+      delay (pokeDelay);
+      if (Right and RightReady==true and PelletAvailable == false) {
+        RightCount ++;
+        display.fillCircle(25, 79, 5, BLACK);
+        display.refresh();
+        pellet = false;
+        logdata();
+        if (activePoke == 0) {
+          CheckRatio();
+        }
+        RightReady=false;
+      }
     }
-    RightReady=false;
-  }
 }
 
 /********************************************************
@@ -126,22 +132,21 @@ void FED3::CheckRatio(){
 }
 
 /********************************************************
-  Feed function drops a pellet
+  Feed function keeps dispensing until FED drops a pellet
 ********************************************************/
 void FED3::Feed() {
-   UpdateDisplay();
-   while (digitalRead (PELLET_WELL) == HIGH and PelletAvailable == false) {
+   while (PelletAvailable == false) {
       digitalWrite (MOTOR_ENABLE, HIGH);  //Enable motor driver
-
       for (int i = 1; i < 10; i++) {
         if (digitalRead (PELLET_WELL) == HIGH) {
           stepper.step(-30);
         }
       }
+      pixelsOff();      //turn pixels off if they're on
       digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver
-
-      dispenseTimer();  //special delay between pellets that also checks pellet well n
+      dispenseTimer();  //delay between pellets that also checks pellet well
       numMotorTurns++;
+      UpdateDisplay();  
       
       //If pellet is detected
       if (digitalRead (PELLET_WELL) == LOW) {
@@ -270,19 +275,12 @@ void FED3::CheckReset() {
 ********************************************************/
 // Stimuli
 void FED3::ConditionedStimulus() {
-  tone (BUZZER, 4000, 300);
-  colorWipe(strip.Color(0, 2, 2), 15); // Color wipe
-  colorWipe(strip.Color(0, 0, 0), 15); // OFF
+  pixelsOn((0, 2, 2)); 
+  tone (BUZZER, 4000, 200);
 }
 
 void FED3::Click() {
   tone (BUZZER, 800, 8);
-}
-
-void FED3::RConditionedStim() {
-  tone (BUZZER, 4000, 300);
-  RcolorWipe(strip.Color(0, 2, 2), 15); // Color wipe
-  RcolorWipe(strip.Color(0, 0, 0), 15); // OFF
 }
 
 void FED3::ErrorStim() {
@@ -305,6 +303,26 @@ void FED3::rightStimulus() {
   strip.show();
 }
 
+//Turn all pixels on to a specific color
+void FED3::pixelsOn(uint32_t c) {
+  digitalWrite (MOTOR_ENABLE, HIGH);  //ENABLE motor driver
+  for (uint16_t i = 0; i < strip.numPixels(); i++) {
+    strip.setPixelColor(i, c);
+    strip.show();
+  }
+  digitalWrite (MOTOR_ENABLE, LOW);  //DISABLE motor driver
+}
+
+//Turn all pixels off
+void FED3::pixelsOff() {
+  digitalWrite (MOTOR_ENABLE, HIGH);  //ENABLE motor driver
+  for (uint16_t i = 0; i < strip.numPixels(); i++) {
+    strip.setPixelColor(i, (0,0,0));
+    strip.show();
+  }
+  digitalWrite (MOTOR_ENABLE, LOW);  //DISABLE motor driver
+}
+
 //colorWipe does a color wipe from left to right
 void FED3::colorWipe(uint32_t c, uint8_t wait) {
   digitalWrite (MOTOR_ENABLE, HIGH);  //ENABLE motor driver
@@ -314,17 +332,6 @@ void FED3::colorWipe(uint32_t c, uint8_t wait) {
     delay(wait);
   }
   digitalWrite (MOTOR_ENABLE, LOW);  //DISABLE motor driver
-}
-
-//RcolorWipe does a color wipe from right to left
-void FED3::RcolorWipe(uint32_t c, uint8_t wait) {  //reverse color wipe
-  digitalWrite (MOTOR_ENABLE, HIGH);  //ENABLE RGB/motor driver
-  for (uint16_t j = 0; j < strip.numPixels(); j++) {
-    strip.setPixelColor(7 - j, c);
-    strip.show();
-    delay(wait);
-    digitalWrite (MOTOR_ENABLE, LOW);  //DISABLE RGB/motor driver
-  }
 }
 
 //Short helper function for blinking LEDs and BNC out port

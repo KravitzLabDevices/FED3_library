@@ -23,9 +23,9 @@ void loop() {
   // Write your behavioral program below this line  //
   ////////////////////////////////////////////////////
   if (fed3.Left and fed3.PelletAvailable == false) {    //If left poke is triggered and pellet is not in the well
-    serialOutput();                                     //Print data to Serial Monitor
     fed3.CheckPokes();                                  //Run CheckPokes to log the pokes
     fed3.ConditionedStimulus();                         //Deliver conditioned stimulus (tone and lights)
+    serialOutput();                                     //Print data to Serial Monitor
     fed3.Feed();                                        //Deliver pellet
   }
 }

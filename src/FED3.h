@@ -23,7 +23,7 @@ This device includes hardware and code from:
   Copyright (c) 2019, 2020 Lex Kravitz
 */
 
-#define VER "1.0.5"  
+#define VER "1.0.3"  
 
 #ifndef FED3_H
 #define FED3_H
@@ -113,6 +113,8 @@ class FED3 {
         void DisplayDispense();
         void DisplaySleep();
         void DisplayRetrievalInt();
+        void DisplayLeftInt();
+        void DisplayRightInt();
         
         // Startup menu function
         void ClassicMenu();
@@ -136,9 +138,10 @@ class FED3 {
         void BNC(byte DELAY_MS, byte loops);
         
         // Pelet and poke functions
-        int pokeDelay = 200;
         void CheckRatio();
         void CheckPokes();
+        void leftPokeResponse();
+        void rightPokeResponse();
         void CheckReset();
         void Feed();
         void dispenseTimer();
@@ -168,27 +171,26 @@ class FED3 {
         int LeftCount = 0;
         int RightCount = 0;
         int PelletCount = 0;
-        float LeftPokeTime = 0.0;
-        float RightPokeTime = 0.0;
-
+        
         // state variables
         bool activePoke = 1;  // 0 for right, 1 for left, defaults to left poke active
         bool Left = false;
         bool Right = false;
         bool PelletAvailable = false;
         bool pellet = false;  // this true for pellet event, false for poke event
+        bool firstDispense = true;
         
         // timing variables
-        unsigned long retInterval = 0;
+        int retInterval = 0;
+        int leftInterval = 0;
+        int rightInterval = 0;
+        int leftPokeTime = 0.0;
+        int rightPokeTime = 0.0;
         int pelletTime = 0;
         int unixtime = 0;
 
         // flags
-        bool CountReady = false;
-        bool LeftReady = false;
-        bool RightReady = false;
         bool TimeoutReady = true;
-        bool OutReady = false;
         bool Ratio_Met = false;
         bool EnableSleep = true;
 

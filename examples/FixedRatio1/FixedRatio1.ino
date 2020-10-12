@@ -7,7 +7,7 @@
 */
 
 #include <FED3.h>                                       //Include the FED3 library 
-String sketch = "FR1";                                  //Unique identifier text for each sketch      
+String sketch = "FR1";                                  //Unique identifier text for each sketch
 FED3 fed3 (sketch);                                     //Start the FED3 object
 
 void setup() {
@@ -22,11 +22,15 @@ void loop() {
   ////////////////////////////////////////////////////
   // Write your behavioral program below this line  //
   ////////////////////////////////////////////////////
-  if (fed3.Left and fed3.PelletAvailable == false) {    //If left poke is triggered and pellet is not in the well
-    fed3.CheckPokes();                                  //Run CheckPokes to log the pokes
+
+  if (fed3.Left) {                                      //If left poke is triggered
+    fed3.leftPokeResponse();                            //Count and log left poke
     fed3.ConditionedStimulus();                         //Deliver conditioned stimulus (tone and lights)
-    serialOutput();                                     //Print data to Serial Monitor
     fed3.Feed();                                        //Deliver pellet
+    serialOutput();                                     //Print data to Serial Monitor
+  }
+  if (fed3.Right) {                                     //If right poke is triggered
+    fed3.rightPokeResponse();                           //Count and log right poke
   }
 }
 

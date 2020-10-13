@@ -833,7 +833,7 @@ void FED3::CreateDataFile () {
 //Write the header to the datafile
 void FED3::writeHeader() {
   // Write data header to file of uSD.
-  logfile.println("MM:DD:YYYY hh:mm:ss,LibaryVersion_Sketch,Device_Number,Battery_Voltage,Motor_Turns,Trial_Info,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Retrieval_Time,Poke_Time");
+  logfile.println("MM:DD:YYYY hh:mm:ss,LibaryVersion_Sketch,Device_Number,Battery_Voltage,Motor_Turns,Trial_Info,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,Poke_Time");
 }
 
 //write a configfile (this contains the FED device number)
@@ -1019,6 +1019,9 @@ void FED3::WriteToSD() {
   logfile.print(",");
 
   logfile.print(PelletCount); // print Pellet counts
+  logfile.print(",");
+
+  logfile.print(BlockPelletCount); // print Block Pellet counts
   logfile.print(",");
 
   /////////////////////////////////

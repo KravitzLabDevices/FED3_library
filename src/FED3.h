@@ -23,7 +23,7 @@ This device includes hardware and code from:
   Copyright (c) 2019, 2020 Lex Kravitz
 */
 
-#define VER "1.0.3"  
+#define VER "1.0.7"  
 
 #ifndef FED3_H
 #define FED3_H
@@ -171,6 +171,7 @@ class FED3 {
         int LeftCount = 0;
         int RightCount = 0;
         int PelletCount = 0;
+        int BlockPelletCount = 0;
         
         // state variables
         bool activePoke = 1;  // 0 for right, 1 for left, defaults to left poke active

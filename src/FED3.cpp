@@ -55,11 +55,10 @@ static void outsideRightTriggerHandler(void) {
   FED3 main loop 
 **********************************************/
 void FED3::run() {
-  //This function should be called at least once per loop.  It updates the timestamp, 
-  //checks the pokes, updates the display, and goes to sleep if appropriate
+  //This function should be called at least once per loop.  It updates the time, 
+  //updates the display, and goes to sleep if appropriate
   DateTime now = rtc.now();
   unixtime  = now.unixtime();
-  UpdateDisplay();
   goToSleep();
 }
 
@@ -97,7 +96,6 @@ void FED3::rightPokeResponse(){
     RightCount ++;
     UpdateDisplay();
     DisplayRightInt();
-    UpdateDisplay();
     pellet = false;
     logdata();
     if (activePoke == 0) {
@@ -650,8 +648,8 @@ void FED3::DisplaySleep() {
 
 //Display pellet retrieval interval
 void FED3::DisplayRetrievalInt() {
-    display.fillRoundRect (99, 22, 50, 15, 1, WHITE); 
-    display.setCursor(100, 34);
+    display.fillRoundRect (79, 22, 70, 15, 1, WHITE); 
+    display.setCursor(80, 34);
     display.print (retInterval);
     display.print ("ms");
     display.refresh();
@@ -659,8 +657,8 @@ void FED3::DisplayRetrievalInt() {
 
 //Display left poke duration
 void FED3::DisplayLeftInt() {
-    display.fillRoundRect (99, 22, 50, 15, 1, WHITE);  
-    display.setCursor(100, 34);
+    display.fillRoundRect (79, 22, 70, 15, 1, WHITE);  
+    display.setCursor(80, 34);
     display.print (leftInterval);
     display.print ("ms");
     display.refresh();
@@ -668,8 +666,8 @@ void FED3::DisplayLeftInt() {
 
 //Display right poke duration
 void FED3::DisplayRightInt() {
-    display.fillRoundRect (99, 22, 50, 15, 1, WHITE);  
-    display.setCursor(100, 34);
+    display.fillRoundRect (79, 22, 70, 15, 1, WHITE);  
+    display.setCursor(80, 34);
     display.print (rightInterval);
     display.print ("ms");
     display.refresh();
@@ -1380,7 +1378,7 @@ void FED3::rightTrigger() {
 /**********************************************
   Functions to control processor sleeping
 **********************************************/
-void FED3::goToSleep () {
+void FED3::goToSleep() {
   ReleaseMotor();
   UpdateDisplay();
   if (EnableSleep==true){

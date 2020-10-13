@@ -634,7 +634,7 @@ void FED3::DisplayDispense() {
   display.fillRoundRect (6, 20, 200, 22, 1, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
   display.setCursor(6, 36);
   display.print("Dispensing...");
-  display.refresh();
+  display.refresh(); 
 }
 
 //Display when FED is sleepnig

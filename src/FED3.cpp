@@ -34,7 +34,7 @@
   Start FED3 and RTC objects
 ********************************************************/
 FED3 *pointerToFED3;
-RTC_PCF8523 rtc;
+RTC_PCF8523 rtc; 
 
 /********************************************************
   Interrupt handlers
@@ -831,7 +831,7 @@ void FED3::CreateDataFile () {
 //Write the header to the datafile
 void FED3::writeHeader() {
   // Write data header to file of uSD.
-  logfile.println("MM:DD:YYYY hh:mm:ss,LibaryVersion_Sketch,Device_Number,Battery_Voltage,Motor_Turns,Trial_Info,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Retrieval_Time,Poke_Time");
+  logfile.println("MM:DD:YYYY hh:mm:ss,LibaryVersion_Sketch,Device_Number,Battery_Voltage,Motor_Turns,Trial_Info,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,Poke_Time");
 }
 
 //write a configfile (this contains the FED device number)
@@ -975,6 +975,12 @@ void FED3::WriteToSD() {
   }
 
   /////////////////////////////////
+  // Log ratio schedule
+  /////////////////////////////////
+  logfile.print(FR);
+  logfile.print(",");
+
+  /////////////////////////////////
   // Log event type (pellet, right, left)
   /////////////////////////////////
   if (pellet == true ) {
@@ -1013,6 +1019,9 @@ void FED3::WriteToSD() {
   logfile.print(PelletCount); // print Pellet counts
   logfile.print(",");
 
+  logfile.print(BlockPelletCount); // print Block Pellet counts
+  logfile.print(",");
+
   /////////////////////////////////
   // Log pellet retrieval interval
   /////////////////////////////////
@@ -1048,7 +1057,9 @@ void FED3::WriteToSD() {
     logfile.println(rightInterval/1000.000); // print left poke timing
   }
 
-  //flush data only on pellet trials 
+  /////////////////////////////////
+  // logfile.flush write to the SD card
+  /////////////////////////////////
   if (pellet==true) {
     Blink(GREEN_LED, 100, 2);
     logfile.flush();

@@ -650,7 +650,7 @@ void FED3::DisplaySleep() {
 
 //Display pellet retrieval interval
 void FED3::DisplayRetrievalInt() {
-    display.fillRoundRect (99, 22, 50, 15, 1, WHITE); 
+    display.fillRoundRect (79, 22, 70, 15, 1, WHITE); 
     display.setCursor(80, 34);
     display.print (retInterval);
     display.print ("ms");
@@ -659,7 +659,7 @@ void FED3::DisplayRetrievalInt() {
 
 //Display left poke duration
 void FED3::DisplayLeftInt() {
-    display.fillRoundRect (99, 22, 50, 15, 1, WHITE);  
+    display.fillRoundRect (79, 22, 70, 15, 1, WHITE);  
     display.setCursor(80, 34);
     display.print (leftInterval);
     display.print ("ms");
@@ -668,7 +668,7 @@ void FED3::DisplayLeftInt() {
 
 //Display right poke duration
 void FED3::DisplayRightInt() {
-    display.fillRoundRect (99, 22, 50, 15, 1, WHITE);  
+    display.fillRoundRect (79, 22, 70, 15, 1, WHITE);  
     display.setCursor(80, 34);
     display.print (rightInterval);
     display.print ("ms");

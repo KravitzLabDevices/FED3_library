@@ -34,7 +34,7 @@
   Start FED3 and RTC objects
 ********************************************************/
 FED3 *pointerToFED3;
-RTC_PCF8523 rtc;
+RTC_PCF8523 rtc; 
 
 /********************************************************
   Interrupt handlers

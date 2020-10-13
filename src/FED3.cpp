@@ -55,11 +55,10 @@ static void outsideRightTriggerHandler(void) {
   FED3 main loop 
 **********************************************/
 void FED3::run() {
-  //This function should be called at least once per loop.  It updates the timestamp, 
-  //checks the pokes, updates the display, and goes to sleep if appropriate
+  //This function should be called at least once per loop.  It updates the time, 
+  //updates the display, and goes to sleep if appropriate
   DateTime now = rtc.now();
   unixtime  = now.unixtime();
-  UpdateDisplay();
   goToSleep();
 }
 
@@ -97,7 +96,6 @@ void FED3::rightPokeResponse(){
     RightCount ++;
     UpdateDisplay();
     DisplayRightInt();
-    UpdateDisplay();
     pellet = false;
     logdata();
     if (activePoke == 0) {
@@ -1380,7 +1378,7 @@ void FED3::rightTrigger() {
 /**********************************************
   Functions to control processor sleeping
 **********************************************/
-void FED3::goToSleep () {
+void FED3::goToSleep() {
   ReleaseMotor();
   UpdateDisplay();
   if (EnableSleep==true){

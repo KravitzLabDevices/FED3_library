@@ -23,7 +23,7 @@ FED3 fed3 (sketch);                                     //Start the FED3 object
 void setup() {
   fed3.begin();                                         //Setup the FED3 hardware
   fed3.FEDmode = 1;                                     //Customize the display options to FEDmode 1 for an operant session
-  fed3.FR =  ;                                         //Share the FR ratio with the fed3 library so it is logged on the SD card and displayed on the screen
+  fed3.FR = FR;                                         //Share the FR ratio with the fed3 library so it is logged on the SD card and displayed on the screen
   fed3.EnableSleep = false;                             //Set to false to inhibit sleeping to use the Serial port; Set to true to reduce battery power
 }
 
@@ -40,9 +40,9 @@ void loop() {
   ////////////////////////////////////////////////////
   if (LeftActive) {
     fed3.activePoke = 1;                                  //update activepoke variable in the FED3 library for accurate logging and display
-    //if left poke is triggered, leftpoke is ready, and pellet is not in the well
-    if (fed3.Left and fed3.LeftReady and fed3.PelletAvailable == false) {
-      fed3.CheckPokes();                                  //run CheckPokes to log the pokes
+    //if left poke is triggered
+    if (fed3.Left) {
+      fed3.leftResponse();                                  //run CheckPokes to log the pokes
       if (fed3.LeftCount % FR != 0) {                     //if fixed ratio is not met
         fed3.Click();                                     //click stimulus
       }
@@ -61,8 +61,8 @@ void loop() {
   else {
     fed3.activePoke = 0;
     //if right poke is triggered, rightpoke is ready, and pellet is not in the well
-    if (fed3.Right and fed3.RightReady and fed3.PelletAvailable == false) {
-      fed3.CheckPokes();                                  //run CheckPokes to log the pokes
+    if (fed3.Right) {
+      fed3.rightPokeResponse();                 //run CheckPokes to log the pokes
       if (fed3.RightCount % FR != 0) {                    //if fixed ratio is not met
         fed3.Click();                                     //click stimulus
       }

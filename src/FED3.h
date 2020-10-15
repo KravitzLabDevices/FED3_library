@@ -23,7 +23,7 @@ This device includes hardware and code from:
   Copyright (c) 2019, 2020 Lex Kravitz
 */
 
-#define VER "1.0.7"  
+#define VER "1.0.3"  
 
 #ifndef FED3_H
 #define FED3_H

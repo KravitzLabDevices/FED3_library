@@ -32,6 +32,6 @@ void serialOutput() {
   Serial.println(fed3.unixtime);
   Serial.println("Pellets");
   Serial.print("   ");
-  Serial.print(fed3.PelletCount);
+  Serial.println(fed3.PelletCount);
   Serial.println("**********************************");
 }

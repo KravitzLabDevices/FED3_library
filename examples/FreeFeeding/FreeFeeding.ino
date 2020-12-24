@@ -18,6 +18,8 @@ void setup() {
 
 void loop() {
   fed3.run();                                           //Call fed.run at least once per loop
+  fed3.Feed();                                          //Drop pellet!
+  serialOutput();
 }
 
 ////////////////////////////////////////////////////

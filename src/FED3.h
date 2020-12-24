@@ -3,7 +3,7 @@ Feeding experimentation device 3 (FED3) library
 Code by Lex Kravitz, adapted to Arduino library format by Eric Lin
 alexxai@wustl.edu
 erclin@ucdavis.edu
-October 2020
+December 2020
 
 FED was originally developed by Nguyen at al and published in 2016:
 https://www.ncbi.nlm.nih.gov/pubmed/27060385
@@ -23,7 +23,7 @@ This device includes hardware and code from:
   Copyright (c) 2019, 2020 Lex Kravitz
 */
 
-#define VER "1.0.3"  
+#define VER "1.0.4"  
 
 #ifndef FED3_H
 #define FED3_H

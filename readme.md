@@ -11,7 +11,7 @@ The goal of this library is to automate most of the housekeeping functions of FE
 
 ![FED3 libraries](https://github.com/KravitzLabDevices/FED3/blob/main/photos/FED3_libraries.png)
 
-3. Check out the examples to get an idea of how to use the code
+3. Check out the examples of how to use the FED3 library to write programs
 ![FED3 examples](https://raw.githubusercontent.com/KravitzLabDevices/FED3/main/photos/FED3example.jpg)
 
 

@@ -501,47 +501,47 @@ void FED3::UpdateDisplay() {
   //  Battery graphic showing bars indicating voltage levels
   //Clear battery area and draw outline of battery, only do this when numMotorTurns = 0 so it doesn't flicker;
   if (numMotorTurns == 0) {
-    display.fillRoundRect (117, 2, 40, 16, 3, WHITE);
-    display.drawRoundRect (116, 1, 42, 18, 3, BLACK);
-    display.drawRoundRect (157, 6, 6, 8, 2, BLACK);
+    display.fillRect (117, 2, 40, 16, WHITE);
+    display.drawRect (116, 1, 42, 18, BLACK);
+    display.drawRect (157, 6, 6, 8, BLACK);
   }
   //4 bars
   if (measuredvbat > 3.85 & numMotorTurns == 0) {
-    display.fillRoundRect (120, 4, 7, 12, 1, BLACK);
-    display.fillRoundRect (129, 4, 7, 12, 1, BLACK);
-    display.fillRoundRect (138, 4, 7, 12, 1, BLACK);
-    display.fillRoundRect (147, 4, 7, 12, 1, BLACK);
+    display.fillRect (120, 4, 7, 12, BLACK);
+    display.fillRect (129, 4, 7, 12, BLACK);
+    display.fillRect (138, 4, 7, 12, BLACK);
+    display.fillRect (147, 4, 7, 12, BLACK);
   }
 
   //3 bars
   else if (measuredvbat > 3.7 & numMotorTurns == 0) {
-    display.fillRoundRect (119, 3, 26, 13, 1, WHITE);
-    display.fillRoundRect (120, 4, 7, 12, 1, BLACK);
-    display.fillRoundRect (129, 4, 7, 12, 1, BLACK);
-    display.fillRoundRect (138, 4, 7, 12, 1, BLACK);
+    display.fillRect (119, 3, 26, 13, WHITE);
+    display.fillRect (120, 4, 7, 12, BLACK);
+    display.fillRect (129, 4, 7, 12, BLACK);
+    display.fillRect (138, 4, 7, 12, BLACK);
   }
 
   //2 bars
   else if (measuredvbat > 3.55 & numMotorTurns == 0) {
-    display.fillRoundRect (119, 3, 26, 13, 1, WHITE);
-    display.fillRoundRect (120, 4, 7, 12, 1, BLACK);
-    display.fillRoundRect (129, 4, 7, 12, 1, BLACK);
+    display.fillRect (119, 3, 26, 13, WHITE);
+    display.fillRect (120, 4, 7, 12, BLACK);
+    display.fillRect (129, 4, 7, 12, BLACK);
   }
 
   //1 bar
   else if (& numMotorTurns == 0) {
-    display.fillRoundRect (119, 3, 26, 13, 1, WHITE);
-    display.fillRoundRect (120, 4, 7, 12, 1, BLACK);
+    display.fillRect (119, 3, 26, 13, WHITE);
+    display.fillRect (120, 4, 7, 12, BLACK);
   }
 
 
   //Box around data area of screen
-  display.drawRoundRect (5, 45, 158, 70, 3, BLACK);
+  display.drawRect (5, 45, 158, 70, BLACK);
 
   // Print date and time at bottom of the screen
   DateTime now = rtc.now();
   display.setCursor(10, 135);
-  display.fillRoundRect (0, 123, 200, 60, 1, WHITE);
+  display.fillRect (0, 123, 200, 60, WHITE);
   display.print(now.month());
   display.print("/");
   display.print(now.day());
@@ -613,7 +613,7 @@ void FED3::DisplaySDError() {
 
 //Display text when FED is logging data
 void FED3::DisplaySDLogging() {
-  display.fillRoundRect (6, 20, 200, 22, 1, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
+  display.fillRect (6, 20, 200, 22, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
   display.setCursor(6, 36);
   display.print("Writing data");
   display.refresh();
@@ -621,7 +621,7 @@ void FED3::DisplaySDLogging() {
 
 //Display text when FED is clearing a jam
 void FED3::DisplayJamClear() {
-  display.fillRoundRect (6, 20, 200, 22, 1, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
+  display.fillRect (6, 20, 200, 22, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
   display.setCursor(6, 36);
   display.print("Clearing jam");
   display.refresh();
@@ -629,7 +629,7 @@ void FED3::DisplayJamClear() {
 
 //Display when FED is dispensing
 void FED3::DisplayDispense() {
-  display.fillRoundRect (6, 20, 200, 22, 1, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
+  display.fillRect (6, 20, 200, 22, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
   display.setCursor(6, 36);
   display.print("Dispensing...");
   display.refresh(); 
@@ -637,7 +637,7 @@ void FED3::DisplayDispense() {
 
 //Display when FED is sleepnig
 void FED3::DisplaySleep() {
-  display.fillRoundRect (6, 20, 200, 22, 1, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
+  display.fillRect (6, 20, 200, 22, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
   display.setCursor(6, 36);
   display.print("Standby");
   if (digitalRead(PELLET_WELL) == LOW) {
@@ -648,7 +648,7 @@ void FED3::DisplaySleep() {
 
 //Display pellet retrieval interval
 void FED3::DisplayRetrievalInt() {
-    display.fillRoundRect (79, 22, 70, 15, 1, WHITE); 
+    display.fillRect (79, 22, 70, 15, WHITE); 
     display.setCursor(80, 34);
     display.print (retInterval);
     display.print ("ms");
@@ -657,7 +657,7 @@ void FED3::DisplayRetrievalInt() {
 
 //Display left poke duration
 void FED3::DisplayLeftInt() {
-    display.fillRoundRect (79, 22, 70, 15, 1, WHITE);  
+    display.fillRect (79, 22, 70, 15, WHITE);  
     display.setCursor(80, 34);
     display.print (leftInterval);
     display.print ("ms");
@@ -666,7 +666,7 @@ void FED3::DisplayLeftInt() {
 
 //Display right poke duration
 void FED3::DisplayRightInt() {
-    display.fillRoundRect (79, 22, 70, 15, 1, WHITE);  
+    display.fillRect (79, 22, 70, 15, WHITE);  
     display.setCursor(80, 34);
     display.print (rightInterval);
     display.print ("ms");
@@ -719,7 +719,7 @@ void FED3::ClassicMenu () {
   display.setFont(&FreeSans9pt7b);
   display.setCursor(5, 20);
   display.println("Select Program");
-  display.fillRoundRect(0, 30, 160, 80, 1, WHITE);
+  display.fillRect(0, 30, 160, 80, WHITE);
   display.setCursor(10, 45);
   //Text to display selected FR ratio
   if (FEDmode == 0) display.print("Free feeding");

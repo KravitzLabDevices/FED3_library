@@ -24,7 +24,7 @@ void setup() {
   fed3.begin();                                         //Setup the FED3 hardware
   fed3.FEDmode = 1;                                     //Customize the display options to FEDmode 1 for an operant session
   fed3.FR = FR;                                         //Share the FR ratio with the fed3 library so it is logged on the SD card and displayed on the screen
-  fed3.EnableSleep = false;                             //Set to false to inhibit sleeping to use the Serial port; Set to true to reduce battery power
+  fed3.EnableSleep = true;                             //Set to false to inhibit sleeping to use the Serial port; Set to true to reduce battery power
 }
 
 void loop() {

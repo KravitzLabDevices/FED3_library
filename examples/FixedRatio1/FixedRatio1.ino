@@ -13,7 +13,7 @@ FED3 fed3 (sketch);                                     //Start the FED3 object
 void setup() {
   fed3.begin();                                         //Setup the FED3 hardware
   fed3.FEDmode = 1;                                     //Customize the display options to FEDmode 1 for an operant session
-  fed3.EnableSleep = false;                             //Set to false to inhibit sleeping to use the Serial port; Set to true to reduce battery power
+  fed3.EnableSleep = true;                             //Set to false to inhibit sleeping to use the Serial port; Set to true to reduce battery power
 }
 
 void loop() {

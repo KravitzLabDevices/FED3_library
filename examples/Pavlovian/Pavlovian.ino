@@ -16,7 +16,7 @@ Pellet_delay = 2;                //How long to wait between conditioned stimulus
 void setup() {
   fed3.begin();                  //Setup the FED3 hardware
   fed3.FEDmode = 0;              //Customize the display options to FEDmode 0 for an free pellet session
-  fed3.EnableSleep = false;      //Set to false to inhibit sleeping to use the Serial port; Set to true to reduce battery power
+  fed3.EnableSleep = true;      //Set to false to inhibit sleeping to use the Serial port; Set to true to reduce battery power
 }
 
 void loop() {

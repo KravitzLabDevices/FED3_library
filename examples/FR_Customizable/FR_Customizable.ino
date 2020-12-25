@@ -17,14 +17,14 @@ bool LeftActive = true;                                 //Set to false to make r
 // Start FED3 library and make the fed3 object
 ////////////////////////////////////////////////////
 #include <FED3.h>                                       //Include the FED3 library 
-String sketch = "FRCustom";                             //Unique identifier text for each sketch      
+String sketch = "FRCustom";                             //Unique identifier text for each sketch
 FED3 fed3 (sketch);                                     //Start the FED3 object
 
 void setup() {
   fed3.begin();                                         //Setup the FED3 hardware
   fed3.FEDmode = 1;                                     //Customize the display options to FEDmode 1 for an operant session
   fed3.FR = FR;                                         //Share the FR ratio with the fed3 library so it is logged on the SD card and displayed on the screen
-  fed3.EnableSleep = true;                             //Set to false to inhibit sleeping to use the Serial port; Set to true to reduce battery power
+  fed3.EnableSleep = true;                              //Set to false to inhibit sleeping to use the Serial port; Set to true to reduce battery power
 }
 
 void loop() {
@@ -42,7 +42,7 @@ void loop() {
     fed3.activePoke = 1;                                  //update activepoke variable in the FED3 library for accurate logging and display
     //if left poke is triggered
     if (fed3.Left) {
-      fed3.leftResponse();                                  //run CheckPokes to log the pokes
+      fed3.logLeftPoke();                                 //Log left poke
       if (fed3.LeftCount % FR != 0) {                     //if fixed ratio is not met
         fed3.Click();                                     //click stimulus
       }
@@ -62,7 +62,7 @@ void loop() {
     fed3.activePoke = 0;
     //if right poke is triggered, rightpoke is ready, and pellet is not in the well
     if (fed3.Right) {
-      fed3.rightPokeResponse();                 //run CheckPokes to log the pokes
+      fed3.logRightPoke();                                //Log right poke
       if (fed3.RightCount % FR != 0) {                    //if fixed ratio is not met
         fed3.Click();                                     //click stimulus
       }

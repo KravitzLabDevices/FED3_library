@@ -66,7 +66,7 @@ void FED3::run() {
   Poke functions
 ********************************************************/
 //Left response
-void FED3::leftPokeResponse(){
+void FED3::logLeftPoke(){
     leftInterval = 0.0;
     leftPokeTime = millis();
     while (digitalRead (LEFT_POKE) == LOW) {  //After pellet is detected, hang here to detect when it is removed
@@ -86,7 +86,7 @@ void FED3::leftPokeResponse(){
 }
 
 //Right response
-void FED3::rightPokeResponse(){
+void FED3::logRightPoke(){
     rightInterval = 0.0;
     rightPokeTime = millis();
     while (digitalRead (RIGHT_POKE) == LOW) {  //After pellet is detected, hang here to detect when it is removed
@@ -103,28 +103,6 @@ void FED3::rightPokeResponse(){
     }
     Right = false;
     firstDispense = true;
-}
-
-//Check pokes
-void FED3::CheckPokes() {
-  if (Left){
-    leftPokeResponse();
-  }
-
-  if (Right){
-    rightPokeResponse();
-  }
-
-  //if it is free feeding make Ratio_Met always true
-  if (FEDmode == 0) Ratio_Met = true; 
-  
-  // If it's a timed feeding session only set Ratio_Met to true between these hours
-  if (FEDmode == 11)  {
-    DateTime now = rtc.now();
-    if (now.hour() >= timedStart && now.hour() < timedEnd) {
-      Ratio_Met = true;
-    }
-  }
 }
 
 /********************************************************

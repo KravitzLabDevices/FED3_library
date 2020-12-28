@@ -141,7 +141,6 @@ class FED3 {
         void CheckRatio();
         void logLeftPoke();
         void logRightPoke();
-        void CheckReset();
         void Feed();
         void dispenseTimer();
         void pelletTrigger();

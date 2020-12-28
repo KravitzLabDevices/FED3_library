@@ -242,28 +242,6 @@ void FED3::ClearJam() {
     numMotorTurns = 0;
 }
 
-//Holding both pokes for 1 second will reset the device
-void FED3::CheckReset() {
-  if (digitalRead(LEFT_POKE) == LOW & digitalRead(RIGHT_POKE) == LOW ) {
-    delay(1000);
-    if (digitalRead(LEFT_POKE) == LOW & digitalRead(RIGHT_POKE) == LOW ) {
-      display.clearDisplay();
-      display.setRotation(3);
-      display.setTextColor(BLACK);
-      display.setCursor(15, 40);
-      display.setTextSize(1);
-      display.println("Resetting FED...");
-      display.refresh();
-      tone(BUZZER, 5000, 400); delay(200); tone(BUZZER, 2000, 300); delay(200); tone(BUZZER, 4000, 600);
-      colorWipe(strip.Color(2, 0, 0), 40); delay(100); // Color wipe
-      colorWipe(strip.Color(2, 0, 2), 40); delay(100); // Color wipe
-      colorWipe(strip.Color(0, 2, 2), 40); delay(100); // Color wipe
-      colorWipe(strip.Color(0, 0, 0), 20); // OFF
-      NVIC_SystemReset();      // processor software reset
-    }
-  }
-}
-
 /********************************************************
   NeoPixel and audio stimuli
 ********************************************************/

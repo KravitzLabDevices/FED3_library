@@ -8,9 +8,9 @@
 - **PelletCount**: Int, total number of pellets dispensed, initializes to 0
 - **retInterval**: Int, how long the pellet remained in the well before it was taken in ms. Maximum value is 60000.
 - **Event**: String, variable containing which type of event triggered the datalogging, options are Left, Right, or Pellet
-<p>
+
 ---
-<p>
+  
 > Functions. These can be called with 'fed3.Function()'
 ### Poke functions.  
 - **logLeftPoke()**: Causes FED3 to increment **LeftCount** and log the left poke and duration to the SD card

@@ -29,7 +29,7 @@ This documentation site will cover the user variables and functions available fo
 
 
 ## Examples
-### Here is an FR1 session where the left poke causes conditioned stimulus and a pellet, and right poke does nothing 
+### Fixed-Ratio 1: The left poke causes conditioned stimulus and a pellet, and right poke does nothing 
 
 ```
 #include <FED3.h>                                       //Include the FED3 library 

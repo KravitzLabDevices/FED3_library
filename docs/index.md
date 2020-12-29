@@ -1,7 +1,5 @@
 ## [FED3 library](https://github.com/KravitzLabDevices/FED3_library) documentation
 
-This documentation site will cover the user variables and functions available for manipulation in the FED3 library
-
 ### Variables 
 - **LeftCount**: Int, total number of pokes on the left nosepoke, initializes to 0 
 - **leftInterval**: Int, duration of the last left nosepoke in ms

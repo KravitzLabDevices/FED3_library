@@ -30,6 +30,12 @@ This documentation site will cover the user variables and functions available fo
 ### FED3 output port
 - **BNC(delay, number)**: Send **number** of pulses of length **delay** from the BNC output port. Example: BNC(20, 5) will send five 20ms pulses from the port. 
 
+### Display functions
+- Under construction
+
+### SDcard logging functions
+- Under construction
+
 ## Examples
 ### Fixed-Ratio 1: The left poke causes conditioned stimulus and a pellet, and right poke does nothing 
 

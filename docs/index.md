@@ -30,7 +30,7 @@ This documentation site will cover the user variables and functions available fo
 
 ## Examples
 ### Here is a short FR1 session, coded with the FED3 library<br>
-<code>
+```
 #include <FED3.h>                                       //Include the FED3 library 
 String sketch = "FR1";                                  //Unique identifier text for each sketch
 FED3 fed3 (sketch);                                     //Start the FED3 object
@@ -58,4 +58,4 @@ void loop() {
     fed3.Noise();
   }
 }
-</code>
+```

@@ -24,8 +24,8 @@ This documentation site will cover the user variables and functions available fo
 ### Audio and Neopixel functions
 - **pixelsOff()**: Turn all Neopixels off
 - **ConditionedStimulus()**: Turn all pixels on a green/blue color and a 4000Hz tone for 200ms
-- **Click()**: A short "click" (800Hz tone for 8ms)
-- **Noise()**: A ~500ms random noise stimulus
+- **Click()**: Short "click" (800Hz tone for 8ms)
+- **Noise()**: ~500ms random noise stimulus
 
 ### FED3 output port
 - **BNC(delay, number)**: Send **number** of pulses of length **delay** from the BNC output port. Example: BNC(20, 5) will send five 20ms pulses from the port. 

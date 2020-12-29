@@ -37,9 +37,9 @@ String sketch = "FR1";                                  //Unique identifier text
 FED3 fed3 (sketch);                                     //Start the FED3 object
 
 void setup() {
-  fed3.begin();                                         //Setup the FED3 hardware
-  fed3.FEDmode = 1;                                     //Customize the display options to FEDmode 1 for an operant session, FED 0 for a non-operant
-  fed3.EnableSleep = true;                              //Set to false to inhibit sleeping to use the Serial port; Set to true to reduce battery power
+  fed3.begin();                                         //FED3 hardware setup commands
+  fed3.FEDmode = 1;                                     //Set display to FEDmode == 1 for an operant session
+  fed3.EnableSleep = true;                              //Enable sleep functionality to save battery
 }
 
 void loop() {

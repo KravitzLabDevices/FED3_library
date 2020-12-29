@@ -111,8 +111,6 @@ class FED3 {
         void DisplaySDError();
         void DisplaySDLogging();
         void DisplayJamClear();
-        void DisplayDispense();
-        void DisplaySleep();
         void DisplayRetrievalInt();
         void DisplayLeftInt();
         void DisplayRightInt();

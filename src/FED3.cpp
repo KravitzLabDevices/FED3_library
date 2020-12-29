@@ -65,6 +65,8 @@ void FED3::run() {
 void FED3::logLeftPoke(){
     leftInterval = 0.0;
     leftPokeTime = millis();
+    display.fillCircle(25, 59, 5, BLACK);
+    display.refresh();
     while (digitalRead (LEFT_POKE) == LOW) {  //After pellet is detected, hang here to detect when it is removed
         leftInterval = (millis()-leftPokeTime);
     }
@@ -84,6 +86,8 @@ void FED3::logLeftPoke(){
 void FED3::logRightPoke(){
     rightInterval = 0.0;
     rightPokeTime = millis();
+    display.fillCircle(25, 79, 5, BLACK);
+    display.refresh();
     while (digitalRead (RIGHT_POKE) == LOW) {  //After pellet is detected, hang here to detect when it is removed
         rightInterval = (millis()-rightPokeTime);
     }
@@ -302,17 +306,11 @@ void FED3::BNC(byte DELAY_MS, byte loops) {
                                                                                                Display functions
 ****************************************************************************************************************/
 void FED3::UpdateDisplay() {
-
-  display.setRotation(3);
-  display.setTextColor(BLACK);
-  display.setTextSize(1);
-
   display.setCursor(5, 15);
   display.print("FED:");
   display.println(FED);
   display.setCursor(6, 15);  // this doubling is a way to do bold type
   display.print("FED:");
-  display.setTextSize(1);
   display.fillRect (6, 20, 200, 22, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
 
   if (FEDmode == 0) {
@@ -350,8 +348,10 @@ void FED3::UpdateDisplay() {
   display.print(PelletCount);
 
   //Box around data area of screen
-  DisplayBattery();
   display.drawRect (5, 45, 158, 70, BLACK);
+  DisplayBattery();
+  DisplayDateTime();
+  DisplayIndicators();
   display.refresh();
 }
 
@@ -377,43 +377,26 @@ void FED3::DisplayDateTime(){
 
 
 void FED3::DisplayIndicators(){
-  // Poke and pellet indicator graphics
-  if (FEDmode > 0 & FEDmode != 11) {
-    //poke indicators
-    if (digitalRead(RIGHT_POKE) == HIGH) {
-      display.fillCircle(25, 79, 5, WHITE);
-      display.drawCircle(25, 79, 5, BLACK);
-    }
+  // Pellet circle
+  display.fillCircle(25, 99, 5, WHITE); //pellet
+  display.drawCircle(25, 99, 5, BLACK);
 
-    if (digitalRead(LEFT_POKE) == HIGH) {
-      display.fillCircle(25, 59, 5, WHITE);
-      display.drawCircle(25, 59, 5, BLACK);
-    }
-
-    //indicate which poke is active with a filled triangle beside it
-    if (FEDmode == 7 || FEDmode == 8 || FEDmode == 10) {
-      activePoke = 0;
-    }
-
-    if (activePoke == 0 && Ratio_Met == false) {
+  //Poke indicators
+  if (FEDmode == 1) { //only make circles for pokes if FEDmode==1
+    //draw circles for  pokes
+    display.fillCircle(25, 59, 5, WHITE); //left poke
+    display.fillCircle(25, 79, 5, WHITE); //right poke
+    display.drawCircle(25, 59, 5, BLACK);
+    display.drawCircle(25, 79, 5, BLACK);
+ 
+    //Active poke indicator triangles
+    if (activePoke == 0) {
       display.fillTriangle (12, 55, 18, 59, 12, 63, WHITE);
       display.fillTriangle (12, 75, 18, 79, 12, 83, BLACK);
     }
-
-    if (activePoke == 1 && Ratio_Met == false) {
+    if (activePoke == 1) {
       display.fillTriangle (12, 75, 18, 79, 12, 83, WHITE);
       display.fillTriangle (12, 55, 18, 59, 12, 63, BLACK);
-    }
-  }
-
-  if (FEDmode != 5 && FEDmode != 9 && FEDmode != 10) { //no need to show pellets if extinction or opto stim sessions
-    if (digitalRead(PELLET_WELL) == HIGH) {
-      display.fillCircle(25, 99, 5, WHITE);
-      display.drawCircle(25, 99, 5, BLACK);
-    }
-
-    if (digitalRead(PELLET_WELL) == LOW) {
-      display.fillCircle(25, 99, 5, BLACK);
     }
   }
 }
@@ -458,10 +441,7 @@ void FED3::DisplayBattery(){
 //Display "Check SD Card!" if there is a card error
 void FED3::DisplaySDError() {
   display.clearDisplay();
-  display.setRotation(3);
-  display.setTextColor(BLACK);
   display.setCursor(20, 40);
-  display.setTextSize(1);
   display.println("   Check");
   display.setCursor(10, 60);
   display.println("  SD Card!");
@@ -481,25 +461,6 @@ void FED3::DisplayJamClear() {
   display.fillRect (6, 20, 200, 22, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
   display.setCursor(6, 36);
   display.print("Clearing jam");
-  display.refresh();
-}
-
-//Display when FED is dispensing
-void FED3::DisplayDispense() {
-  display.fillRect (6, 20, 200, 22, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
-  display.setCursor(6, 36);
-  display.print("Dispensing...");
-  display.refresh(); 
-}
-
-//Display when FED is sleepnig
-void FED3::DisplaySleep() {
-  display.fillRect (6, 20, 200, 22, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
-  display.setCursor(6, 36);
-  display.print("Standby");
-  if (digitalRead(PELLET_WELL) == LOW) {
-    display.fillCircle(25, 99, 5, BLACK);
-  }
   display.refresh();
 }
 
@@ -530,109 +491,6 @@ void FED3::DisplayRightInt() {
     display.refresh();
 }
 
-/********************************************************
-  Classic menu display
-********************************************************/
-void FED3::ClassicMenu () {
-  //  0 Free feeding
-  //  1 FR1
-  //  2 FR3
-  //  3 FR5
-  //  4 Progressive Ratio
-  //  5 Extinction
-  //  6 Light tracking FR1 task
-  //  7 FR1 (reversed)
-  //  8 PR (reversed)
-  //  9 self-stim
-  //  10 self-stim (reversed)
-  //  11 time feeding
-
-  // Set FR based on FEDmode
-  if (FEDmode == 0) FR = 0;  // free feeding
-  if (FEDmode == 1) FR = 1;  // FR1 spatial tracking task
-  if (FEDmode == 2) FR = 3;  // FR3
-  if (FEDmode == 3) FR = 5; // FR5
-  if (FEDmode == 4) FR = 99;  // Progressive Ratio
-  if (FEDmode == 5) { // Extinction
-    FR = 1;
-    ReleaseMotor ();
-    digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver
-  }
-  if (FEDmode == 6) FR = 1;  // Light tracking
-  if (FEDmode == 7) FR = 1; // FR1 (reversed)
-  if (FEDmode == 8) FR = 1; // PR (reversed)
-  if (FEDmode == 9) FR = 1; // self-stim
-  if (FEDmode == 10) FR = 1; // self-stim (reversed)
-
-  display.setFont(&FreeSans9pt7b);
-  display.setRotation(3);
-  display.setTextSize(1);
-  display.setTextColor(BLACK);
-  display.clearDisplay();
-
-  display.setCursor(1, 135);
-  display.print(filename);
-
-  display.setFont(&FreeSans9pt7b);
-  display.setCursor(5, 20);
-  display.println("Select Program");
-  display.fillRect(0, 30, 160, 80, WHITE);
-  display.setCursor(10, 45);
-  //Text to display selected FR ratio
-  if (FEDmode == 0) display.print("Free feeding");
-  if (FEDmode == 11) display.print("Timed feeding");
-  if (FEDmode == 1 ||  FEDmode == 2 || FEDmode == 3) {
-    display.print("Fixed Ratio:"); display.print(FR);
-  }
-  if (FEDmode == 4) display.print("Progressive Ratio");
-  if (FEDmode == 5) display.print("Extinction");
-  if (FEDmode == 6) display.print("Light tracking");
-  if (FEDmode == 7) display.print("FR1");
-  if (FEDmode == 8) display.print("Progressive Ratio");
-  if (FEDmode == 9) display.print("Self-Stimulation");
-  if (FEDmode == 10) display.print("Self-Stimulation");
-  if (FEDmode == 8 || FEDmode == 7 || FEDmode == 10) display.setCursor(10, 65);
-  if (FEDmode == 8 || FEDmode == 7 || FEDmode == 10) display.print("(reversed)");
-
-  for (int i = -50; i < 200; i += 15) {
-    display.setCursor(0, 40);
-    //Draw animated mouse...
-    display.fillRoundRect (i + 25, 77, 15, 10, 6, BLACK);  //head
-    display.fillRoundRect (i + 22, 75, 8, 5, 3, BLACK);    //ear
-    display.fillRoundRect (i + 30, 79, 1, 1, 1, WHITE);    //eye
-
-    //movement of the mouse
-    if ((i / 10) % 2 == 0) {
-      display.fillRoundRect (i, 79, 32, 17, 10, BLACK);      //body
-      display.drawFastHLine(i - 8, 80, 18, BLACK);        //tail
-      display.drawFastHLine(i - 8, 81, 18, BLACK);
-      display.drawFastHLine(i - 14, 79, 8, BLACK);
-      display.drawFastHLine(i - 14, 80, 8, BLACK);
-
-      display.fillRoundRect (i + 22, 94, 8, 4, 3, BLACK);  //front foot
-      display.fillRoundRect (i , 92, 8, 6, 3, BLACK); //back foot
-    }
-    else {
-      display.fillRoundRect (i + 2, 77, 30, 17, 10, BLACK);    //body
-      display.drawFastHLine(i - 6, 86, 18, BLACK);        //tail
-      display.drawFastHLine(i - 6, 85, 18, BLACK);
-      display.drawFastHLine(i - 12, 87, 8, BLACK);
-      display.drawFastHLine(i - 12, 86, 8, BLACK);
-
-      display.fillRoundRect (i + 15, 94, 8, 4, 3, BLACK);  //foot
-      display.fillRoundRect (i + 8, 92, 8, 6, 3, BLACK); //back foot
-    }
-    delay (80);
-    display.refresh();
-    display.fillRect (i - 25, 75, 90, 35, WHITE);
-    previousFEDmode = FEDmode;
-    previousFED = FED;
-    if (digitalRead (LEFT_POKE) == LOW | digitalRead (RIGHT_POKE) == LOW) SelectMode();
-  }
-  ReadBatteryLevel();
-  display.clearDisplay();
-  display.refresh();
-}
 
 /********************************************************
   SD card functions
@@ -1036,7 +894,6 @@ void FED3::SelectMode() {
   if (FEDmode < 0) FEDmode = 0;
   if (FEDmode > 11) FEDmode = 11;
 
-  display.setTextSize(1);
   display.setCursor(5, 20);
   display.println ("Select Program");
   display.fillRect (0, 30, 160, 80, WHITE);
@@ -1284,8 +1141,6 @@ void dateTime(uint16_t* date, uint16_t* time) {
 }
 
 void FED3::StartScreen(){
-  display.setFont(&FreeSans9pt7b);
-  display.setRotation(3);
   display.setTextSize(3);
   display.setTextColor(BLACK);
   display.clearDisplay();
@@ -1418,6 +1273,109 @@ void FED3::begin() {
 ****************************************************************************************************************/
 
 /********************************************************
+  Classic menu display
+********************************************************/
+void FED3::ClassicMenu () {
+  //  0 Free feeding
+  //  1 FR1
+  //  2 FR3
+  //  3 FR5
+  //  4 Progressive Ratio
+  //  5 Extinction
+  //  6 Light tracking FR1 task
+  //  7 FR1 (reversed)
+  //  8 PR (reversed)
+  //  9 self-stim
+  //  10 self-stim (reversed)
+  //  11 time feeding
+
+  // Set FR based on FEDmode
+  if (FEDmode == 0) FR = 0;  // free feeding
+  if (FEDmode == 1) FR = 1;  // FR1 spatial tracking task
+  if (FEDmode == 2) FR = 3;  // FR3
+  if (FEDmode == 3) FR = 5; // FR5
+  if (FEDmode == 4) FR = 99;  // Progressive Ratio
+  if (FEDmode == 5) { // Extinction
+    FR = 1;
+    ReleaseMotor ();
+    digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver
+  }
+  if (FEDmode == 6) FR = 1;  // Light tracking
+  if (FEDmode == 7) FR = 1; // FR1 (reversed)
+  if (FEDmode == 8) FR = 1; // PR (reversed)
+  if (FEDmode == 9) FR = 1; // self-stim
+  if (FEDmode == 10) FR = 1; // self-stim (reversed)
+
+  display.clearDisplay();
+
+  display.setCursor(1, 135);
+  display.print(filename);
+
+  display.setFont(&FreeSans9pt7b);
+  display.setCursor(5, 20);
+  display.println("Select Program");
+  display.fillRect(0, 30, 160, 80, WHITE);
+  display.setCursor(10, 45);
+  //Text to display selected FR ratio
+  if (FEDmode == 0) display.print("Free feeding");
+  if (FEDmode == 11) display.print("Timed feeding");
+  if (FEDmode == 1 ||  FEDmode == 2 || FEDmode == 3) {
+    display.print("Fixed Ratio:"); display.print(FR);
+  }
+  if (FEDmode == 4) display.print("Progressive Ratio");
+  if (FEDmode == 5) display.print("Extinction");
+  if (FEDmode == 6) display.print("Light tracking");
+  if (FEDmode == 7) display.print("FR1");
+  if (FEDmode == 8) display.print("Progressive Ratio");
+  if (FEDmode == 9) display.print("Self-Stimulation");
+  if (FEDmode == 10) display.print("Self-Stimulation");
+  if (FEDmode == 8 || FEDmode == 7 || FEDmode == 10) display.setCursor(10, 65);
+  if (FEDmode == 8 || FEDmode == 7 || FEDmode == 10) display.print("(reversed)");
+
+  for (int i = -50; i < 200; i += 15) {
+    display.setCursor(0, 40);
+    //Draw animated mouse...
+    display.fillRoundRect (i + 25, 77, 15, 10, 6, BLACK);  //head
+    display.fillRoundRect (i + 22, 75, 8, 5, 3, BLACK);    //ear
+    display.fillRoundRect (i + 30, 79, 1, 1, 1, WHITE);    //eye
+
+    //movement of the mouse
+    if ((i / 10) % 2 == 0) {
+      display.fillRoundRect (i, 79, 32, 17, 10, BLACK);      //body
+      display.drawFastHLine(i - 8, 80, 18, BLACK);        //tail
+      display.drawFastHLine(i - 8, 81, 18, BLACK);
+      display.drawFastHLine(i - 14, 79, 8, BLACK);
+      display.drawFastHLine(i - 14, 80, 8, BLACK);
+
+      display.fillRoundRect (i + 22, 94, 8, 4, 3, BLACK);  //front foot
+      display.fillRoundRect (i , 92, 8, 6, 3, BLACK); //back foot
+    }
+    else {
+      display.fillRoundRect (i + 2, 77, 30, 17, 10, BLACK);    //body
+      display.drawFastHLine(i - 6, 86, 18, BLACK);        //tail
+      display.drawFastHLine(i - 6, 85, 18, BLACK);
+      display.drawFastHLine(i - 12, 87, 8, BLACK);
+      display.drawFastHLine(i - 12, 86, 8, BLACK);
+
+      display.fillRoundRect (i + 15, 94, 8, 4, 3, BLACK);  //foot
+      display.fillRoundRect (i + 8, 92, 8, 6, 3, BLACK); //back foot
+    }
+    delay (80);
+    display.refresh();
+    display.fillRect (i - 25, 75, 90, 35, WHITE);
+    previousFEDmode = FEDmode;
+    previousFED = FED;
+    if (digitalRead (LEFT_POKE) == LOW | digitalRead (RIGHT_POKE) == LOW) SelectMode();
+  }
+  ReadBatteryLevel();
+  display.clearDisplay();
+  display.refresh();
+}
+
+
+
+
+/********************************************************
   Check Ratio (this decides whether FED should dispense or not)
 ********************************************************/
 void FED3::CheckRatio(){
@@ -1435,18 +1393,11 @@ void FED3::CheckRatio(){
 }
 
 void FED3::ClassicUpdateDisplay() {
-  //colorWipe(strip.Color(0, 0, 0), 5); // OFF
-
-  display.setRotation(3);
-  display.setTextColor(BLACK);
-  display.setTextSize(1);
-
   display.setCursor(5, 15);
   display.print("FED:");
   display.println(FED);
   display.setCursor(6, 15);  // this doubling is a way to do bold type
   display.print("FED:");
-  display.setTextSize(1);
   display.fillRect (6, 20, 200, 22, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
 
   if (FEDmode == 0) {

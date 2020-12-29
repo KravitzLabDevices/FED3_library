@@ -1,6 +1,6 @@
 ## [FED3 library](https://github.com/KravitzLabDevices/FED3_library) documentation
 
-### Variables 
+### Variables.  These can be set or recalled with 'fed3.Variable'
 - **LeftCount**: Int, total number of pokes on the left nosepoke, initializes to 0 
 - **leftInterval**: Int, duration of the last left nosepoke in ms
 - **RightCount**: Int, number of pokes on the right nosepoke, initializes to 0 
@@ -9,7 +9,7 @@
 - **retInterval**: Int, how long the pellet remained in the well before it was taken in ms. Maximum value is 60000.
 - **Event**: String, variable containing which type of event triggered the datalogging, options are Left, Right, or Pellet
 
-### Poke functions
+### Poke functions. These can be called with 'fed3.Function()' 
 - **logLeftPoke()**: Causes FED3 to increment **LeftCount** and log the left poke and duration to the SD card
 - **logRightPoke()**: Causes FED3 to increment **RightCount** and log the right poke and duration to the SD card
 

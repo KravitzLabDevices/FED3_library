@@ -27,6 +27,8 @@ This documentation site will cover the user variables and functions available fo
 - **Click()**: A short "click" (800Hz tone for 8ms)
 - **Noise()**: A ~500ms random noise stimulus
 
+### FED3 output port
+- **BNC(delay, number)**: Send **number** of pulses of length **delay** from the BNC output port. Example: BNC(20, 5) will send five 20ms pulses from the port. 
 
 ## Examples
 ### Fixed-Ratio 1: The left poke causes conditioned stimulus and a pellet, and right poke does nothing 

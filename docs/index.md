@@ -29,7 +29,8 @@ This documentation site will cover the user variables and functions available fo
 
 
 ## Examples
-### Here is a short FR1 session, coded with the FED3 library<br>
+### Here is an FR1 session where a left poke delivers the conditioned stimulus and a pellet, and the right poke does nothing 
+
 ```
 #include <FED3.h>                                       //Include the FED3 library 
 String sketch = "FR1";                                  //Unique identifier text for each sketch
@@ -43,9 +44,6 @@ void setup() {
 
 void loop() {
   fed3.run();                                           //Call fed.run at least once per loop
-  ////////////////////////////////////////////////////
-  // Write your behavioral program below this line  //
-  ////////////////////////////////////////////////////
 
   if (fed3.Left) {                                      //If left poke is triggered
     fed3.logLeftPoke();                                 //Log left poke
@@ -54,8 +52,7 @@ void loop() {
   }
   
   if (fed3.Right) {                                     //If right poke is triggered
-    fed3.logRightPoke();
-    fed3.Noise();
+    fed3.logRightPoke();                                //Log Right poke
   }
 }
 ```

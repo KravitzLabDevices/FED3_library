@@ -1,6 +1,6 @@
 ## [FED3 library](https://github.com/KravitzLabDevices/FED3_library) documentation
 
-###Variables.  These can be set or recalled with 'fed3.Variable'
+### Variables.  These can be set or recalled with 'fed3.Variable'
 - **LeftCount**: Int, total number of pokes on the left nosepoke, initializes to 0 
 - **leftInterval**: Int, duration of the last left nosepoke in ms
 - **RightCount**: Int, number of pokes on the right nosepoke, initializes to 0 
@@ -11,7 +11,7 @@
 
 ---
   
-###Functions. These can be called with 'fed3.Function()'
+### Functions. These can be called with 'fed3.Function()'
 > Poke functions.  
 - **logLeftPoke()**: Causes FED3 to increment **LeftCount** and log the left poke and duration to the SD card
 - **logRightPoke()**: Causes FED3 to increment **RightCount** and log the right poke and duration to the SD card

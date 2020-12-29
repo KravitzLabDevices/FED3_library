@@ -20,6 +20,7 @@ This documentation site will cover the user variables and functions available fo
 - **MinorJam()**: Causes FED3 pellet disk to make a small backwards movement 
 - **VibrateJam()**: Causes FED3 pellet disk to make a vibrating movement for ~10 seconds, stopping this movement if a pellet is detected
 - **ClearJam()**: Causes FED3 pellet disk to make a full rotation backwards and forwards, stopping this movement if a pellet is detected
+- **Timeout(seconds)**: Starts a timeout period, length controlled by **seconds**.  Duration of timeout counts down on FED3 screen. Example: Timeout(10) will make FED unresponsive for 10 seconds when called.
 
 ### Audio and Neopixel functions
 - **pixelsOff()**: Turn all Neopixels off

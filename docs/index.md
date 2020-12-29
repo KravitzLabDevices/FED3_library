@@ -52,7 +52,7 @@ void loop() {
   }
   
   if (fed3.Right) {                                     //If right poke is triggered
-    fed3.logRightPoke();                                //Log Right poke
+    fed3.logRightPoke();                                //Log right poke
   }
 }
 ```

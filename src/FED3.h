@@ -23,7 +23,7 @@ This device includes hardware and code from:
   Copyright (c) 2019, 2020 Lex Kravitz
 */
 
-#define VER "1.0.4"  
+#define VER "1.0.6"  
 
 #ifndef FED3_H
 #define FED3_H
@@ -107,6 +107,7 @@ class FED3 {
         
         // Display functions
         void UpdateDisplay();
+        void ClassicUpdateDisplay();
         void DisplaySDError();
         void DisplaySDLogging();
         void DisplayJamClear();
@@ -115,10 +116,13 @@ class FED3 {
         void DisplayRetrievalInt();
         void DisplayLeftInt();
         void DisplayRightInt();
+        void DisplayBattery();
+        void DisplayDateTime();
+        void DisplayIndicators();
         
         // Startup menu function
         void ClassicMenu();
-        void versionDisplay();
+        void StartScreen();
 
         // Motor
         void ReleaseMotor();
@@ -132,7 +136,7 @@ class FED3 {
         // Stimuli
         void ConditionedStimulus();
         void Click();
-        void ErrorStim();
+        void WhiteNoise();
         void leftStimulus();
         void rightStimulus();
         void BNC(byte DELAY_MS, byte loops);
@@ -177,7 +181,6 @@ class FED3 {
         bool Right = false;
         bool PelletAvailable = false;
         bool pellet = false;  // this true for pellet event, false for poke event
-        bool firstDispense = true;
         
         // timing variables
         int retInterval = 0;

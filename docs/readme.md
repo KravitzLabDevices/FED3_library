@@ -1,4 +1,4 @@
-Check out the [FED3 Wiki](https://github.com/KravitzLabDevices/FED3_library/wiki) for detailed documentation, brief overview below:
+Check out the [FED3 Wiki](https://github.com/KravitzLabDevices/FED3_library/wiki) for complete documentation and examples, quick overview below:
 
 ### Anatomy of a FED3 script. 
 This is an annotation of the [Fixed-Ratio 1 Example](https://github.com/KravitzLabDevices/FED3_library/blob/main/docs/index.md#examples) at the bottom of this page to describe how to write a new FED3 script. Start with this small block of code to import the FED3 library, name your sketch (here it is "FR1"), and start the FED3 object.  The only thing you'll edit here is the text "FR1", which should be set to a unique String of text to identify your sketch.  This text will show up in the logfile in the column "LibaryVersion_Sketch". 

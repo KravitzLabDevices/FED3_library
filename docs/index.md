@@ -33,10 +33,11 @@
 - **BNC(delay, number)**: Send **number** of pulses of length **delay** from the BNC output port. Example: BNC(20, 5) will send five 20ms pulses from the port. 
 
 > Display functions
-- Under construction
+- **UpdateDisplay()**: Update all values on FED3 display
 
 > SDcard logging functions
-- Under construction
+- **logdata()**: Log current data to the SD card. This will print one line to the data file containing the following fields:
+- MM:DD:YYYY hh:mm:ss, LibaryVersion_Sketch, Device_Number, Battery_Voltage, Motor_Turns, Trial_Info, FR, Event, Active_Poke, Left_Poke_Count, Right_Poke_Count, Pellet_Count, Block_Pellet_Count, Retrieval_Time, Poke_Time"
 
 ---
 

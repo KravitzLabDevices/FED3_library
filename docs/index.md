@@ -8,7 +8,7 @@ String sketch = "FR1";                                  //Unique identifier text
 FED3 fed3 (sketch);                                     //Start the FED3 object
 ```
 
-In "void setup()" the function fed3.begin() initializes all of the FED3 hardware and gets it ready to use. Don't edit this.
+In "void setup()" the function fed3.begin() initializes all of the FED3 hardware and gets it ready to use. Don't edit this part.
 ```c
 void setup() {
   fed3.begin();                                         //FED3 hardware setup commands

@@ -41,7 +41,7 @@ void loop() {
 - **PelletCount**: Int, total number of pellets dispensed, initializes to 0
 - **retInterval**: Int, how long the pellet remained in the well before it was taken in ms. Times out at 60000ms
 - **Event**: String, variable containing which type of event triggered the datalogging, options are Left, Right, or Pellet
-- **EnableSleep**: Boolean, set to "false" to disable sleep functionality. This will drain the battery ~5x faster but can be useful when troubleshooting new programs.
+- **EnableSleep**: Boolean, defaults to "true". Set to "false" to disable sleep functionality. This will drain the battery ~5x faster but can be useful when troubleshooting new programs.
 
 ---
   

@@ -91,7 +91,6 @@ class FED3 {
         void writeHeader();
         void writeConfigFile();
         void writeFEDmode();
-        void WriteToSD();
         void error(uint8_t errno);
         void getFilename(char *filename);
 
@@ -109,7 +108,6 @@ class FED3 {
         void UpdateDisplay();
         void ClassicUpdateDisplay();
         void DisplaySDError();
-        void DisplaySDLogging();
         void DisplayJamClear();
         void DisplayRetrievalInt();
         void DisplayLeftInt();
@@ -125,7 +123,6 @@ class FED3 {
         // Motor
         void ReleaseMotor();
         int numMotorTurns = 0;
-        int numJamClears = 0;
 
         // Set FED
         void SelectMode();
@@ -134,9 +131,7 @@ class FED3 {
         // Stimuli
         void ConditionedStimulus();
         void Click();
-        void WhiteNoise();
-        void leftStimulus();
-        void rightStimulus();
+        void Noise();
         void BNC(byte DELAY_MS, byte loops);
         
         // Pelet and poke functions
@@ -149,15 +144,14 @@ class FED3 {
         void leftTrigger();
         void rightTrigger();
         void goToSleep();
-        void Timeout();
+        void Timeout(int seconds);
         
         //jam movements
         void ClearJam();
         void VibrateJam();
         void MinorJam();
 
-        //Timeout duration in seconds
-        const byte timeout = 0; //timeout between trials in seconds
+        //timed feeding variables
         int timedStart = 18; //hour to start the timed Feeding session, out of 24 hour clock
         int timedEnd = 21; //hour to start the timed Feeding session, out of 24 hour clock
 
@@ -178,7 +172,7 @@ class FED3 {
         bool Left = false;
         bool Right = false;
         bool PelletAvailable = false;
-        bool pellet = false;  // this true for pellet event, false for poke event
+        String Event = "None";   //What kind of event just happened?
         
         // timing variables
         int retInterval = 0;
@@ -190,7 +184,6 @@ class FED3 {
         int unixtime = 0;
 
         // flags
-        bool TimeoutReady = true;
         bool Ratio_Met = false;
         bool EnableSleep = true;
 

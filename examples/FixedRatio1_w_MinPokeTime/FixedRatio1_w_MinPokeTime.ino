@@ -18,20 +18,21 @@ void setup() {
 
 void loop() {
   fed3.run();                                           //Call fed.run at least once per loop
+
   ////////////////////////////////////////////////////
   // Write your behavioral program below this line  //
   ////////////////////////////////////////////////////
 
   if (fed3.Left) {                                      //If left poke is triggered
     fed3.logLeftPoke();                                 //Log left poke
-    fed3.ConditionedStimulus();                         //Deliver conditioned stimulus (tone and lights)
-    fed3.Feed();                                        //Deliver pellet
+    if (fed3.leftInterval > 1 ) {
+      fed3.ConditionedStimulus();                         //Deliver conditioned stimulus (tone and lights)
+      fed3.Feed();                                        //Deliver pellet
+    }
     serialOutput();                                     //Print data to Serial Monitor
   }
-
   if (fed3.Right) {                                     //If right poke is triggered
-    fed3.logRightPoke();
-    fed3.Timeout(10);
+    fed3.logRightPoke();                                //Log right poke
   }
 }
 

@@ -41,6 +41,7 @@ void loop() {
 - **PelletCount**: Int, total number of pellets dispensed, initializes to 0
 - **retInterval**: Int, how long the pellet remained in the well before it was taken in ms. Times out at 60000ms
 - **Event**: String, variable containing which type of event triggered the datalogging, options are Left, Right, or Pellet
+- **EnableSleep**: Boolean, set to "false" to disable sleep functionality. This will drain the battery ~5x faster but can be useful when troubleshooting new programs.
 
 ---
   
@@ -54,7 +55,10 @@ void loop() {
 - **MinorJam()**: Causes FED3 pellet disk to make a small backwards movement 
 - **VibrateJam()**: Causes FED3 pellet disk to make a vibrating movement for ~10 seconds, stopping this movement if a pellet is detected
 - **ClearJam()**: Causes FED3 pellet disk to make a full rotation backwards and forwards, stopping this movement if a pellet is detected
-- **Timeout(seconds)**: Starts a timeout period, length controlled by **seconds**.  Duration of timeout counts down on FED3 screen. Example: Timeout(10) will make FED unresponsive for 10 seconds when called.
+- **Timeout(seconds)**: Starts a timeout period, length controlled by **seconds**.  Duration of timeout counts down on FED3 screen. 
+```c
+Example: Timeout(10) will make FED unresponsive for 10 seconds when called.
+```
 
 > Audio and Neopixel functions
 - **pixelsOff()**: Turn all Neopixels off
@@ -63,13 +67,17 @@ void loop() {
 - **Noise()**: ~500ms random noise stimulus
 
 > FED3 output port
-- **BNC(delay, number)**: Send **number** of pulses of length **delay** from the BNC output port. Example: BNC(20, 5) will send five 20ms pulses from the port. 
+- **BNC(delay, number)**: Send **number** of pulses of length **delay** from the BNC output port. 
+```c
+Example: BNC(20, 5) will send five 20ms pulses from the port. 
+```
 
 > Display functions
 - **UpdateDisplay()**: Update all values on FED3 display
 
 > SDcard logging functions
 - **logdata()**: Log current data to the SD card. This will print one line to the data file containing the following fields:
+
 
 ``` 
 MM:DD:YYYY hh:mm:ss, LibaryVersion_Sketch, Device_Number, Battery_Voltage, Motor_Turns, Trial_Info, FR, Event,

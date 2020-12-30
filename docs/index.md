@@ -79,7 +79,7 @@ Active_Poke, Left_Poke_Count, Right_Poke_Count, Pellet_Count, Block_Pellet_Count
 ---
 
 ### Examples
-> Fixed-Ratio 1: The left poke causes conditioned stimulus and a pellet, and right poke does nothing 
+> Fixed-Ratio 1: The left poke is logged, results in a conditioned stimulus and a pellet, while the right poke is logged but has no other consequence.
 
 ```c
 #include <FED3.h>                                       //Include the FED3 library 

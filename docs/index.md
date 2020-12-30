@@ -39,7 +39,7 @@
 - **logdata()**: Log current data to the SD card. This will print one line to the data file containing the following fields:
 
 ``` 
-MM:DD:YYYY hh:mm:ss, LibaryVersion_Sketch, Device_Number, Battery_Voltage, Motor_Turns, Trial_Info, FR, Event, Active_Poke, Left_Poke_Count, Right_Poke_Count, Pellet_Count, Block_Pellet_Count, Retrieval_Time, Poke_Time"
+MM:DD:YYYY hh:mm:ss, LibaryVersion_Sketch, Device_Number, Battery_Voltage, Motor_Turns, Trial_Info, FR, Event, Active_Poke, Left_Poke_Count, Right_Poke_Count, Pellet_Count, Block_Pellet_Count, Retrieval_Time, Poke_Time "
 ```
 
 ---

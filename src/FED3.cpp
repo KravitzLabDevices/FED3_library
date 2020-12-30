@@ -52,6 +52,9 @@ static void outsideRightTriggerHandler(void) {
 **************************************************************************************************************************************************/
 void FED3::run() {
   //This should be called at least once per loop.  It updates the time, updates display, and goes to sleep if sleep is enabled
+  if (digitalRead(PELLET_WELL) == HIGH) {  //check for pellet
+    PelletAvailable = false;
+  }
   DateTime now = rtc.now();
   unixtime  = now.unixtime();
   UpdateDisplay();
@@ -63,7 +66,6 @@ void FED3::run() {
 **************************************************************************************************************************************************/
 //log left poke
 void FED3::logLeftPoke(){
-    
     leftInterval = 0.0;
     leftPokeTime = millis();
     display.fillCircle(25, 59, 5, BLACK);
@@ -131,7 +133,8 @@ void FED3::Feed() {
         retInterval = 0;
         ratio = ratio + round ((5 * exp (0.2 * PelletCount)) - 5); // this is a formula from Richardson and Roberts (1996) https://www.ncbi.nlm.nih.gov/pubmed/8794935
         PelletAvailable = true;
-        UpdateDisplay();  
+        UpdateDisplay();
+        if (timeout > 0) Timeout(timeout); //timeout after each pellet is dropped (you can edit this number)
       }
 
       pixelsOff();      //turn pixels off 
@@ -143,11 +146,9 @@ void FED3::Feed() {
       if (numMotorTurns % 5 == 0){
         MinorJam();
       }
-      
       if (numMotorTurns % 10 == 0 and numMotorTurns % 20 != 0) {
         VibrateJam();
       }
-
       if (numMotorTurns % 20 == 0) {
         ClearJam();
       }
@@ -229,6 +230,8 @@ void FED3::Timeout(int seconds) {
       delay (1000);
       display.fillRect (5, 20, 200, 25,WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
       display.setCursor(6, 36);
+      display.print("Timeout: ");
+      display.setCursor(7, 36);
       display.print("Timeout: ");
       display.print(seconds - k);
       display.refresh();
@@ -318,13 +321,14 @@ void FED3::UpdateDisplay() {
   display.setCursor(6, 15);  // this doubling is a way to do bold type
   display.print("FED:");
   display.fillRect (6, 20, 200, 22, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
+  display.fillRect (35, 46, 130, 80, WHITE);  //erase the pellet data on screen without clearing the entire screen by pasting a white box over it
 
-  if (DisplayPokes == 0) {
-    display.fillRect (35, 24, 200, 50, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
-    display.setCursor(22, 64);
-    display.print("Free Feeding");
+  if (DisplayPokes == 0) {  //poke indicators off
+    display.setCursor(5, 36);
+    display.print("Free");
+    display.setCursor(6, 36);
+    display.print("Free");
   }
-
 
   if (DisplayPokes == 1) {
     display.setCursor(5, 36);
@@ -332,16 +336,10 @@ void FED3::UpdateDisplay() {
     display.setCursor(6, 36);
     display.print("FR: ");
     display.print(FR);
-  }
-
-  display.fillRect (35, 46, 130, 80, WHITE);  //erase the pellet data on screen without clearing the entire screen by pasting a white box over it
-
-  if (DisplayPokes == 1) {
     display.setCursor(35, 65);
     display.print("Left: ");
     display.setCursor(95, 65);
     display.print(LeftCount);
-
     display.setCursor(35, 85);
     display.print("Right:  ");
     display.setCursor(95, 85);
@@ -464,7 +462,7 @@ void FED3::DisplayJamClear() {
 //Display pellet retrieval interval
 void FED3::DisplayRetrievalInt() {
     display.fillRect (79, 22, 70, 15, WHITE); 
-    display.setCursor(80, 34);
+    display.setCursor(80, 36);
     display.print (retInterval);
     display.print ("ms");
     display.refresh();
@@ -473,7 +471,7 @@ void FED3::DisplayRetrievalInt() {
 //Display left poke duration
 void FED3::DisplayLeftInt() {
     display.fillRect (79, 22, 70, 15, WHITE);  
-    display.setCursor(80, 34);
+    display.setCursor(80, 36);
     display.print (leftInterval);
     display.print ("ms");
     display.refresh();
@@ -482,7 +480,7 @@ void FED3::DisplayLeftInt() {
 //Display right poke duration
 void FED3::DisplayRightInt() {
     display.fillRect (79, 22, 70, 15, WHITE);  
-    display.setCursor(80, 34);
+    display.setCursor(80, 36);
     display.print (rightInterval);
     display.print ("ms");
     display.refresh();

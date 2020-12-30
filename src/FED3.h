@@ -145,7 +145,7 @@ class FED3 {
         void leftTrigger();
         void rightTrigger();
         void goToSleep();
-        void Timeout(int seconds);
+        void Timeout(int timeout);
         
         //jam movements
         void ClearJam();
@@ -168,6 +168,7 @@ class FED3 {
         int RightCount = 0;
         int PelletCount = 0;
         int BlockPelletCount = 0;
+        int timeout = 0;
         
         // state variables
         bool activePoke = 1;  // 0 for right, 1 for left, defaults to left poke active

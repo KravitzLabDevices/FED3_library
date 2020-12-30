@@ -125,6 +125,10 @@ void FED3::Feed() {
             retInterval = (millis()-pelletTime);
             DisplayRetrievalInt();
         }
+        while (digitalRead (PELLET_WELL) == LOW){ //if pellet is not taken after 60 seconds, wait here and go to sleep
+            run();
+        }
+        BNC(500, 1);
         Ratio_Met = false;
         PelletCount++;
         numMotorTurns = 0; //reset numMotorTurns
@@ -154,7 +158,6 @@ void FED3::Feed() {
       }
    }
 }
-
 
 //minor movement to clear jam
 void FED3::MinorJam(){
@@ -215,7 +218,7 @@ void FED3::ClearJam() {
     numMotorTurns = 0;
 }
 
-//Function for delaying between motor movements, but also cutting off the Feed loop if a pellet is detected
+//Function for delaying between motor movements, but also ending this delay if a pellet is detected
 void FED3::dispenseTimer() {
   for (int i = 1; i < 300; i++) {
     if (digitalRead (PELLET_WELL) == HIGH && PelletAvailable == false) {
@@ -230,8 +233,6 @@ void FED3::Timeout(int seconds) {
       delay (1000);
       display.fillRect (5, 20, 200, 25,WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
       display.setCursor(6, 36);
-      display.print("Timeout: ");
-      display.setCursor(7, 36);
       display.print("Timeout: ");
       display.print(seconds - k);
       display.refresh();
@@ -305,8 +306,10 @@ void FED3::Blink(byte PIN, byte DELAY_MS, byte loops) {
 void FED3::BNC(byte DELAY_MS, byte loops) {
   for (byte i = 0; i < loops; i++)  {
     digitalWrite(BNC_OUT, HIGH);
+    digitalWrite(GREEN_LED, HIGH);
     delay(DELAY_MS);
     digitalWrite(BNC_OUT, LOW);
+    digitalWrite(GREEN_LED, LOW);
     delay(DELAY_MS);
   }
 }
@@ -322,20 +325,10 @@ void FED3::UpdateDisplay() {
   display.print("FED:");
   display.fillRect (6, 20, 200, 22, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
   display.fillRect (35, 46, 130, 80, WHITE);  //erase the pellet data on screen without clearing the entire screen by pasting a white box over it
-
-  if (DisplayPokes == 0) {  //poke indicators off
-    display.setCursor(5, 36);
-    display.print("Free");
-    display.setCursor(6, 36);
-    display.print("Free");
-  }
+  display.setCursor(5, 36); //display which sketch is running
+  display.print(sessiontype);
 
   if (DisplayPokes == 1) {
-    display.setCursor(5, 36);
-    display.print("FR: ");
-    display.setCursor(6, 36);
-    display.print("FR: ");
-    display.print(FR);
     display.setCursor(35, 65);
     display.print("Left: ");
     display.setCursor(95, 65);
@@ -435,7 +428,7 @@ void FED3::DisplayBattery(){
   }
 
   //1 bar
-  else if (& numMotorTurns == 0) {
+  else if (numMotorTurns == 0) {
     display.fillRect (119, 3, 26, 13, WHITE);
     display.fillRect (120, 4, 7, 12, BLACK);
   }
@@ -461,8 +454,8 @@ void FED3::DisplayJamClear() {
 
 //Display pellet retrieval interval
 void FED3::DisplayRetrievalInt() {
-    display.fillRect (79, 22, 70, 15, WHITE); 
-    display.setCursor(80, 36);
+    display.fillRect (91, 22, 70, 15, WHITE); 
+    display.setCursor(92, 36);
     display.print (retInterval);
     display.print ("ms");
     display.refresh();
@@ -470,8 +463,8 @@ void FED3::DisplayRetrievalInt() {
 
 //Display left poke duration
 void FED3::DisplayLeftInt() {
-    display.fillRect (79, 22, 70, 15, WHITE);  
-    display.setCursor(80, 36);
+    display.fillRect (91, 22, 70, 15, WHITE);  
+    display.setCursor(92, 36);
     display.print (leftInterval);
     display.print ("ms");
     display.refresh();
@@ -479,8 +472,8 @@ void FED3::DisplayLeftInt() {
 
 //Display right poke duration
 void FED3::DisplayRightInt() {
-    display.fillRect (79, 22, 70, 15, WHITE);  
-    display.setCursor(80, 36);
+    display.fillRect (91, 22, 70, 15, WHITE);  
+    display.setCursor(92, 36);
     display.print (rightInterval);
     display.print ("ms");
     display.refresh();
@@ -1313,7 +1306,7 @@ void FED3::ClassicUpdateDisplay() {
   }
 
   //1 bar
-  else if (& numMotorTurns == 0) {
+  else if (numMotorTurns == 0) {
     display.fillRect (119, 3, 26, 13, WHITE);
     display.fillRect (120, 4, 7, 12, BLACK);
   }

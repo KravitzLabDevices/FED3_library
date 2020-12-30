@@ -7,7 +7,7 @@
 */
 
 #include <FED3.h>                                       //Include the FED3 library 
-String sketch = "FreeFeed";                             //Unique identifier text for each sketch
+String sketch = "FreeFeed";                             //Unique identifier text for each sketch (this will show up on the screen and in log file)
 FED3 fed3 (sketch);                                     //Start the FED3 object
 
 void setup() {

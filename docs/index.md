@@ -39,7 +39,7 @@ void loop() {
 - **RightCount**: Int, number of pokes on the right nosepoke, initializes to 0 
 - **rightInterval**: Int, duration of the last riht nosepoke in ms
 - **PelletCount**: Int, total number of pellets dispensed, initializes to 0
-- **retInterval**: Int, how long the pellet remained in the well before it was taken in ms. Maximum value is 60000.
+- **retInterval**: Int, how long the pellet remained in the well before it was taken in ms. Times out at 60000ms
 - **Event**: String, variable containing which type of event triggered the datalogging, options are Left, Right, or Pellet
 
 ---

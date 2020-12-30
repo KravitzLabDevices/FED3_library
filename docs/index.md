@@ -33,7 +33,6 @@ void loop() {
 }
 ```
 
-
 ### Variables.  These can be set or recalled in your sketch with 'fed3.Variable'
 - **LeftCount**: Int, total number of pokes on the left nosepoke, initializes to 0 
 - **leftInterval**: Int, duration of the last left nosepoke in ms
@@ -88,9 +87,7 @@ String sketch = "FR1";                                  //Unique identifier text
 FED3 fed3 (sketch);                                     //Start the FED3 object
 
 void setup() {
-  fed3.begin();                                         //FED3 hardware setup commands
-  fed3.FEDmode = 1;                                     //Set display to FEDmode == 1 for an operant session
-  fed3.EnableSleep = true;                              //Enable sleep functionality to save battery
+  fed3.begin();                                         //Setup the FED3 hardware
 }
 
 void loop() {
@@ -101,9 +98,9 @@ void loop() {
     fed3.ConditionedStimulus();                         //Deliver conditioned stimulus (tone and lights)
     fed3.Feed();                                        //Deliver pellet
   }
-  
+
   if (fed3.Right) {                                     //If right poke is triggered
-    fed3.logRightPoke();                                //Log right poke
+    fed3.logRightPoke();
   }
 }
 ```

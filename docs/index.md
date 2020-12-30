@@ -1,21 +1,21 @@
 ## [FED3 library](https://github.com/KravitzLabDevices/FED3_library) documentation
 
 ### Anatomy of a FED3 script. 
-This is an annotation of the [Fixed-Ratio 1 Example](https://github.com/KravitzLabDevices/FED3_library/blob/main/docs/index.md#examples) at the bottom of this page to describe how to write a new FED3 script. Start with this small block of code to import the FED3 library, name your sketch (here it is "FR1"), and start the FED3 object.  The only variable you'll change here is "FR1", which should be set to a unique String of text to identify your sketch.  This text will show up in the logfile in the column "LibaryVersion_Sketch". 
+This is an annotation of the [Fixed-Ratio 1 Example](https://github.com/KravitzLabDevices/FED3_library/blob/main/docs/index.md#examples) at the bottom of this page to describe how to write a new FED3 script. Start with this small block of code to import the FED3 library, name your sketch (here it is "FR1"), and start the FED3 object.  The only thing you'll edit here is the text "FR1", which should be set to a unique String of text to identify your sketch.  This text will show up in the logfile in the column "LibaryVersion_Sketch" to identify the program that collected the data. 
 ```c
 #include <FED3.h>                                       //Include the FED3 library 
 String sketch = "FR1";                                  //Unique identifier text for each sketch
 FED3 fed3 (sketch);                                     //Start the FED3 object
 ```
 
-Next we'll do some setup.  The fed3.begin() function initializes all of the FED3 hardware and gets it ready to use
+In "void setup()" the function fed3.begin() initializes all of the FED3 hardware and gets it ready to use. Don't edit this.
 ```c
 void setup() {
   fed3.begin();                                         //FED3 hardware setup commands
 }
 ```
 
-Finally, the loop is where you will write your behavioral program.  Make sure to include the function fed3.run() at the top of the loop.  This function updates the display and takes care of processor sleeping when appropriate. Define the consequences of what happens when the mouse pokes left (fed3.Left), or right (fed3.Right) under the appropriate if statements.  Variables and functions that FED3 can use are listed below. 
+Finally, "void loop()" is where you will write your behavioral program.  Make sure to include the function fed3.run() at the top of the loop.  fed3.run() updates the display and has the processor sleep when appropriate. Define what happens when the mouse pokes left (fed3.Left), or right (fed3.Right) under the if statements for each.  Variables and functions that FED3 can use to make programs are listed below. 
 
 ```c
 void loop() {

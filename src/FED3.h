@@ -153,8 +153,8 @@ class FED3 {
         void MinorJam();
 
         //timed feeding variables
-        int timedStart = 18; //hour to start the timed Feeding session, out of 24 hour clock
-        int timedEnd = 21; //hour to start the timed Feeding session, out of 24 hour clock
+        int timedStart = 0; //hour to start the timed Feeding session, out of 24 hour clock
+        int timedEnd = 24; //hour to start the timed Feeding session, out of 24 hour clock
 
         // mode variables
         int FED;
@@ -188,6 +188,7 @@ class FED3 {
         // flags
         bool Ratio_Met = false;
         bool EnableSleep = true;
+        bool ClassicFED3 = false;
 
         int EndTime = 0;
         int ratio = 1;

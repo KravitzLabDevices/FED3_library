@@ -1,7 +1,7 @@
 ## [FED3 library](https://github.com/KravitzLabDevices/FED3_library) documentation
 
-### Anatomy of a FED3 script
-Start with this small block of code to import the FED3 library, name your sketch (here it is "FR1"), and start the FED3 object.  The only variable you'll change here is "FR1", which should be set to a unique String of text to identify your sketch.  This text will show up in the logfile in the column "LibaryVersion_Sketch". 
+### Anatomy of a FED3 script. 
+This is an annotation of the [FR1 Example] at the bottom of this page. Start with this small block of code to import the FED3 library, name your sketch (here it is "FR1"), and start the FED3 object.  The only variable you'll change here is "FR1", which should be set to a unique String of text to identify your sketch.  This text will show up in the logfile in the column "LibaryVersion_Sketch". 
 ```c
 #include <FED3.h>                                       //Include the FED3 library 
 String sketch = "FR1";                                  //Unique identifier text for each sketch

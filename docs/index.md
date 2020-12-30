@@ -1,6 +1,39 @@
 ## [FED3 library](https://github.com/KravitzLabDevices/FED3_library) documentation
 
-### Variables.  These can be set or recalled with 'fed3.Variable'
+### Anatomy of a FED3 script
+Start with this small block of code to import the FED3 library, name your sketch (here it is "FR1"), and start the FED3 object.  The only 
+```c
+#include <FED3.h>                                       //Include the FED3 library 
+String sketch = "FR1";                                  //Unique identifier text for each sketch
+FED3 fed3 (sketch);                                     //Start the FED3 object
+```
+
+```c
+void setup() {
+  fed3.begin();                                         //FED3 hardware setup commands
+  fed3.FEDmode = 1;                                     //Set display to FEDmode == 1 for an operant session
+  fed3.EnableSleep = true;                              //Enable sleep functionality to save battery
+}
+```
+
+```c
+void loop() {
+  fed3.run();                                           //Call fed.run at least once per loop
+
+  if (fed3.Left) {                                      //If left poke is triggered
+    fed3.logLeftPoke();                                 //Log left poke
+    fed3.ConditionedStimulus();                         //Deliver conditioned stimulus (tone and lights)
+    fed3.Feed();                                        //Deliver pellet
+  }
+  
+  if (fed3.Right) {                                     //If right poke is triggered
+    fed3.logRightPoke();                                //Log right poke
+  }
+}
+```
+
+
+### Variables.  These can be set or recalled in your sketch with 'fed3.Variable'
 - **LeftCount**: Int, total number of pokes on the left nosepoke, initializes to 0 
 - **leftInterval**: Int, duration of the last left nosepoke in ms
 - **RightCount**: Int, number of pokes on the right nosepoke, initializes to 0 
@@ -11,7 +44,7 @@
 
 ---
   
-### Functions. These can be called with 'fed3.Function()'
+### Functions. These can be called in your sketch with 'fed3.Function()'
 > Poke functions.  
 - **logLeftPoke()**: Causes FED3 to increment **LeftCount** and log the left poke and duration to the SD card
 - **logRightPoke()**: Causes FED3 to increment **RightCount** and log the right poke and duration to the SD card
@@ -40,7 +73,7 @@
 
 ``` 
 MM:DD:YYYY hh:mm:ss, LibaryVersion_Sketch, Device_Number, Battery_Voltage, Motor_Turns, Trial_Info, FR, Event,
-Active_Poke, Left_Poke_Count, Right_Poke_Count, Pellet_Count, Block_Pellet_Count, Retrieval_Time, Poke_Time "
+Active_Poke, Left_Poke_Count, Right_Poke_Count, Pellet_Count, Block_Pellet_Count, Retrieval_Time, Poke_Time
 ```
 
 ---
@@ -48,7 +81,7 @@ Active_Poke, Left_Poke_Count, Right_Poke_Count, Pellet_Count, Block_Pellet_Count
 ### Examples
 > Fixed-Ratio 1: The left poke causes conditioned stimulus and a pellet, and right poke does nothing 
 
-```
+```c
 #include <FED3.h>                                       //Include the FED3 library 
 String sketch = "FR1";                                  //Unique identifier text for each sketch
 FED3 fed3 (sketch);                                     //Start the FED3 object

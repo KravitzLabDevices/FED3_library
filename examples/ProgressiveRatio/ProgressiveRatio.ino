@@ -2,7 +2,7 @@
   Feeding experimentation device 3 (FED3)
   Progressive Ratio Script.
   The number of pellets required increments by the forumla in Richardson and Roberts (1996) https://www.ncbi.nlm.nih.gov/pubmed/8794935
-  
+
   alexxai@wustl.edu and kbarclay@wustl.edu
   December, 2020
 */
@@ -26,12 +26,12 @@ void loop() {
       fed3.ConditionedStimulus();                      //Deliver conditioned stimulus (tone and lights)
       fed3.Feed();                                     //Deliver pellet
       //increment the number of pokes required according to the progressive ratio:
-      pokes_required = round((5 * exp((fed3.PelletCount + 1) * 0.2)) - 5);      
+      pokes_required = round((5 * exp((fed3.PelletCount + 1) * 0.2)) - 5);
       fed3.FR = pokes_required;
       poke_num = 0;                                    //reset the number of pokes back to 0, for the next trial
       fed3.Left = false;
     }
-    else{
+    else {
       fed3.Click();                                    //If not enough pokes, just do a Click
     }
   }

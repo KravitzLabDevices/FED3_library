@@ -15,7 +15,7 @@ void setup() {
 }
 ```
 
-Finally, "void loop()" is where you will write your behavioral program.  Make sure to include the function fed3.run() at the top of the loop.  fed3.run() updates the display and has the processor sleep when appropriate. Define what happens when the mouse pokes left (fed3.Left), or right (fed3.Right) under the if statements for each.  Variables and functions that FED3 can use to make programs are listed below. 
+Finally, "void loop()" is where you will write your behavioral program.  Make sure to include the function fed3.run() at the top of the loop.  fed3.run() updates the display and handles processor sleep modes. Define what happens when the mouse pokes left (fed3.Left), or right (fed3.Right) under the if statements for each.  Variables and functions that FED3 can use to make programs are listed below. 
 
 ```c
 void loop() {

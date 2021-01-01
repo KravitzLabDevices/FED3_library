@@ -57,7 +57,13 @@ void FED3::run() {
   }
   DateTime now = rtc.now();
   unixtime  = now.unixtime();
-  UpdateDisplay();
+  //If in classic mode, run classic display update, otherwise run regular display update
+  if (ClassicFED3) {
+    ClassicUpdateDisplay();
+  }
+  else {
+    UpdateDisplay();
+  }
   goToSleep();
 }
 
@@ -74,13 +80,15 @@ void FED3::logLeftPoke(){
         leftInterval = (millis()-leftPokeTime);
     }
     LeftCount ++;
-    UpdateDisplay();
+    if (ClassicFED3) {
+      ClassicUpdateDisplay();
+    }
+    else {
+      UpdateDisplay();
+    }
     DisplayLeftInt();
     Event  = "Left";
     logdata();
-    if (activePoke == 1) {
-      CheckRatio();
-    }
     Left = false;
 }
 
@@ -94,13 +102,15 @@ void FED3::logRightPoke(){
         rightInterval = (millis()-rightPokeTime);
     }
     RightCount ++;
-    UpdateDisplay();
+    if (ClassicFED3) {
+      ClassicUpdateDisplay();
+    }
+    else {
+      UpdateDisplay();
+    }
     DisplayRightInt();
     Event  = "Right";
     logdata();
-    if (activePoke == 0) {
-      CheckRatio();
-    }
     Right = false;
 }
 
@@ -129,7 +139,6 @@ void FED3::Feed() {
             run();
         }
         BNC(500, 1);
-        Ratio_Met = false;
         PelletCount++;
         numMotorTurns = 0; //reset numMotorTurns
         Event = "Pellet";
@@ -137,7 +146,12 @@ void FED3::Feed() {
         retInterval = 0;
         ratio = ratio + round ((5 * exp (0.2 * PelletCount)) - 5); // this is a formula from Richardson and Roberts (1996) https://www.ncbi.nlm.nih.gov/pubmed/8794935
         PelletAvailable = true;
-        UpdateDisplay();
+        if (ClassicFED3) {
+          ClassicUpdateDisplay();
+        }
+        else {
+          UpdateDisplay();
+        }
         if (timeout > 0) Timeout(timeout); //timeout after each pellet is dropped (you can edit this number)
       }
 
@@ -1027,8 +1041,13 @@ void FED3::begin() {
   //read battery level
   ReadBatteryLevel();
   
-  // Startup display
-  StartScreen();
+  // Startup display uses StartScreen() unless CLassicFED3==true, then use ClassicMenu()
+  if (ClassicFED3 == true){
+    ClassicMenu();
+  }
+  else {
+    StartScreen();
+  }
   display.clearDisplay();
   display.refresh();
 }
@@ -1072,21 +1091,22 @@ void FED3::ClassicMenu () {
   if (FEDmode == 10) FR = 1; // self-stim (reversed)
 
   display.clearDisplay();
-
   display.setCursor(1, 135);
   display.print(filename);
 
   display.setFont(&FreeSans9pt7b);
-  display.setCursor(5, 20);
-  display.println("Select Program");
+  display.setCursor(10, 20); display.println("Classic FED3");
+  display.setCursor(11, 20); display.println("Classic FED3");
   display.fillRect(0, 30, 160, 80, WHITE);
-  display.setCursor(10, 45);
+  display.setCursor(10, 40);
+  display.print("Select Program:");
+  
+  display.setCursor(10, 60);
   //Text to display selected FR ratio
   if (FEDmode == 0) display.print("Free feeding");
-  if (FEDmode == 11) display.print("Timed feeding");
-  if (FEDmode == 1 ||  FEDmode == 2 || FEDmode == 3) {
-    display.print("Fixed Ratio:"); display.print(FR);
-  }
+  if (FEDmode == 1) display.print("Fixed Ratio 1");
+  if (FEDmode == 2) display.print("Fixed Ratio 3");
+  if (FEDmode == 3) display.print("Fixed Ratio 5");
   if (FEDmode == 4) display.print("Progressive Ratio");
   if (FEDmode == 5) display.print("Extinction");
   if (FEDmode == 6) display.print("Light tracking");
@@ -1096,38 +1116,39 @@ void FED3::ClassicMenu () {
   if (FEDmode == 10) display.print("Self-Stimulation");
   if (FEDmode == 8 || FEDmode == 7 || FEDmode == 10) display.setCursor(10, 65);
   if (FEDmode == 8 || FEDmode == 7 || FEDmode == 10) display.print("(reversed)");
-
+  if (FEDmode == 11) display.print("Timed feeding");
+  
+  //Draw animated mouse...
   for (int i = -50; i < 200; i += 15) {
-    display.setCursor(0, 40);
-    //Draw animated mouse...
-    display.fillRoundRect (i + 25, 77, 15, 10, 6, BLACK);  //head
-    display.fillRoundRect (i + 22, 75, 8, 5, 3, BLACK);    //ear
-    display.fillRoundRect (i + 30, 79, 1, 1, 1, WHITE);    //eye
+    display.fillRoundRect (i + 25, 77, 15, 10, 6, BLACK);    //head
+    display.fillRoundRect (i + 22, 75, 8, 5, 3, BLACK);      //ear
+    display.fillRoundRect (i + 30, 79, 1, 1, 1, WHITE);      //eye
 
     //movement of the mouse
     if ((i / 10) % 2 == 0) {
       display.fillRoundRect (i, 79, 32, 17, 10, BLACK);      //body
-      display.drawFastHLine(i - 8, 80, 18, BLACK);        //tail
+      display.drawFastHLine(i - 8, 80, 18, BLACK);           //tail
       display.drawFastHLine(i - 8, 81, 18, BLACK);
       display.drawFastHLine(i - 14, 79, 8, BLACK);
       display.drawFastHLine(i - 14, 80, 8, BLACK);
 
-      display.fillRoundRect (i + 22, 94, 8, 4, 3, BLACK);  //front foot
-      display.fillRoundRect (i , 92, 8, 6, 3, BLACK); //back foot
+      display.fillRoundRect (i + 22, 94, 8, 4, 3, BLACK);    //front foot
+      display.fillRoundRect (i , 92, 8, 6, 3, BLACK);        //back foot
     }
     else {
-      display.fillRoundRect (i + 2, 77, 30, 17, 10, BLACK);    //body
-      display.drawFastHLine(i - 6, 86, 18, BLACK);        //tail
+      display.fillRoundRect (i + 2, 77, 30, 17, 10, BLACK);  //body
+      display.drawFastHLine(i - 6, 86, 18, BLACK);           //tail
       display.drawFastHLine(i - 6, 85, 18, BLACK);
       display.drawFastHLine(i - 12, 87, 8, BLACK);
       display.drawFastHLine(i - 12, 86, 8, BLACK);
 
-      display.fillRoundRect (i + 15, 94, 8, 4, 3, BLACK);  //foot
-      display.fillRoundRect (i + 8, 92, 8, 6, 3, BLACK); //back foot
+      display.fillRoundRect (i + 15, 94, 8, 4, 3, BLACK);    //foot
+      display.fillRoundRect (i + 8, 92, 8, 6, 3, BLACK);     //back foot
     }
-    delay (80);
+
     display.refresh();
-    display.fillRect (i - 25, 75, 90, 35, WHITE);
+    delay (80);
+    display.fillRect (i-25, 73, 90, 35, WHITE);
     previousFEDmode = FEDmode;
     previousFED = FED;
     if (digitalRead (LEFT_POKE) == LOW | digitalRead (RIGHT_POKE) == LOW) SelectMode();
@@ -1137,26 +1158,73 @@ void FED3::ClassicMenu () {
   display.refresh();
 }
 
-
-
-
-/********************************************************
-  Check Ratio (this decides whether FED should dispense or not)
-********************************************************/
-void FED3::CheckRatio(){
-  //Fixed ratio
-  if (FEDmode < 4 and LeftCount % FR == 0 and LeftCount != 0) { //For fixed ratio sessions, test if the number of left counts is divisible by the FR
-      Ratio_Met = true;
+// Set FEDMode
+void FED3::SelectMode() {
+  // Mode select on startup screen
+  //If both pokes are activated
+  if ((digitalRead(LEFT_POKE) == LOW) && (digitalRead(RIGHT_POKE) == LOW)) {
+    tone (BUZZER, 3000, 500);
+    colorWipe(strip.Color(2, 2, 2), 40); // Color wipe
+    colorWipe(strip.Color(0, 0, 0), 20); // OFF
+    EndTime = millis();
+    SetFED = true;
+    setTimed = true;
+    SetDeviceNumber();
   }
 
-  // Progressive ratio
-  if (FEDmode == 4) {
-      if (LeftCount >= (ratio)) { // if LeftCount is greater than or equal to the required ratio
-        Ratio_Met = true;
-      }
+  //If Left Poke is activated
+  else if (digitalRead(LEFT_POKE) == LOW) {
+    EndTime = millis();
+    FEDmode -= 1;
+    tone (BUZZER, 2500, 200);
+    colorWipe(strip.Color(2, 0, 2), 40); // Color wipe
+    colorWipe(strip.Color(0, 0, 0), 20); // OFF
+    if (FEDmode == -1) FEDmode = 11;
   }
+
+  //If Right Poke is activated
+  else if (digitalRead(RIGHT_POKE) == LOW) {
+    EndTime = millis();
+    FEDmode += 1;
+    tone (BUZZER, 2500, 200);
+    colorWipe(strip.Color(2, 2, 0), 40); // Color wipe
+    colorWipe(strip.Color(0, 0, 0), 20); // OFF
+    if (FEDmode == 12) FEDmode = 0;
+  }
+
+  if (FEDmode < 0) FEDmode = 0;
+  if (FEDmode > 11) FEDmode = 11;
+
+  display.fillRect (10, 48, 200, 50, WHITE);  //erase the selected program text
+  display.setCursor(10, 60);  //Display selected program
+  if (FEDmode == 0) display.print("Free feeding");
+  if (FEDmode == 1) display.print("Fixed Ratio 1");
+  if (FEDmode == 2) display.print("Fixed Ratio 3");
+  if (FEDmode == 3) display.print("Fixed Ratio 5");
+  if (FEDmode == 4) display.print("Progressive Ratio");
+  if (FEDmode == 5) display.print("Extinction");
+  if (FEDmode == 6) display.print("Light tracking");
+  if (FEDmode == 7) display.print("FR1");
+  if (FEDmode == 8) display.print("Progressive Ratio");
+  if (FEDmode == 9 || FEDmode == 10) display.print("Self-Stimulation");
+  if (FEDmode == 8 || FEDmode == 7 || FEDmode == 10) display.setCursor(10, 75);
+  if (FEDmode == 8 || FEDmode == 7 || FEDmode == 10) display.print("(reversed)");
+  if (FEDmode == 11) display.print("Timed feeding");
+  display.refresh();
+  
+  while (millis() - EndTime < 1500) {
+    SelectMode();
+  }
+  display.setCursor(10, 90);
+  display.println("...Selected!");
+  display.refresh();
+  delay (500);
+  writeFEDmode();
+  delay (200);
+  NVIC_SystemReset();      // processor software reset
 }
 
+//Display update for Classic FED3 variant
 void FED3::ClassicUpdateDisplay() {
   display.setCursor(5, 15);
   display.print("FED:");
@@ -1351,12 +1419,12 @@ void FED3::ClassicUpdateDisplay() {
       activePoke = 0;
     }
 
-    if (activePoke == 0 && Ratio_Met == false) {
+    if (activePoke == 0) {
       display.fillTriangle (12, 55, 18, 59, 12, 63, WHITE);
       display.fillTriangle (12, 75, 18, 79, 12, 83, BLACK);
     }
 
-    if (activePoke == 1 && Ratio_Met == false) {
+    if (activePoke == 1) {
       display.fillTriangle (12, 75, 18, 79, 12, 83, WHITE);
       display.fillTriangle (12, 55, 18, 59, 12, 63, BLACK);
     }
@@ -1376,105 +1444,6 @@ void FED3::ClassicUpdateDisplay() {
 }
 
 
-// Set FEDMode
-void FED3::SelectMode() {
-  // Mode select on startup screen
-
-  // FEDmodes:
-  // 0 Free feeding
-  // 1 FR1
-  // 2 FR3
-  // 3 FR5
-  // 4 Progressive Ratio
-  // 5 Extinction
-  // 6 Light tracking FR1 task
-  // 7 FR1 (reversed)
-  // 8 PR (reversed)
-  // 9 Optogenetic stimulation
-  // 10 Optogenetic stimulation (reversed)
-  // 11 Timed free feeding
-
-  // Set FR based on FEDmode
-  if (FEDmode == 0 || FEDmode == 11) FR = 0;  // free feeding or timed feeding
-  if (FEDmode == 1 || FEDmode == 7) FR = 1; // FR1 spatial task
-  if (FEDmode == 2) FR = 3;  // FR3
-  if (FEDmode == 3) FR = 5; // FR5
-  if (FEDmode == 4 || FEDmode == 8) FR = 99; // Progressive Ratio
-  if (FEDmode == 5 || FEDmode == 9 || FEDmode == 10) { // Extinction or optogenetic
-    FR = 1;
-    ReleaseMotor ();
-    digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver
-  }
-  if (FEDmode == 6) FR = 1; // FR1 light tracking task
-
-  previousFEDmode = FEDmode;
-
-  if ((digitalRead(LEFT_POKE) == LOW) && (digitalRead(RIGHT_POKE) == LOW)) {
-    tone (BUZZER, 3000, 500);
-    colorWipe(strip.Color(2, 2, 2), 40); // Color wipe
-    colorWipe(strip.Color(0, 0, 0), 20); // OFF
-    EndTime = millis();
-    SetFED = true;
-    setTimed = true;
-    SetDeviceNumber();
-  }
-
-  //Set FEDMode
-  else if (digitalRead(LEFT_POKE) == LOW) {
-    EndTime = millis();
-    FEDmode -= 1;
-    tone (BUZZER, 2500, 200);
-    colorWipe(strip.Color(2, 0, 2), 40); // Color wipe
-    colorWipe(strip.Color(0, 0, 0), 20); // OFF
-    if (FEDmode == -1) FEDmode = 11;
-  }
-
-  else if (digitalRead(RIGHT_POKE) == LOW) {
-    EndTime = millis();
-    FEDmode += 1;
-    tone (BUZZER, 2500, 200);
-    colorWipe(strip.Color(2, 2, 0), 40); // Color wipe
-    colorWipe(strip.Color(0, 0, 0), 20); // OFF
-    if (FEDmode == 12) FEDmode = 0;
-  }
-
-  if (FEDmode < 0) FEDmode = 0;
-  if (FEDmode > 11) FEDmode = 11;
-
-  display.setCursor(5, 20);
-  display.println ("Select Program");
-  display.fillRect (0, 30, 160, 80, WHITE);
-  display.setCursor(10, 45);
-  //Text to display selected FR ratio
-  if (FEDmode == 0) display.print("Free feeding");
-  if (FEDmode == 1 ||  FEDmode == 2 || FEDmode == 3) {
-    display.print("Fixed Ratio:"); display.print(FR);
-  }
-  if (FEDmode == 4) display.print("Progressive Ratio");
-  if (FEDmode == 5) display.print("Extinction");
-  if (FEDmode == 6) display.print("Light tracking");
-  if (FEDmode == 7) display.print("FR1");
-  if (FEDmode == 8) display.print("Progressive Ratio");
-  if (FEDmode == 9 || FEDmode == 10) display.print("Self-Stimulation");
-  if (FEDmode == 8 || FEDmode == 7 || FEDmode == 10) display.setCursor(10, 65);
-  if (FEDmode == 8 || FEDmode == 7 || FEDmode == 10) display.print("(reversed)");
-  if (FEDmode == 11) display.print("Timed feeding");
-
-  display.refresh();
-
-  while (millis() - EndTime < 2000) {
-    SelectMode();
-  }
-
-  display.setCursor(5, 90);
-  display.println("...Selected!");
-  delay (500);
-  display.refresh();
-
-  writeFEDmode();
-  delay (200);
-  NVIC_SystemReset();      // processor software reset
-}
 
 void FED3::Classiclogdata() {
   /////////////////////////////////

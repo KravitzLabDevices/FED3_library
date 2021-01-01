@@ -1114,7 +1114,7 @@ void FED3::ClassicMenu () {
   if (FEDmode == 8) display.print("Progressive Ratio");
   if (FEDmode == 9) display.print("Self-Stimulation");
   if (FEDmode == 10) display.print("Self-Stimulation");
-  if (FEDmode == 8 || FEDmode == 7 || FEDmode == 10) display.setCursor(10, 65);
+  if (FEDmode == 8 || FEDmode == 7 || FEDmode == 10) display.setCursor(10, 75);
   if (FEDmode == 8 || FEDmode == 7 || FEDmode == 10) display.print("(reversed)");
   if (FEDmode == 11) display.print("Timed feeding");
   
@@ -1215,7 +1215,7 @@ void FED3::SelectMode() {
   while (millis() - EndTime < 1500) {
     SelectMode();
   }
-  display.setCursor(10, 90);
+  display.setCursor(10, 100);
   display.println("...Selected!");
   display.refresh();
   delay (500);
@@ -1272,7 +1272,7 @@ void FED3::ClassicUpdateDisplay() {
     display.setCursor(6, 36);
     display.print("PR: ");
     display.fillRect (35, 24, 200, 55, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
-    display.print(ratio - LeftCount);
+    display.print(FR);
   }
 
   if (FEDmode == 5) {

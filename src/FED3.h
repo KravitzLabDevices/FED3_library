@@ -116,6 +116,7 @@ class FED3 {
         void DisplayBattery();
         void DisplayDateTime();
         void DisplayIndicators();
+        void DisplayMouse();
         
         // Startup menu function
         void ClassicMenu();

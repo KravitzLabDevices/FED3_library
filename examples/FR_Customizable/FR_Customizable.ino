@@ -32,14 +32,12 @@ void loop() {
 
   // If Left poke is triggered
   if (fed3.Left) {
+    fed3.Click();                                 //click stimulus
     fed3.logLeftPoke();                               //Log left poke
     if (LeftActive == true) {
       if (fed3.LeftCount % FR == 0) {                 //if fixed ratio is  met
         fed3.ConditionedStimulus();                   //deliver conditioned stimulus (tone and lights)
         fed3.Feed();                                  //deliver pellet
-      }
-      else {                                          //if fixed ratio is not met
-        fed3.Click();                                 //click stimulus
       }
     }
   }
@@ -47,13 +45,11 @@ void loop() {
   // If Right poke is triggered
   if (fed3.Right) {
     fed3.logRightPoke();                              //Log Right poke
+    fed3.Click();                                 //click stimulus
     if (LeftActive == false) {
       if (fed3.RightCount % FR == 0) {                 //if fixed ratio is  met
         fed3.ConditionedStimulus();                   //deliver conditioned stimulus (tone and lights)
         fed3.Feed();                                  //deliver pellet
-      }
-      else {                                          //if fixed ratio is not met
-        fed3.Click();                                 //click stimulus
       }
     }
   }

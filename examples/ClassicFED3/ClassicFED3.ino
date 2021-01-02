@@ -31,7 +31,7 @@ int pokes_required = 0;                                // increase the number of
 
 void setup() {
   fed3.ClassicFED3 = true;
-  fed3.begin();                  //Setup the FED3 hardware
+  fed3.begin();                                         //Setup the FED3 hardware
 }
 
 void loop() {
@@ -39,22 +39,27 @@ void loop() {
   // Mode 0: Free feeding
   ///////////////////////////////////////////////////////
   if (fed3.FEDmode == 0) {
-    fed3.DisplayPokes = false;   //Turn off poke indicators for free feeding mode
+    fed3.sessiontype = "Free_feed";                     //The text in "sessiontype" will appear on the screen and in the logfile
+    fed3.DisplayPokes = false;                          //Turn off poke indicators for free feeding mode
     fed3.Feed();
   }
 
   ///////////////////////////////////////////////////////
   // Modes 1-3: Fixed Ratio Programs FR1, FR3, FR5
   ///////////////////////////////////////////////////////
+
   if ((fed3.FEDmode == 1) or (fed3.FEDmode == 2) or (fed3.FEDmode == 3)) {
+    if (fed3.FEDmode == 1) fed3.sessiontype = "FR1";    //The text in "sessiontype" will appear on the screen and in the logfile
+    if (fed3.FEDmode == 2) fed3.sessiontype = "FR3";    //The text in "sessiontype" will appear on the screen and in the logfile
+    if (fed3.FEDmode == 3) fed3.sessiontype = "FR5";    //The text in "sessiontype" will appear on the screen and in the logfile
     if (fed3.Left) {
       fed3.logLeftPoke();                               //Log left poke
-      if (fed3.LeftCount % fed3.FR == 0) {                 //if fixed ratio is  met
-        fed3.ConditionedStimulus();                   //deliver conditioned stimulus (tone and lights)
-        fed3.Feed();                                  //deliver pellet
+      if (fed3.LeftCount % fed3.FR == 0) {              //if fixed ratio is  met
+        fed3.ConditionedStimulus();                     //deliver conditioned stimulus (tone and lights)
+        fed3.Feed();                                    //deliver pellet
       }
     }
-    if (fed3.Right) {                                     //If right poke is triggered
+    if (fed3.Right) {                                    //If right poke is triggered
       fed3.logRightPoke();
     }
   }
@@ -63,6 +68,7 @@ void loop() {
   // Mode 4: Progressive Ratio
   ///////////////////////////////////////////////////////
   if (fed3.FEDmode == 4) {
+    fed3.sessiontype = "ProgRatio";                      //The text in "sessiontype" will appear on the screen and in the logfile
     if (fed3.Left) {                                     //If left poke is triggered and pellet is not in the well
       fed3.logLeftPoke();                                //Log left poke
       fed3.Click();                                      //Click
@@ -84,6 +90,7 @@ void loop() {
   // Mode 5: Extinction
   ///////////////////////////////////////////////////////
   if (fed3.FEDmode == 5) {
+    fed3.sessiontype = "Extinct";                        //The text in "sessiontype" will appear on the screen and in the logfile
     if (fed3.Left) {
       fed3.logLeftPoke();                                //Log left poke
       fed3.ConditionedStimulus();                        //deliver conditioned stimulus (tone and lights)
@@ -97,22 +104,24 @@ void loop() {
   ///////////////////////////////////////////////////////
   // Mode 6: Light tracking FR1 task
   ///////////////////////////////////////////////////////
-  fed3.EnableSleep = false;                             // We need to leave the NeoPixels on for this task but sleep mode shuts them off to save power.  Therefore we must disable sleep mode to run this task.
   if (fed3.FEDmode == 6) {
-
+    fed3.sessiontype = "Light Trk";                     //The text in "sessiontype" will appear on the screen and in the logfile
+    fed3.EnableSleep = false;                           //Sleep mode shuts the NeoPixels off to save power.  Therefore to leave pixels on during this task we must disable sleep mode.
+    fed3.leftStimulus();
   }
 
   ///////////////////////////////////////////////////////
   // Mode 7: FR1 (reversed)
   ///////////////////////////////////////////////////////
   if (fed3.FEDmode == 7) {
+    fed3.sessiontype = "FR1_R";                         //The text in "sessiontype" will appear on the screen and in the logfile
     fed3.activePoke = 0;                                //Set activePoke to 0 to make right poke active
     if (fed3.Left) {                                    //If left poke
       fed3.logLeftPoke();                               //Log left poke
     }
     if (fed3.Right) {                                   //If right poke is triggered
       fed3.logRightPoke();                              //Log Right Poke
-      fed3.ConditionedStimulus();                      //Deliver conditioned stimulus (tone and lights)
+      fed3.ConditionedStimulus();                       //Deliver conditioned stimulus (tone and lights)
       fed3.Feed();                                      //deliver pellet
     }
   }
@@ -121,24 +130,25 @@ void loop() {
   // Mode 8: PR (reversed)
   ///////////////////////////////////////////////////////
   if (fed3.FEDmode == 8) {
-    fed3.activePoke = 0;                                 //Right poke is active
-    if (fed3.Right) {                                    //If Right poke is triggered
-      fed3.logRightPoke();                               //Log Right poke
-      poke_num++;                                        //store this new poke number as current poke number.
-      if (poke_num == pokes_required) {                  //check to see if the mouse has acheived the correct number of pokes in order to receive the pellet
-        fed3.ConditionedStimulus();                      //Deliver conditioned stimulus (tone and lights)
-        fed3.Feed();                                     //Deliver pellet
+    fed3.sessiontype = "PR_R";                          //The text in "sessiontype" will appear on the screen and in the logfile
+    fed3.activePoke = 0;                                //Right poke is active
+    if (fed3.Right) {                                   //If Right poke is triggered
+      fed3.logRightPoke();                              //Log Right poke
+      poke_num++;                                       //store this new poke number as current poke number.
+      if (poke_num == pokes_required) {                 //check to see if the mouse has acheived the correct number of pokes in order to receive the pellet
+        fed3.ConditionedStimulus();                     //Deliver conditioned stimulus (tone and lights)
+        fed3.Feed();                                    //Deliver pellet
         //increment the number of pokes required according to the progressive ratio:
         pokes_required = round((5 * exp((fed3.PelletCount + 1) * 0.2)) - 5);
         fed3.FR = pokes_required;
-        poke_num = 0;                                    //reset the number of pokes back to 0, for the next trial
+        poke_num = 0;                                   //reset the number of pokes back to 0, for the next trial
         fed3.Right = false;
       }
       else {
-        fed3.Click();                                    //If not enough pokes, just do a Click
+        fed3.Click();                                   //If not enough pokes, just do a Click
       }
     }
-    if (fed3.Left) {                                     //If left poke is triggered and pellet is not in the well
+    if (fed3.Left) {                                 44   //If left poke is triggered and pellet is not in the well
       fed3.logLeftPoke();
     }
   }
@@ -147,6 +157,7 @@ void loop() {
   // Mode 9: Optogenetic stimulation
   ///////////////////////////////////////////////////////
   if (fed3.FEDmode == 9) {
+    fed3.sessiontype = "OptoStim";                       //The text in "sessiontype" will appear on the screen and in the logfile
     if (fed3.Left) {                                    //If left poke
       fed3.logLeftPoke();                               //Log left poke
       fed3.ConditionedStimulus();                       //Deliver conditioned stimulus (tone and lights)
@@ -161,7 +172,8 @@ void loop() {
   // Mode 10: Optogenetic stimulation (reversed)
   ///////////////////////////////////////////////////////
   if (fed3.FEDmode == 10) {
-    fed3.activePoke = 0;                                //Set activePoke to 0 to make right poke active
+    fed3.sessiontype = "OptoStim_R";                     //The text in "sessiontype" will appear on the screen and in the logfile
+    fed3.activePoke = 0;                                 //Set activePoke to 0 to make right poke active
     if (fed3.Right) {                                    //If Right poke
       fed3.logRightPoke();                               //Log Right poke
       fed3.ConditionedStimulus();                        //Deliver conditioned stimulus (tone and lights)
@@ -176,8 +188,10 @@ void loop() {
   // Mode 11: Timed Feeding
   ///////////////////////////////////////////////////////
   if (fed3.FEDmode == 11) {
+    fed3.sessiontype = "Timed_Feed";                       //The text in "sessiontype" will appear on the screen and in the logfile
 
   }
 
-  fed3.run();                    //Call fed.run at least once per loop
+  //Call fed.run at least once per loop
+  fed3.run();
 }

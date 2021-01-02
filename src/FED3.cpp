@@ -285,6 +285,20 @@ void FED3::colorWipe(uint32_t c, uint8_t wait) {
   digitalWrite (MOTOR_ENABLE, LOW);  //DISABLE motor driver
 }
 
+// Visual tracking stimulus - left
+void FED3::leftStimulus() {
+  digitalWrite (MOTOR_ENABLE, HIGH);
+  strip.setPixelColor(0, strip.Color(2, 0, 2, 2) );
+  strip.show();
+}
+
+// Visual tracking stimulus - right
+void FED3::rightStimulus() {
+  digitalWrite (MOTOR_ENABLE, HIGH);
+  strip.setPixelColor(7, strip.Color(2, 0, 2, 2) );
+  strip.show();
+}
+
 //Short helper function for blinking LEDs and BNC out port
 void FED3::Blink(byte PIN, byte DELAY_MS, byte loops) {
   for (byte i = 0; i < loops; i++)  {
@@ -318,14 +332,8 @@ void FED3::UpdateDisplay() {
   display.print("FED:");
   display.fillRect (6, 20, 200, 22, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
   display.fillRect (35, 46, 130, 80, WHITE);  //erase the pellet data on screen without clearing the entire screen by pasting a white box over it
-
-  if (ClassicFED3==true){
-    ClassicUpdateDisplay();
-  }
-  else{
-    display.setCursor(5, 36); //display which sketch is running
-    display.print(sessiontype);
-  }
+  display.setCursor(5, 36); //display which sketch is running
+  display.print(sessiontype);
 
   if (DisplayPokes == 1) {
     display.setCursor(35, 65);
@@ -1170,119 +1178,6 @@ void FED3::SelectMode() {
   writeFEDmode();
   delay (200);
   NVIC_SystemReset();      // processor software reset
-}
-
-//Display update for Classic FED3 variant
-void FED3::ClassicUpdateDisplay() {
-  if (FEDmode == 0) {
-    display.fillRect (35, 24, 200, 50, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
-    display.setCursor(22, 64);
-    display.print("Free Feeding");
-  }
-
-  if (FEDmode == 11) {
-    display.fillRect (35, 24, 200, 50, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
-    display.setCursor(22, 64);
-    display.println("Timed Feeding");
-    display.setCursor(22, 80);
-    display.print(timedStart);
-    display.print(" to ");
-    display.print(timedEnd);
-  }
-
-  if (FEDmode < 4 & FEDmode != 0 & FEDmode != 11) {
-    display.setCursor(5, 36);
-    display.print("FR: ");
-    display.setCursor(6, 36);
-    display.print("FR: ");
-    display.print(FR);
-  }
-
-  if (FEDmode == 4 & LeftCount == 0) { //Prog ratio, first poke
-    display.setCursor(5, 36);
-    display.print("PR: ");
-    display.setCursor(6, 36);
-    display.print("PR: ");
-    display.fillRect (35, 24, 200, 55, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
-    display.print(1);
-  }
-
-  if (FEDmode == 4 & LeftCount != 0) { // Prog ratio, NOT first poke
-    display.setCursor(5, 36);
-    display.print("PR: ");
-    display.setCursor(6, 36);
-    display.print("PR: ");
-    display.fillRect (35, 24, 200, 55, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
-    display.print(FR);
-  }
-
-  if (FEDmode == 5) {
-    display.setCursor(5, 36);
-    display.print("Extinct");
-  }
-
-  if (FEDmode == 6) {
-    display.setCursor(5, 36);
-    display.print("Light trk");
-  }
-
-  if (FEDmode == 7) {
-    display.setCursor(5, 36);
-    display.print("FR1 (R)");
-  }
-
-  if (FEDmode == 8 & RightCount == 0) { //Prog ratio, first poke
-    display.setCursor(5, 36);
-    display.print("PR(R): ");
-    display.setCursor(6, 36);
-    display.print("PR(R): ");
-    display.fillRect (55, 24, 200, 55, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
-    display.print(1);
-  }
-
-  if (FEDmode == 8 & RightCount != 0) { // Prog ratio, NOT first poke
-    display.setCursor(5, 36);
-    display.print("PR(R): ");
-    display.setCursor(6, 36);
-    display.print("PR(R): ");
-    display.fillRect (55, 24, 200, 55, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
-    display.print(ratio - RightCount);
-  }
-
-  if (FEDmode == 9) {
-    display.setCursor(5, 36);
-    display.print("Stim");
-  }
-
-  if (FEDmode == 10) {
-    display.setCursor(5, 36);
-    display.print("Stim (R)");
-  }
-
-  if (FEDmode != 11 & FEDmode != 0) { // don't erase this if it's a free or timed feeding session
-    display.fillRect (35, 42, 130, 80, WHITE);  //erase the pellet data on screen without clearing the entire screen by pasting a white box over it
-  }
-
-  display.fillRect (93, 90, 70, 20, WHITE);  //erase the pellet data on screen without clearing the entire screen by pasting a white box over it
-
-  if (FEDmode > 0 & FEDmode != 11) {
-    display.setCursor(35, 65);
-    display.print("Left: ");
-    display.setCursor(95, 65);
-    display.print(LeftCount);
-
-    display.setCursor(35, 85);
-    display.print("Right:  ");
-    display.setCursor(95, 85);
-    display.print(RightCount);
-  }
-
-  if (FEDmode != 5 && FEDmode != 9 && FEDmode != 10) {  //don't show pellets if extinction or opto session
-    display.setCursor(35, 105);
-    display.print("Pellets:");
-    display.setCursor(95, 105);
-    display.print(PelletCount);
-  }
 }
 
 void FED3::Classiclogdata() {

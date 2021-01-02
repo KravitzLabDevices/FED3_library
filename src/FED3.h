@@ -107,7 +107,6 @@ class FED3 {
         
         // Display functions
         void UpdateDisplay();
-        void ClassicUpdateDisplay();
         void DisplaySDError();
         void DisplayJamClear();
         void DisplayRetrievalInt();
@@ -117,6 +116,8 @@ class FED3 {
         void DisplayDateTime();
         void DisplayIndicators();
         void DisplayMouse();
+        void leftStimulus();
+        void rightStimulus();
         
         // Startup menu function
         void ClassicMenu();

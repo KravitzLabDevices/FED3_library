@@ -5,10 +5,10 @@
   erclin@ucdavis.edu
   December 2020 
 
-  FED was originally developed by Nguyen at al and published in 2016:
+  The first FED device was developed by Nguyen at al and published in 2016:
   https://www.ncbi.nlm.nih.gov/pubmed/27060385
 
-  This device includes hardware and code from:
+  FED3 includes hardware and code from:
   *** Adafruit, who made the hardware breakout boards and associated code we used in FED ***
 
   Cavemoa's excellent examples of datalogging with the Adalogger:
@@ -70,14 +70,8 @@ void FED3::logLeftPoke(){
   leftPokeTime = millis();
   LeftCount ++;
   leftInterval = 0.0;
-  display.fillCircle(25, 59, 5, BLACK);
-  display.refresh();
-  while (digitalRead (LEFT_POKE) == LOW) {  //Hang here while poke is poked
-    delay(1);
-  }
-  if (digitalRead (LEFT_POKE)==HIGH){
-    leftInterval = (millis()-leftPokeTime);
-  }
+  while (digitalRead (LEFT_POKE) == LOW) {}  //Hang here until poke is clear
+  leftInterval = (millis()-leftPokeTime);
   UpdateDisplay();
   DisplayLeftInt();
   Event = "Left";
@@ -90,14 +84,8 @@ void FED3::logRightPoke(){
   rightPokeTime = millis();
   RightCount ++;
   rightInterval = 0.0;
-  display.fillCircle(25, 79, 5, BLACK);
-  display.refresh();
-  while (digitalRead (RIGHT_POKE) == LOW) {  //Hang here while poke is poked
-    delay(1);
-  }
-  if (digitalRead (LEFT_POKE)==HIGH){
-    rightInterval = (millis()-rightPokeTime);
-  }
+  while (digitalRead (RIGHT_POKE) == LOW) {} //Hang here until poke is clear
+  rightInterval = (millis()-rightPokeTime);
   UpdateDisplay();
   DisplayRightInt();
   Event = "Right";
@@ -397,21 +385,15 @@ void FED3::DisplayIndicators(){
   display.drawCircle(25, 99, 5, BLACK);
 
   //Poke indicators
-  if (DisplayPokes == 1) { //only make circles for pokes if DisplayPokes==1
-    //draw circles for  pokes
-    display.fillCircle(25, 59, 5, WHITE); //left poke
-    display.fillCircle(25, 79, 5, WHITE); //right poke
-    display.drawCircle(25, 59, 5, BLACK);
-    display.drawCircle(25, 79, 5, BLACK);
- 
+  if (DisplayPokes == 1) { //only make active poke indicators if DisplayPokes==1
     //Active poke indicator triangles
     if (activePoke == 0) {
-      display.fillTriangle (12, 55, 18, 59, 12, 63, WHITE);
-      display.fillTriangle (12, 75, 18, 79, 12, 83, BLACK);
+      display.fillTriangle (20, 55, 26, 59, 20, 63, WHITE);
+      display.fillTriangle (20, 75, 26, 79, 20, 83, BLACK);
     }
     if (activePoke == 1) {
-      display.fillTriangle (12, 75, 18, 79, 12, 83, WHITE);
-      display.fillTriangle (12, 55, 18, 59, 12, 63, BLACK);
+      display.fillTriangle (20, 75, 26, 79, 20, 83, WHITE);
+      display.fillTriangle (20, 55, 26, 59, 20, 63, BLACK);
     }
   }
 }
@@ -511,7 +493,7 @@ void FED3::StartScreen(){
   display.print(filename);
 
   //Display FED verison number at startup
-  display.setCursor(2, 119);
+  display.setCursor(2, 120);
   display.print("v: ");
   display.print(VER);
   display.print("_");
@@ -573,7 +555,7 @@ void FED3::DisplayMouse() {
     }
     display.refresh();
     delay (80);
-    display.fillRect (i-25, 73, 95, 35, WHITE);
+    display.fillRect (i-25, 73, 95, 33, WHITE);
     previousFEDmode = FEDmode;
     previousFED = FED;
     
@@ -644,7 +626,7 @@ void FED3::CreateDataFile () {
 //Write the header to the datafile
 void FED3::writeHeader() {
   // Write data header to file of uSD.
-  logfile.println("MM:DD:YYYY hh:mm:ss,LibaryVersion_Sketch,Device_Number,Battery_Voltage,Motor_Turns,Trial_Info,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,Poke_Time");
+  logfile.println("MM:DD:YYYY hh:mm:ss,LibaryVersion,Sessiontype,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,Poke_Time");
 }
 
 //write a configfile (this contains the FED device number)
@@ -683,10 +665,14 @@ void FED3::logdata() {
   // Log library version and Sketch identifier text
   /////////////////////////////////
   logfile.print(VER); // Print library version
-  logfile.print("_");
+  logfile.print(",");
+  
+  /////////////////////////////////
+  // Log Trial Info
+  /////////////////////////////////
   logfile.print(sessiontype);  //print Sketch identifier
   logfile.print(",");
-
+  
   /////////////////////////////////
   // Log FED device number
   /////////////////////////////////
@@ -704,20 +690,6 @@ void FED3::logdata() {
   /////////////////////////////////
   logfile.print(numMotorTurns); // Print the number of attempts to dispense a pellet
   logfile.print(",");
-
-  /////////////////////////////////
-  // Log Trial Info
-  /////////////////////////////////
-  if (DisplayPokes == 0) {
-    logfile.print("Free"); // Print trial type
-    logfile.print(",");
-  }
-
-  if (DisplayPokes == 1) {
-    logfile.print("FR"); // Print FR 
-    logfile.print(FR); // Print FR ratio
-    logfile.print(",");
-  }
 
   /////////////////////////////////
   // Log FR ratio
@@ -760,7 +732,7 @@ void FED3::logdata() {
     logfile.print(sqrt (-1)); // print NaN if it's not a pellet Event
   }
 
-  else if (retInterval < 60000 ) {  // only log retrieval intervals below 1 minute
+  else if (retInterval < 60000 ) {  // only log retrieval intervals below 1 minute (FED should not record any longer than this)
     logfile.print(retInterval/1000.000); // print interval between pellet dispensing and being taken
   }
 
@@ -1265,191 +1237,6 @@ void FED3::ClassicMenu () {
   ReadBatteryLevel();
   display.clearDisplay();
   display.refresh();
-}
-
-void FED3::Classiclogdata() {
-  /////////////////////////////////
-  // Log data and time 
-  /////////////////////////////////
-  DateTime now = rtc.now();
-  logfile.print(now.month());
-  logfile.print("/");
-  logfile.print(now.day());
-  logfile.print("/");
-  logfile.print(now.year());
-  logfile.print(" ");
-  logfile.print(now.hour());
-  logfile.print(":");
-  if (now.minute() < 10)
-    logfile.print('0');      // Trick to add leading zero for formatting
-  logfile.print(now.minute());
-  logfile.print(":");
-  if (now.second() < 10)
-    logfile.print('0');      // Trick to add leading zero for formatting
-  logfile.print(now.second());
-  logfile.print(",");
-
-  /////////////////////////////////
-  // Log library version and Sketch identifier text
-  /////////////////////////////////
-  logfile.print(VER); // Print library version
-  logfile.print("_");
-  logfile.print(sessiontype);  //print Sketch identifier
-  logfile.print(",");
-
-  /////////////////////////////////
-  // Log FED device number
-  /////////////////////////////////
-  logfile.print(FED); // 
-  logfile.print(",");
-
-  /////////////////////////////////
-  // Log battery voltage
-  /////////////////////////////////
-  logfile.print(measuredvbat); // 
-  logfile.print(",");
-
-  /////////////////////////////////
-  // Log motor turns
-  /////////////////////////////////
-  logfile.print(numMotorTurns); // Print the number of attempts to dispense a pellet
-  logfile.print(",");
-
-  /////////////////////////////////
-  // Log Trial Info
-  /////////////////////////////////
-  if (FEDmode == 4) {
-    logfile.print("PR");
-    logfile.print(round((5 * exp (0.2 * PelletCount)) - 5)); // Print current PR ratio
-    logfile.print(",");
-  }
-
-  else if (FEDmode == 8) {
-    logfile.print("PR_reversed");
-    logfile.print(round((5 * exp (0.2 * PelletCount)) - 5)); // Print current PR ratio
-    logfile.print(",");
-  }
-
-  else if (FEDmode == 0) {
-    logfile.print("FED"); // Print trial type
-    logfile.print(",");
-  }
-
-  else if (FEDmode == 5) {
-    logfile.print("Extinction"); // Print trial type
-    logfile.print(",");
-  }
-
-  else if (FEDmode == 6) {
-    logfile.print("FR1_Light_tracking"); // Print trial type
-    logfile.print(",");
-  }
-
-  else if (FEDmode == 7) {
-    logfile.print("FR1_reversed"); // Print trial type
-    logfile.print(",");
-  }
-
-  else if (FEDmode == 9) {
-    logfile.print("Self_stim"); // Print trial type
-    logfile.print(",");
-  }
-
-  else if (FEDmode == 10) {
-    logfile.print("Self_stim_reversed"); // Print trial type
-    logfile.print(",");
-  }
-
-  else if (FEDmode == 11) {
-    logfile.print("Timed_"); // Print trial type
-    logfile.print(timedStart); // Print trial type
-    logfile.print("to"); // Print trial type
-    logfile.print(timedEnd); // Print trial type
-    logfile.print(",");
-  }
-
-  else {
-    logfile.print("FR"); // Print FR 
-    logfile.print(FR); // Print FR ratio
-    logfile.print(",");
-  }
-
-  /////////////////////////////////
-  // Log FR ratio
-  /////////////////////////////////
-  logfile.print(FR);
-  logfile.print(",");
-
-  /////////////////////////////////
-  // Log event type (pellet, right, left)
-  /////////////////////////////////
-  logfile.print(Event); 
-  logfile.print(",");
-
-  /////////////////////////////////
-  // Log Active poke side (left, right)
-  /////////////////////////////////
-  if (activePoke == 0)  logfile.print("Right"); //
-  if (activePoke == 1)  logfile.print("Left"); //
-  logfile.print(",");
-
-  /////////////////////////////////
-  // Log data (leftCount, RightCount, Pellets
-  /////////////////////////////////
-  logfile.print(LeftCount); // Print Left poke count
-  logfile.print(",");
-    
-  logfile.print(RightCount); // Print Right poke count
-  logfile.print(",");
-
-  logfile.print(PelletCount); // print Pellet counts
-  logfile.print(",");
-
-  logfile.print(BlockPelletCount); // print Block Pellet counts
-  logfile.print(",");
-
-  /////////////////////////////////
-  // Log pellet retrieval interval
-  /////////////////////////////////
-//   if (pellet == false ) {
-    if (Event == "Pellet"){
-    logfile.print(sqrt (-1)); // print NaN if it's not a pellet line!
-  }
-
-  else if (retInterval < 60000 ) {  // only log retrieval intervals below 2 minutes
-    logfile.print(retInterval/1000.000); // print interval between pellet dispensing and being taken
-  }
-
-  else if (retInterval >= 60000) {
-    logfile.print("Timed_out"); // print "Timed_out" if retreival interval is >60s
-  }
-
-  else {
-    logfile.print("Error"); // print error if value is < 0 (this shouldn't ever happen)
-  }
-  logfile.print(",");
-  
-  /////////////////////////////////
-  // Log poke duration
-  /////////////////////////////////
-//   if (pellet == true ) {
-  if (Event == "Pellet"){
-    logfile.println(sqrt (-1)); // print NaN 
-  }
-
-  else if (Left) {  // 
-    logfile.println(leftInterval/1000.000); // print left poke timing
-  }
-
-  else if (Right) {
-    logfile.println(rightInterval/1000.000); // print left poke timing
-  }
-
-  /////////////////////////////////
-  // logfile.flush write to the SD card
-  /////////////////////////////////
-  Blink(GREEN_LED, 100, 2);
-  logfile.flush();
 }
 
 //write a FEDmode file (this contains the last used FEDmode)

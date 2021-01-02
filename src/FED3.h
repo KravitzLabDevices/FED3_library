@@ -86,7 +86,6 @@ class FED3 {
         File stopfile;      // Create another file object
         char filename[15];  // Array for file name data logged to named in setup
         void logdata();
-        void Classiclogdata();
         void CreateFile();
         void CreateDataFile ();
         void writeHeader();

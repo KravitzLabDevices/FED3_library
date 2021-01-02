@@ -24,9 +24,9 @@
 */
 
 
-/****************************************************************************************************************
+/**************************************************************************************************************************************************
                                                                                                     Startup stuff
-****************************************************************************************************************/
+**************************************************************************************************************************************************/
 #include "Arduino.h"
 #include "FED3.h"
 
@@ -56,6 +56,7 @@ void FED3::run() {
     PelletAvailable = false;
   }
   DateTime now = rtc.now();
+  currentHour = now.hour(); //useful for timed feeding sessions
   unixtime  = now.unixtime();
   UpdateDisplay();
   goToSleep();
@@ -66,36 +67,42 @@ void FED3::run() {
 **************************************************************************************************************************************************/
 //log left poke
 void FED3::logLeftPoke(){
-    leftInterval = 0.0;
-    leftPokeTime = millis();
-    display.fillCircle(25, 59, 5, BLACK);
-    display.refresh();
-    while (digitalRead (LEFT_POKE) == LOW) {  //After pellet is detected, hang here to detect when it is removed
-        leftInterval = (millis()-leftPokeTime);
-    }
-    LeftCount ++;
-    UpdateDisplay();
-    DisplayLeftInt();
-    Event  = "Left";
-    logdata();
-    Left = false;
+  leftPokeTime = millis();
+  LeftCount ++;
+  leftInterval = 0.0;
+  display.fillCircle(25, 59, 5, BLACK);
+  display.refresh();
+  while (digitalRead (LEFT_POKE) == LOW) {  //Hang here while poke is poked
+    delay(1);
+  }
+  if (digitalRead (LEFT_POKE)==HIGH){
+    leftInterval = (millis()-leftPokeTime);
+  }
+  UpdateDisplay();
+  DisplayLeftInt();
+  Event = "Left";
+  logdata();
+  Left = false;
 }
 
 //log right poke
 void FED3::logRightPoke(){
-    rightInterval = 0.0;
-    rightPokeTime = millis();
-    display.fillCircle(25, 79, 5, BLACK);
-    display.refresh();
-    while (digitalRead (RIGHT_POKE) == LOW) {  //After pellet is detected, hang here to detect when it is removed
-        rightInterval = (millis()-rightPokeTime);
-    }
-    RightCount ++;
-    UpdateDisplay();
-    DisplayRightInt();
-    Event  = "Right";
-    logdata();
-    Right = false;
+  rightPokeTime = millis();
+  RightCount ++;
+  rightInterval = 0.0;
+  display.fillCircle(25, 79, 5, BLACK);
+  display.refresh();
+  while (digitalRead (RIGHT_POKE) == LOW) {  //Hang here while poke is poked
+    delay(1);
+  }
+  if (digitalRead (LEFT_POKE)==HIGH){
+    rightInterval = (millis()-rightPokeTime);
+  }
+  UpdateDisplay();
+  DisplayRightInt();
+  Event = "Right";
+  logdata();
+  Right = false;
 }
 
 /**************************************************************************************************************************************************
@@ -325,13 +332,16 @@ void FED3::BNC(byte DELAY_MS, byte loops) {
                                                                                                Display functions
 **************************************************************************************************************************************************/
 void FED3::UpdateDisplay() {
+  //Box around data area of screen
+  display.drawRect (5, 45, 158, 70, BLACK);
+  
   display.setCursor(5, 15);
   display.print("FED:");
   display.println(FED);
   display.setCursor(6, 15);  // this doubling is a way to do bold type
   display.print("FED:");
-  display.fillRect (6, 20, 200, 22, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
-  display.fillRect (35, 46, 130, 80, WHITE);  //erase the pellet data on screen without clearing the entire screen by pasting a white box over it
+  display.fillRect (6, 20, 200, 22, WHITE);  //erase text under battery row without clearing the entire screen
+  display.fillRect (35, 46, 115, 68, WHITE);  //erase the pellet data on screen without clearing the entire screen 
   display.setCursor(5, 36); //display which sketch is running
   display.print(sessiontype);
 
@@ -345,14 +355,16 @@ void FED3::UpdateDisplay() {
     display.setCursor(95, 85);
     display.print(RightCount);
   }
-
+  
   display.setCursor(35, 105);
   display.print("Pellets:");
   display.setCursor(95, 105);
   display.print(PelletCount);
-
-  //Box around data area of screen
-  display.drawRect (5, 45, 158, 70, BLACK);
+  
+  if (DisplayTimed==true) {  //If it's a timed Feeding Session
+    DisplayTimedFeeding();
+  }
+  
   DisplayBattery();
   DisplayDateTime();
   DisplayIndicators();
@@ -461,29 +473,29 @@ void FED3::DisplayJamClear() {
 
 //Display pellet retrieval interval
 void FED3::DisplayRetrievalInt() {
-    display.fillRect (91, 22, 70, 15, WHITE); 
-    display.setCursor(92, 36);
-    display.print (retInterval);
-    display.print ("ms");
-    display.refresh();
+  display.fillRect (91, 22, 70, 15, WHITE); 
+  display.setCursor(92, 36);
+  display.print (retInterval);
+  display.print ("ms");
+  display.refresh();
 }
 
 //Display left poke duration
 void FED3::DisplayLeftInt() {
-    display.fillRect (91, 22, 70, 15, WHITE);  
-    display.setCursor(92, 36);
-    display.print (leftInterval);
-    display.print ("ms");
-    display.refresh();
+  display.fillRect (91, 22, 70, 15, WHITE);  
+  display.setCursor(92, 36);
+  display.print (leftInterval);
+  display.print ("ms");
+  display.refresh();
 }
 
 //Display right poke duration
 void FED3::DisplayRightInt() {
-    display.fillRect (91, 22, 70, 15, WHITE);  
-    display.setCursor(92, 36);
-    display.print (rightInterval);
-    display.print ("ms");
-    display.refresh();
+  display.fillRect (91, 22, 70, 15, WHITE);  
+  display.setCursor(92, 36);
+  display.print (rightInterval);
+  display.print ("ms");
+  display.refresh();
 }
 
 void FED3::StartScreen(){
@@ -506,6 +518,32 @@ void FED3::StartScreen(){
   display.print(sessiontype);
   display.refresh();
   DisplayMouse();
+}
+
+void FED3::DisplayTimedFeeding(){
+  display.setCursor(35, 65);
+  display.print (timedStart);
+  display.print (":00 to ");
+  display.print (timedEnd);
+  display.print (":00");
+}
+
+void FED3::DisplayNoProgram(){
+  display.clearDisplay();
+  display.setCursor(15, 45);
+  display.print ("No program");
+  display.setCursor(16, 45);
+  display.print ("No program");
+  display.setCursor(15, 65);
+  display.print ("resetting FED3...");
+  display.refresh();
+  for (int i = 0; i < 5; i++) {
+    colorWipe(strip.Color(5, 0, 0), 25); // RED
+    delay (20);
+    colorWipe(strip.Color(0, 0, 0), 25); // clear
+    delay (40);
+  }
+  NVIC_SystemReset();
 }
 
 void FED3::DisplayMouse() {
@@ -821,7 +859,7 @@ void FED3::SetDeviceNumber() {
     delay (100);
     display.refresh();
 
-    display.setCursor(35, 138);
+    display.setCursor(35, 135);
     if (FED < 100 & FED >= 10) {
       display.print ("0");
     }
@@ -923,10 +961,8 @@ void FED3::ReadBatteryLevel() {
 **************************************************************************************************************************************************/
 //What happens when pellet is detected
 void FED3::pelletTrigger() {
-  if (Left == false and Right == false){
-    if (digitalRead(PELLET_WELL) == HIGH) {
-      PelletAvailable = false;
-    }
+  if (digitalRead(PELLET_WELL) == HIGH) {
+    PelletAvailable = false;
   }
 }
 
@@ -952,9 +988,9 @@ void FED3::rightTrigger() {
 void FED3::goToSleep() {
   ReleaseMotor();
   if (EnableSleep==true){
-    LowPower.sleep(3000); 
+    LowPower.sleep(1000);  //Wake up every 1 sec to check the pellet well
   }
-  pelletTrigger();       //Every 3 seconds check pellet well to make sure it's not stuck thinking there's a pellet when there's not
+  pelletTrigger();       //check pellet well to make sure it's not stuck thinking there's a pellet when there's not
 }
 
 //Pull all motor pins low to de-energize stepper and save power, also disable motor driver with the EN pin
@@ -1016,7 +1052,6 @@ void FED3::begin() {
   display.setRotation(3);
   display.setTextColor(BLACK);
   display.setTextSize(1);
-  display.refresh();
  
   // Initialize SD card and create the datafile
   SdFile::dateTimeCallback(dateTime);
@@ -1040,6 +1075,9 @@ void FED3::begin() {
   if (ClassicFED3 == true){
     ClassicMenu();
   }
+  if (FED3Menu == true){
+    FED3MenuScreen();
+  }
   else {
     StartScreen();
   }
@@ -1047,13 +1085,127 @@ void FED3::begin() {
   display.refresh();
 }
 
+void FED3::FED3MenuScreen() {
+  display.clearDisplay();
+  display.setCursor(1, 135);
+  display.print(filename);
+  display.setCursor(10, 20); display.println("FED3 Menu");
+  display.setCursor(11, 20); display.println("FED3 Menu");
+  display.fillRect(0, 30, 160, 80, WHITE);
+  display.setCursor(10, 40);
+  display.print("Select Mode:");
+  
+  display.setCursor(10, 60);
+  //Text to display selected FR ratio
+  if (FEDmode == 0) display.print("Mode 1");
+  if (FEDmode == 1) display.print("Mode 2");
+  if (FEDmode == 2) display.print("Mode 3");
+  if (FEDmode == 3) display.print("Mode 4");
+  if (FEDmode == 4) display.print("Mode 5");
+  if (FEDmode == 5) display.print("Mode 6");
+  if (FEDmode == 6) display.print("Mode 7");
+  if (FEDmode == 7) display.print("Mode 8");
+  if (FEDmode == 8) display.print("Mode 9");
+  if (FEDmode == 9) display.print("Mode 10");
+  if (FEDmode == 10) display.print("Mode 11");
+  if (FEDmode == 11) display.print("Mode 12");
+  DisplayMouse();
+  ReadBatteryLevel();
+  display.clearDisplay();
+  display.refresh();
+}
+
+// Set FEDMode
+void FED3::SelectMode() {
+  // Mode select on startup screen
+  //If both pokes are activated
+  if ((digitalRead(LEFT_POKE) == LOW) && (digitalRead(RIGHT_POKE) == LOW)) {
+    tone (BUZZER, 3000, 500);
+    colorWipe(strip.Color(2, 2, 2), 40); // Color wipe
+    colorWipe(strip.Color(0, 0, 0), 20); // OFF
+    EndTime = millis();
+    SetFED = true;
+    setTimed = true;
+    SetDeviceNumber();
+  }
+
+  //If Left Poke is activated
+  else if (digitalRead(LEFT_POKE) == LOW) {
+    EndTime = millis();
+    FEDmode -= 1;
+    tone (BUZZER, 2500, 200);
+    colorWipe(strip.Color(2, 0, 2), 40); // Color wipe
+    colorWipe(strip.Color(0, 0, 0), 20); // OFF
+    if (FEDmode == -1) FEDmode = 11;
+  }
+
+  //If Right Poke is activated
+  else if (digitalRead(RIGHT_POKE) == LOW) {
+    EndTime = millis();
+    FEDmode += 1;
+    tone (BUZZER, 2500, 200);
+    colorWipe(strip.Color(2, 2, 0), 40); // Color wipe
+    colorWipe(strip.Color(0, 0, 0), 20); // OFF
+    if (FEDmode == 12) FEDmode = 0;
+  }
+
+  if (FEDmode < 0) FEDmode = 0;
+  if (FEDmode > 11) FEDmode = 11;
+
+  display.fillRect (10, 48, 200, 50, WHITE);  //erase the selected program text
+  display.setCursor(10, 60);  //Display selected program
+
+  //In classic mode we pre-specify these programs names
+  if (ClassicFED3==true){
+    if (FEDmode == 0) display.print("Free feeding");
+    if (FEDmode == 1) display.print("FR1");
+    if (FEDmode == 2) display.print("FR3");
+    if (FEDmode == 3) display.print("FR5");
+    if (FEDmode == 4) display.print("Progressive Ratio");
+    if (FEDmode == 5) display.print("Extinction");
+    if (FEDmode == 6) display.print("Light tracking");
+    if (FEDmode == 7) display.print("FR1 (Reversed)");
+    if (FEDmode == 8) display.print("Prog Ratio (Rev)");
+    if (FEDmode == 9) display.print("Self-Stim");
+    if (FEDmode == 10) display.print("Self-Stim (Rev)");
+    if (FEDmode == 11) display.print("Timed feeding");
+    display.refresh();
+  }
+  
+  //Otherwise we don't know them and just use Mode 1 through Mode 4
+  else{
+    if (FEDmode == 0) display.print("Mode 1");
+    if (FEDmode == 1) display.print("Mode 2");
+    if (FEDmode == 2) display.print("Mode 3");
+    if (FEDmode == 3) display.print("Mode 4");
+    if (FEDmode == 4) display.print("Mode 5");
+    if (FEDmode == 5) display.print("Mode 6");
+    if (FEDmode == 6) display.print("Mode 7");
+    if (FEDmode == 7) display.print("Mode 8");
+    if (FEDmode == 8) display.print("Mode 9");
+    if (FEDmode == 9) display.print("Mode 10");
+    if (FEDmode == 10) display.print("Mode 11");
+    if (FEDmode == 11) display.print("Mode 12");
+    display.refresh();
+  }
+  
+  while (millis() - EndTime < 1500) {
+    SelectMode();
+  }
+  display.setCursor(10, 100);
+  display.println("...Selected!");
+  display.refresh();
+  delay (500);
+  writeFEDmode();
+  delay (200);
+  NVIC_SystemReset();      // processor software reset
+}
+
 /******************************************************************************************************************************************************
                                                                                            Classic FED3 functions
 ******************************************************************************************************************************************************/
 
-/********************************************************
-  Classic menu display
-********************************************************/
+//  Classic menu display
 void FED3::ClassicMenu () {
   //  0 Free feeding
   //  1 FR1
@@ -1113,71 +1265,6 @@ void FED3::ClassicMenu () {
   ReadBatteryLevel();
   display.clearDisplay();
   display.refresh();
-}
-
-// Set FEDMode
-void FED3::SelectMode() {
-  // Mode select on startup screen
-  //If both pokes are activated
-  if ((digitalRead(LEFT_POKE) == LOW) && (digitalRead(RIGHT_POKE) == LOW)) {
-    tone (BUZZER, 3000, 500);
-    colorWipe(strip.Color(2, 2, 2), 40); // Color wipe
-    colorWipe(strip.Color(0, 0, 0), 20); // OFF
-    EndTime = millis();
-    SetFED = true;
-    setTimed = true;
-    SetDeviceNumber();
-  }
-
-  //If Left Poke is activated
-  else if (digitalRead(LEFT_POKE) == LOW) {
-    EndTime = millis();
-    FEDmode -= 1;
-    tone (BUZZER, 2500, 200);
-    colorWipe(strip.Color(2, 0, 2), 40); // Color wipe
-    colorWipe(strip.Color(0, 0, 0), 20); // OFF
-    if (FEDmode == -1) FEDmode = 11;
-  }
-
-  //If Right Poke is activated
-  else if (digitalRead(RIGHT_POKE) == LOW) {
-    EndTime = millis();
-    FEDmode += 1;
-    tone (BUZZER, 2500, 200);
-    colorWipe(strip.Color(2, 2, 0), 40); // Color wipe
-    colorWipe(strip.Color(0, 0, 0), 20); // OFF
-    if (FEDmode == 12) FEDmode = 0;
-  }
-
-  if (FEDmode < 0) FEDmode = 0;
-  if (FEDmode > 11) FEDmode = 11;
-
-  display.fillRect (10, 48, 200, 50, WHITE);  //erase the selected program text
-  display.setCursor(10, 60);  //Display selected program
-  if (FEDmode == 0) display.print("Free feeding");
-  if (FEDmode == 1) display.print("FR1");
-  if (FEDmode == 2) display.print("FR3");
-  if (FEDmode == 3) display.print("FR5");
-  if (FEDmode == 4) display.print("Progressive Ratio");
-  if (FEDmode == 5) display.print("Extinction");
-  if (FEDmode == 6) display.print("Light tracking");
-  if (FEDmode == 7) display.print("FR1 (Reversed)");
-  if (FEDmode == 8) display.print("Prog Ratio (Rev)");
-  if (FEDmode == 9) display.print("Self-Stim");
-  if (FEDmode == 10) display.print("Self-Stim (Rev)");
-  if (FEDmode == 11) display.print("Timed feeding");
-  display.refresh();
-  
-  while (millis() - EndTime < 1500) {
-    SelectMode();
-  }
-  display.setCursor(10, 100);
-  display.println("...Selected!");
-  display.refresh();
-  delay (500);
-  writeFEDmode();
-  delay (200);
-  NVIC_SystemReset();      // processor software reset
 }
 
 void FED3::Classiclogdata() {

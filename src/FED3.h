@@ -23,7 +23,7 @@ This device includes hardware and code from:
   Copyright (c) 2019, 2020 Lex Kravitz
 */
 
-#define VER "1.0.6"  
+#define VER "1.1.0"  
 
 #ifndef FED3_H
 #define FED3_H
@@ -115,6 +115,8 @@ class FED3 {
         void DisplayBattery();
         void DisplayDateTime();
         void DisplayIndicators();
+        void DisplayTimedFeeding();
+        void DisplayNoProgram();
         void DisplayMouse();
         void leftStimulus();
         void rightStimulus();
@@ -122,6 +124,7 @@ class FED3 {
         // Startup menu function
         void ClassicMenu();
         void StartScreen();
+        void FED3MenuScreen();
 
         // Motor
         void ReleaseMotor();
@@ -155,13 +158,14 @@ class FED3 {
         void MinorJam();
 
         //timed feeding variables
-        int timedStart = 0; //hour to start the timed Feeding session, out of 24 hour clock
-        int timedEnd = 24; //hour to start the timed Feeding session, out of 24 hour clock
+        int timedStart; //hour to start the timed Feeding session, out of 24 hour clock
+        int timedEnd; //hour to start the timed Feeding session, out of 24 hour clock
 
         // mode variables
         int FED;
         int FR = 1;
         bool DisplayPokes = true;
+        bool DisplayTimed = false;
         byte FEDmode = 1;
         byte previousFEDmode = FEDmode;
   
@@ -177,6 +181,7 @@ class FED3 {
         bool Left = false;
         bool Right = false;
         bool PelletAvailable = false;
+        int currentHour;
         String Event = "None";   //What kind of event just happened?
         
         // timing variables
@@ -192,7 +197,8 @@ class FED3 {
         bool Ratio_Met = false;
         bool EnableSleep = true;
         bool ClassicFED3 = false;
-
+        bool FED3Menu = false;
+        
         int EndTime = 0;
         int ratio = 1;
         int previousFR = FR;

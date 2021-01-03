@@ -23,7 +23,7 @@ This device includes hardware and code from:
   Copyright (c) 2019, 2020 Lex Kravitz
 */
 
-#define VER "1.1.0"  
+#define VER "1.1.2"  
 
 #ifndef FED3_H
 #define FED3_H
@@ -116,6 +116,7 @@ class FED3 {
         void DisplayIndicators();
         void DisplayTimedFeeding();
         void DisplayNoProgram();
+        void DisplayMinPoke();
         void DisplayMouse();
         void leftStimulus();
         void rightStimulus();
@@ -150,6 +151,7 @@ class FED3 {
         void rightTrigger();
         void goToSleep();
         void Timeout(int timeout);
+        int minPokeTime = 0;
         
         //jam movements
         void ClearJam();

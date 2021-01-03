@@ -74,7 +74,12 @@ void FED3::logLeftPoke(){
   leftInterval = (millis()-leftPokeTime);
   UpdateDisplay();
   DisplayLeftInt();
-  Event = "Left";
+  if (leftInterval < minPokeTime) {
+    Event = "LeftShort";
+  }
+  else{
+    Event = "Left";
+  }
   logdata();
   Left = false;
 }
@@ -88,7 +93,12 @@ void FED3::logRightPoke(){
   rightInterval = (millis()-rightPokeTime);
   UpdateDisplay();
   DisplayRightInt();
-  Event = "Right";
+  if (rightInterval < minPokeTime) {
+    Event = "RightShort";
+  }
+  else{
+    Event = "Right";
+  }
   logdata();
   Right = false;
 }
@@ -453,8 +463,8 @@ void FED3::DisplayJamClear() {
 
 //Display pellet retrieval interval
 void FED3::DisplayRetrievalInt() {
-  display.fillRect (91, 22, 70, 15, WHITE); 
-  display.setCursor(92, 36);
+  display.fillRect (85, 22, 70, 15, WHITE); 
+  display.setCursor(90, 36);
   display.print (retInterval);
   display.print ("ms");
   display.refresh();
@@ -462,8 +472,8 @@ void FED3::DisplayRetrievalInt() {
 
 //Display left poke duration
 void FED3::DisplayLeftInt() {
-  display.fillRect (91, 22, 70, 15, WHITE);  
-  display.setCursor(92, 36);
+  display.fillRect (85, 22, 70, 15, WHITE);  
+  display.setCursor(90, 36);
   display.print (leftInterval);
   display.print ("ms");
   display.refresh();
@@ -471,8 +481,8 @@ void FED3::DisplayLeftInt() {
 
 //Display right poke duration
 void FED3::DisplayRightInt() {
-  display.fillRect (91, 22, 70, 15, WHITE);  
-  display.setCursor(92, 36);
+  display.fillRect (85, 22, 70, 15, WHITE);  
+  display.setCursor(90, 36);
   display.print (rightInterval);
   display.print ("ms");
   display.refresh();
@@ -507,6 +517,14 @@ void FED3::DisplayTimedFeeding(){
   display.print (timedEnd);
   display.print (":00");
 }
+
+void FED3::DisplayMinPoke(){
+  display.setCursor(115, 65);
+  display.print ((minPokeTime/1000.0),1);
+  display.print ("s");
+  display.refresh();
+}
+
 
 void FED3::DisplayNoProgram(){
   display.clearDisplay();

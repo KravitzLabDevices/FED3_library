@@ -19,7 +19,7 @@ void setup() {
 }
 
 void loop() {
-  fed3.run();                                           //Call fed.run at the top of the void loop
+  fed3.run();                                           //Call fed.run at least once per loop
 
   if (fed3.Left) {                                      //If left poke is triggered
     fed3.logLeftPoke();                                 //Log left poke
@@ -28,6 +28,6 @@ void loop() {
   }
 
   if (fed3.Right) {                                     //If right poke is triggered
-    fed3.logRightPoke();
+    fed3.logRightPoke();                                //Log right poke
   }
 }

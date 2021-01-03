@@ -123,12 +123,10 @@ void FED3::Feed() {
         Event = "Pellet";
         logdata();
         retInterval = 0;
-        ratio = ratio + round ((5 * exp (0.2 * PelletCount)) - 5); // this is a formula from Richardson and Roberts (1996) https://www.ncbi.nlm.nih.gov/pubmed/8794935
         PelletAvailable = true;
         UpdateDisplay();
         if (timeout > 0) Timeout(timeout); //timeout after each pellet is dropped (you can edit this number)
       }
-
       pixelsOff();      //turn pixels off 
       digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver
       dispenseTimer();  //delay between pellets that also checks pellet well

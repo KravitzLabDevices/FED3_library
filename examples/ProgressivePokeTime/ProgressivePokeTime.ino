@@ -1,6 +1,11 @@
 /*
   Feeding experimentation device 3 (FED3)
-  Progressive Ratio
+  Progressive Poke Time
+
+  This program progressively increases the required poke duration to trigger a pellet, 
+  incrementing by a user-settable duration after a user-settable number of pellets has been obtained.
+
+  
   alexxai@wustl.edu
   December, 2020
 

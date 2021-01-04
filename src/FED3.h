@@ -137,8 +137,9 @@ class FED3 {
         // Stimuli
         void ConditionedStimulus();
         void Click();
-        void Noise();
+        void Noise(int duration);
         void BNC(byte DELAY_MS, byte loops);
+        void Tone(int freq, int duration);
         
         // Pelet and poke functions
         void CheckRatio();

@@ -249,11 +249,19 @@ void FED3::Click() {
   tone (BUZZER, 800, 8);
 }
 
-void FED3::Noise() {
+void FED3::Tone(int freq, int duration){
+  tone (BUZZER, freq, duration);
+//   int tonestart = millis();
+//   if (millis() - tonestart > duration){
+//     noTone(BUZZER);
+//   }
+}
+
+void FED3::Noise(int duration) {
   // Random noise to signal errors
-  for (int i = 0; i < 50; i++) {
-    tone (BUZZER, random(10, 250), 10);
-    delay(10);
+  for (int i = 0; i < duration/50; i++) {
+    tone (BUZZER, random(10, 250), 50);
+    delay(duration/50);
   }
 }
 

@@ -129,6 +129,8 @@ void FED3::Feed() {
         }
         BNC(500, 1);
         PelletCount++;
+        Left=false;
+        Right=false;
         numMotorTurns = 0; //reset numMotorTurns
         Event = "Pellet";
         logdata();

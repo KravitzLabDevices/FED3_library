@@ -7,8 +7,12 @@ Search for the FED3 libary in the Arduino library manager and install the latest
 ![FED3 library manager](https://github.com/KravitzLabDevices/FED3/blob/main/photos/FED3librarymanager.png)
 
 ### 2. Install dependency libraries in your Arduino libraries folder <br>
-Navigate to the FED3 library in your Arduino libraries folder (usually: Documents\Arduino\libraries\FED3_library\) and look in the \extras directory for the FED3_support_libraries.zip file. Unzip and copy the contents of this file to \Arduino\libraries\. 
+Navigate to the FED3 library in your Arduino libraries folder (usually: `Documents\Arduino\libraries\FED3_library\`) and look in the \extras directory for the FED3_support_libraries.zip file. Unzip the contents of this folder.
+
 ![FED3 libraries](https://github.com/KravitzLabDevices/FED3/blob/main/photos/FED3_libraries.png)
+
+Copy the extracted libraries to `\Arduino\libraries\`.
+
 
 ### 3. Start coding!
 Check out the example FED3 programs by clicking File > Examples > FED3 <br>

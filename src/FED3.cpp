@@ -67,40 +67,44 @@ void FED3::run() {
 **************************************************************************************************************************************************/
 //log left poke
 void FED3::logLeftPoke(){
-  leftPokeTime = millis();
-  LeftCount ++;
-  leftInterval = 0.0;
-  while (digitalRead (LEFT_POKE) == LOW) {}  //Hang here until poke is clear
-  leftInterval = (millis()-leftPokeTime);
-  UpdateDisplay();
-  DisplayLeftInt();
-  if (leftInterval < minPokeTime) {
-    Event = "LeftShort";
+  if (PelletAvailable == false){
+    leftPokeTime = millis();
+    LeftCount ++;
+    leftInterval = 0.0;
+    while (digitalRead (LEFT_POKE) == LOW) {}  //Hang here until poke is clear
+    leftInterval = (millis()-leftPokeTime);
+    UpdateDisplay();
+    DisplayLeftInt();
+    if (leftInterval < minPokeTime) {
+      Event = "LeftShort";
+    }
+    else{
+      Event = "Left";
+    }
+    logdata();
+    Left = false;
   }
-  else{
-    Event = "Left";
-  }
-  logdata();
-  Left = false;
 }
 
 //log right poke
 void FED3::logRightPoke(){
-  rightPokeTime = millis();
-  RightCount ++;
-  rightInterval = 0.0;
-  while (digitalRead (RIGHT_POKE) == LOW) {} //Hang here until poke is clear
-  rightInterval = (millis()-rightPokeTime);
-  UpdateDisplay();
-  DisplayRightInt();
-  if (rightInterval < minPokeTime) {
-    Event = "RightShort";
+  if (PelletAvailable == false){
+    rightPokeTime = millis();
+    RightCount ++;
+    rightInterval = 0.0;
+    while (digitalRead (RIGHT_POKE) == LOW) {} //Hang here until poke is clear
+    rightInterval = (millis()-rightPokeTime);
+    UpdateDisplay();
+    DisplayRightInt();
+    if (rightInterval < minPokeTime) {
+      Event = "RightShort";
+    }
+    else{
+      Event = "Right";
+    }
+    logdata();
+    Right = false; 
   }
-  else{
-    Event = "Right";
-  }
-  logdata();
-  Right = false;
 }
 
 /**************************************************************************************************************************************************
@@ -347,7 +351,7 @@ void FED3::UpdateDisplay() {
   display.setCursor(6, 15);  // this doubling is a way to do bold type
   display.print("FED:");
   display.fillRect (6, 20, 200, 22, WHITE);  //erase text under battery row without clearing the entire screen
-  display.fillRect (35, 46, 115, 68, WHITE);  //erase the pellet data on screen without clearing the entire screen 
+  display.fillRect (35, 46, 120, 68, WHITE);  //erase the pellet data on screen without clearing the entire screen 
   display.setCursor(5, 36); //display which sketch is running
   display.print(sessiontype);
 

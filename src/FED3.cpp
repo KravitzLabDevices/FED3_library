@@ -111,54 +111,65 @@ void FED3::logRightPoke(){
                                                                                                 Feeding functions
 **************************************************************************************************************************************************/
 void FED3::Feed() {
-   while (PelletAvailable == false) {
-      digitalWrite (MOTOR_ENABLE, HIGH);  //Enable motor driver
-      for (int i = 1; i < 10; i++) {
-        if (digitalRead (PELLET_WELL) == HIGH) {
-          stepper.step(-30);
-        }
+  //Run this loop repeatedly until while statement below is false
+  do {
+    //Do one dispensing motion
+    digitalWrite (MOTOR_ENABLE, HIGH);  //Enable motor driver
+    for (int i = 1; i < 10; i++) {
+      if (digitalRead (PELLET_WELL) == HIGH) {
+        stepper.step(-30);
       }
-      
-      //If pellet is detected
-      if (digitalRead (PELLET_WELL) == LOW) {
-        pelletTime = millis();
-        display.fillCircle(25, 99, 5, BLACK);
-        display.refresh();
-        while (digitalRead (PELLET_WELL) == LOW and retInterval < 60000) {  //After pellet is detected, hang here for up to 1 minute to detect when it is removed
-            retInterval = (millis()-pelletTime);
-            DisplayRetrievalInt();
-        }
-        while (digitalRead (PELLET_WELL) == LOW){ //if pellet is not taken after 60 seconds, wait here and go to sleep
-            run();
-        }
-        BNC(500, 1);
-        PelletCount++;
-        Left=false;
-        Right=false;
-        numMotorTurns = 0; //reset numMotorTurns
-        Event = "Pellet";
-        logdata();
-        retInterval = 0;
-        PelletAvailable = true;
-        UpdateDisplay();
-        if (timeout > 0) Timeout(timeout); //timeout after each pellet is dropped (you can edit this number)
-      }
-      pixelsOff();      //turn pixels off 
-      digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver
-      dispenseTimer();  //delay between pellets that also checks pellet well
-      numMotorTurns++;
+    }
 
-      //Jam clearing movements
-      if (numMotorTurns % 5 == 0){
-        MinorJam();
+    //If pellet is detected during or after this motion
+    if (digitalRead (PELLET_WELL) == LOW) {
+      pelletTime = millis();
+      display.fillCircle(25, 99, 5, BLACK);
+      display.refresh();
+      retInterval = (millis() - pelletTime);
+
+      //while pellet is present and under 60s has elapsed
+      while (digitalRead (PELLET_WELL) == LOW and retInterval < 60000) {  //After pellet is detected, hang here for up to 1 minute to detect when it is removed
+        retInterval = (millis() - pelletTime);
+        DisplayRetrievalInt();
       }
-      if (numMotorTurns % 10 == 0 and numMotorTurns % 20 != 0) {
-        VibrateJam();
+
+      //after 60s has elapsed
+      while (digitalRead (PELLET_WELL) == LOW) { //if pellet is not taken after 60 seconds, wait here and go to sleep
+        run();
       }
-      if (numMotorTurns % 20 == 0) {
-        ClearJam();
-      }
-   }
+
+      BNC(500, 1);
+      PelletCount++;
+      Left = false;
+      Right = false;
+      numMotorTurns = 0; //reset numMotorTurns
+      Event = "Pellet";
+      logdata();
+      retInterval = 0;
+      PelletAvailable = true;
+      UpdateDisplay();
+      if (timeout > 0) Timeout(timeout); //timeout after each pellet is dropped (you can edit this number)
+    }
+
+    if (PelletAvailable == false){
+        pixelsOff();      //turn pixels off
+        digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver
+        dispenseTimer();  //delay between pellets that also checks pellet well
+        numMotorTurns++;
+    
+        //Jam clearing movements
+        if (numMotorTurns % 5 == 0) {
+          MinorJam();
+        }
+        if (numMotorTurns % 10 == 0 and numMotorTurns % 20 != 0) {
+          VibrateJam();
+        }
+        if (numMotorTurns % 20 == 0) {
+          ClearJam();
+        }
+    }
+  } while (PelletAvailable == false);
 }
 
 //minor movement to clear jam
@@ -223,8 +234,11 @@ void FED3::ClearJam() {
 //Function for delaying between motor movements, but also ending this delay if a pellet is detected
 void FED3::dispenseTimer() {
   for (int i = 1; i < 300; i++) {
-    if (digitalRead (PELLET_WELL) == HIGH && PelletAvailable == false) {
+    if (digitalRead (PELLET_WELL) == HIGH) {
       delay(5);
+    }
+    else{
+      break;
     }
   }
 }

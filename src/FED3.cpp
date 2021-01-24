@@ -150,6 +150,7 @@ void FED3::Feed() {
       PelletAvailable = true;
       UpdateDisplay();
       if (timeout > 0) Timeout(timeout); //timeout after each pellet is dropped (you can edit this number)
+      break;
     }
 
     if (PelletAvailable == false){
@@ -984,7 +985,7 @@ void FED3::pelletTrigger() {
 
 //What happens when left poke is poked
 void FED3::leftTrigger() {
-  if (PelletAvailable == false){
+  if (digitalRead(PELLET_WELL) == HIGH){
     if (digitalRead(LEFT_POKE) == LOW ) {
       Left = true;
     }
@@ -993,7 +994,7 @@ void FED3::leftTrigger() {
 
 //What happens when right poke is poked
 void FED3::rightTrigger() {
-  if (PelletAvailable == false){
+  if (digitalRead(PELLET_WELL) == HIGH){
     if (digitalRead(RIGHT_POKE) == LOW ) {
       Right = true;
     }

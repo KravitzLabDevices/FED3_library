@@ -202,6 +202,7 @@ class FED3 {
         // flags
         bool Ratio_Met = false;
         bool EnableSleep = true;
+        void disableSleep();
         bool ClassicFED3 = false;
         bool FED3Menu = false;
         

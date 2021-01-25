@@ -990,6 +990,10 @@ void FED3::ReadBatteryLevel() {
 /**************************************************************************************************************************************************
                                                                                                Interrupts and sleep
 **************************************************************************************************************************************************/
+void FED3::disableSleep(){
+  EnableSleep = false;                             
+}
+
 //What happens when pellet is detected
 void FED3::pelletTrigger() {
   if (digitalRead(PELLET_WELL) == HIGH) {

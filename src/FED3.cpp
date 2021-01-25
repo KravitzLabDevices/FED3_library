@@ -126,8 +126,9 @@ void FED3::Feed() {
       pelletTime = millis();
       display.fillCircle(25, 99, 5, BLACK);
       display.refresh();
+      pixelsOff();      //turn pixels off
+      digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver  
       retInterval = (millis() - pelletTime);
-
       //while pellet is present and under 60s has elapsed
       while (digitalRead (PELLET_WELL) == LOW and retInterval < 60000) {  //After pellet is detected, hang here for up to 1 minute to detect when it is removed
         retInterval = (millis() - pelletTime);
@@ -150,8 +151,6 @@ void FED3::Feed() {
       PelletAvailable = true;
       UpdateDisplay();
       if (timeout > 0) Timeout(timeout); //timeout after each pellet is dropped (you can edit this number)
-      pixelsOff();      //turn pixels off
-      digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver  
       break;
     }
 

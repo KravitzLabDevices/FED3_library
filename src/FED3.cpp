@@ -353,6 +353,20 @@ void FED3::BNC(byte DELAY_MS, byte loops) {
   }
 }
 
+void FED3::ReadBNC(){
+    pinMode(BNC_OUT, INPUT_PULLDOWN);
+    BNCinput=false;
+    if (digitalRead(BNC_OUT) == HIGH){
+      //blink green LED
+      digitalWrite(GREEN_LED, HIGH);
+      delay (25);
+      digitalWrite(GREEN_LED, LOW);
+      //set BNCinput to true
+      BNCinput=true;
+    }
+}
+    
+
 /**************************************************************************************************************************************************
                                                                                                Display functions
 **************************************************************************************************************************************************/

@@ -23,7 +23,7 @@ This device includes hardware and code from:
   Copyright (c) 2019, 2020 Lex Kravitz
 */
 
-#define VER "1.1.31"  
+#define VER "1.1.4"  
 
 #ifndef FED3_H
 #define FED3_H
@@ -125,7 +125,11 @@ class FED3 {
         void ClassicMenu();
         void StartScreen();
         void FED3MenuScreen();
-
+        
+        //BNC input/output
+        void ReadBNC();
+        bool BNCinput = false;
+        
         // Motor
         void ReleaseMotor();
         int numMotorTurns = 0;

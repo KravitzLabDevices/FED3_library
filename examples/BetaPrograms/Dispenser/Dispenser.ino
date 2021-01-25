@@ -15,8 +15,8 @@ String sketch = "Dispenser";                            //Unique identifier text
 FED3 fed3 (sketch);                                     //Start the FED3 object
 
 void setup() {
-  fed3.DisplayPokes = false;                            //turn off pokes on screen
-  fed3.EnableSleep = false;                             //disable sleep for this program as the BNC port is not currently set up as an interrupt
+  fed3.DisplayPokes = false;                            //turn off poke indicators on screen
+  fed3.disableSleep();                                  //disable sleep for this program as the BNC port is not currently set up as an interrupt
   fed3.begin();                                         //Setup the FED3 hardware
 }
 

@@ -144,9 +144,9 @@ void FED3::Feed() {
       PelletCount++;
       Left = false;
       Right = false;
-      numMotorTurns = 0; //reset numMotorTurns
       Event = "Pellet";
       logdata();
+      numMotorTurns = 0; //reset numMotorTurns
       retInterval = 0;
       PelletAvailable = true;
       UpdateDisplay();
@@ -228,7 +228,6 @@ void FED3::ClearJam() {
       }
     }
     display.fillRect (5, 15, 120, 15, WHITE);  //erase the "Jam clear" text without clearing the entire screen by pasting a white box over it
-    numMotorTurns = 0;
 }
 
 //Function for delaying between motor movements, but also ending this delay if a pellet is detected

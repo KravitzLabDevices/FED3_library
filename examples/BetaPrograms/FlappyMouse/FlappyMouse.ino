@@ -50,7 +50,7 @@ void Flappy() {
   static int py = 20;
   static boolean gameOver = false;
   static byte score = 0;
-  static int wallPos[3] = {100, 186};
+  static int wallPos[2] = {100, 186};
   static int wallGap[3] = {40, 60, 0};
   static unsigned long lastTime = millis();
   int wallsize = 40;
@@ -101,14 +101,14 @@ void Flappy() {
     }
 
     //When wall reaches left side reset it
-    if (wallPos[i] <= -50) { // reset wall
-      wallPos[i] += 209;
+    if (wallPos[i] <= -40) { // reset wall
+      wallPos[i] += 202;
       wallGap[i] = random(30, 100);
       scoreTrigger = true;
     }
 
     //When wall reaches left side reset it
-    if ((wallPos[i] <= 5) and (scoreTrigger == true)) {
+    if ((wallPos[i] <= 10) and (scoreTrigger == true)) {
       score++;
       tone(BUZZER, 3000, 200);
       delay(200);
@@ -138,8 +138,8 @@ void Flappy() {
     }
 
     //Control wall speed  (lower the divisor number to speed up).  This will automatically speed up to a pretty impossible rate as score goes up to 11
-    if (score < 9) wallPos[i] -= deltaTime / (40 - (score * 3)); // move walls
-    if (score >= 9) wallPos[i] -= deltaTime / 11; // move walls
+    if (score < 4) wallPos[i] -= deltaTime / (20 - (score * 3)); // move walls
+    if (score >= 4) wallPos[i] -= deltaTime / 9; // move walls
   }
 
   //Display scores
@@ -152,7 +152,7 @@ void Flappy() {
   display.println(hiscore);
 
   //Check for poke
-  if (digitalRead(RIGHT_POKE) == LOW) ySpeed = -5;
+  if (digitalRead(RIGHT_POKE) == LOW) ySpeed = -3;
   lastTime = millis();
 
   if (gameOver) {

@@ -41,7 +41,6 @@ void setup() {
 //Loop
 void loop() {
   Flappy();
-  display.refresh();
 }
 
 void Flappy() {
@@ -151,7 +150,6 @@ void Flappy() {
   display.setCursor(108, 2);
   display.print(F("HI:"));
   display.println(hiscore);
-  display.refresh();
 
   //Check for poke
   if (digitalRead(RIGHT_POKE) == LOW) ySpeed = -5;

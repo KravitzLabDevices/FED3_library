@@ -120,13 +120,13 @@ void FED3::Feed() {
         stepper.step(-30);
       }
     }
-
+    pixelsOff();      //turn pixels off
+      
     //If pellet is detected during or after this motion
     if (digitalRead (PELLET_WELL) == LOW) {
       pelletTime = millis();
       display.fillCircle(25, 99, 5, BLACK);
       display.refresh();
-      pixelsOff();      //turn pixels off
       digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver  
       retInterval = (millis() - pelletTime);
       //while pellet is present and under 60s has elapsed
@@ -270,10 +270,6 @@ void FED3::Click() {
 
 void FED3::Tone(int freq, int duration){
   tone (BUZZER, freq, duration);
-//   int tonestart = millis();
-//   if (millis() - tonestart > duration){
-//     noTone(BUZZER);
-//   }
 }
 
 void FED3::Noise(int duration) {
@@ -745,7 +741,7 @@ void FED3::logdata() {
   /////////////////////////////////
   // Log motor turns
   /////////////////////////////////
-  logfile.print(numMotorTurns); // Print the number of attempts to dispense a pellet
+  logfile.print(numMotorTurns+1); // Print the number of attempts to dispense a pellet
   logfile.print(",");
 
   /////////////////////////////////

@@ -58,6 +58,7 @@ void FED3::run() {
   DateTime now = rtc.now();
   currentHour = now.hour(); //useful for timed feeding sessions
   unixtime  = now.unixtime();
+  ReadBatteryLevel();
   UpdateDisplay();
   goToSleep();
 }
@@ -1139,7 +1140,6 @@ void FED3::FED3MenuScreen() {
   if (FEDmode == 10) display.print("Mode 11");
   if (FEDmode == 11) display.print("Mode 12");
   DisplayMouse();
-  ReadBatteryLevel();
   display.clearDisplay();
   display.refresh();
 }
@@ -1291,7 +1291,6 @@ void FED3::ClassicMenu () {
   if (FEDmode == 11) display.print("Timed feeding");
   
   DisplayMouse();
-  ReadBatteryLevel();
   display.clearDisplay();
   display.refresh();
 }

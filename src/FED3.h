@@ -162,6 +162,7 @@ class FED3 {
         void ClearJam();
         void VibrateJam();
         void MinorJam();
+		bool RotateDisk(int steps);
 
         //timed feeding variables
         int timedStart; //hour to start the timed Feeding session, out of 24 hour clock

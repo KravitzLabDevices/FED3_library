@@ -227,8 +227,28 @@ void FED3::ClearJam() {
         }
         ReleaseMotor ();
       }
+bool FED3::RotateDisk(int steps)
+{
+	digitalWrite (MOTOR_ENABLE, HIGH);  //Enable motor driver
+	for (int i = 0; i < (steps>0?steps:-steps); i++) {	  
+	  if (steps > 0)
+		  stepper.step(1);
+	  else
+		  stepper.step(-1);	  
+	  for (int j = 0; j < 20; j++){
+		delayMicroseconds(100);		
+		if (digitalRead (PELLET_WELL) == LOW) {
+		  delayMicroseconds(100);
+		  // Debounce
+		  if (digitalRead (PELLET_WELL) == LOW) {
+		    ReleaseMotor ();
+		    return true;
+		  }
+		}
+	  }
     }
-    display.fillRect (5, 15, 120, 15, WHITE);  //erase the "Jam clear" text without clearing the entire screen by pasting a white box over it
+	ReleaseMotor ();
+	return false;
 }
 
 //Function for delaying between motor movements, but also ending this delay if a pellet is detected

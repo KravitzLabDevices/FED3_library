@@ -569,25 +569,27 @@ void FED3::DisplayRightInt() {
 }
 
 void FED3::StartScreen(){
-  display.setTextSize(3);
-  display.setTextColor(BLACK);
-  display.clearDisplay();
-  display.setCursor(15, 55);
-  display.print("FED3");
-  
-  //print filename on screen
-  display.setTextSize(1);
-  display.setCursor(2, 138);
-  display.print(filename);
+  if (ClassicFED3==false){
+    display.setTextSize(3);
+    display.setTextColor(BLACK);
+    display.clearDisplay();
+    display.setCursor(15, 55);
+    display.print("FED3");
+      
+    //print filename on screen
+    display.setTextSize(1);
+    display.setCursor(2, 138);
+    display.print(filename);
 
-  //Display FED verison number at startup
-  display.setCursor(2, 120);
-  display.print("v: ");
-  display.print(VER);
-  display.print("_");
-  display.print(sessiontype);
-  display.refresh();
-  DisplayMouse();
+    //Display FED verison number at startup
+    display.setCursor(2, 120);
+    display.print("v: ");
+    display.print(VER);
+    display.print("_");
+    display.print(sessiontype);
+    display.refresh();
+    DisplayMouse();
+  }
 }
 
 void FED3::DisplayTimedFeeding(){
@@ -1311,8 +1313,7 @@ void FED3::ClassicMenu () {
   display.clearDisplay();
   display.setCursor(1, 135);
   display.print(filename);
-  display.setCursor(10, 20); display.println("Classic FED3");
-  display.setCursor(11, 20); display.println("Classic FED3");
+
   display.fillRect(0, 30, 160, 80, WHITE);
   display.setCursor(10, 40);
   display.print("Select Program:");

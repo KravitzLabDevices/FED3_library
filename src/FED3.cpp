@@ -113,21 +113,21 @@ void FED3::logRightPoke(){
 **************************************************************************************************************************************************/
 void FED3::Feed() {
   //Run this loop repeatedly until while statement below is false
-  do {
-    //Do one dispensing motion
-    digitalWrite (MOTOR_ENABLE, HIGH);  //Enable motor driver
-    for (int i = 1; i < 10; i++) {
-      if (digitalRead (PELLET_WELL) == HIGH) {
-        stepper.step(-30);
-      }
-    }
-    pixelsOff();      //turn pixels off
-      
+  
+  bool pelletDispensed = false;
+  
+  do {	
+	
+    if (pelletDispensed == false) {
+	  pelletDispensed = RotateDisk(-300);
+	}
+
     //If pellet is detected during or after this motion
-    if (digitalRead (PELLET_WELL) == LOW) {
+    if (pelletDispensed == true) {
       pelletTime = millis();
       display.fillCircle(25, 99, 5, BLACK);
       display.refresh();
+      pixelsOff();      //turn pixels off
       digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver  
       retInterval = (millis() - pelletTime);
       //while pellet is present and under 60s has elapsed
@@ -141,13 +141,13 @@ void FED3::Feed() {
         run();
       }
 
-      BNC(500, 1);
+      //BNC(500, 1);
       PelletCount++;
       Left = false;
       Right = false;
+      numMotorTurns = 0; //reset numMotorTurns
       Event = "Pellet";
       logdata();
-      numMotorTurns = 0; //reset numMotorTurns
       retInterval = 0;
       PelletAvailable = true;
       UpdateDisplay();
@@ -156,91 +156,128 @@ void FED3::Feed() {
     }
 
     if (PelletAvailable == false){
-        dispenseTimer();  //delay between pellets that also checks pellet well
+        pelletDispensed = dispenseTimer_ms(1500);  //delay between pellets that also checks pellet well
         numMotorTurns++;
     
         //Jam clearing movements
-        if (numMotorTurns % 5 == 0) {
-          MinorJam();
-        }
-        if (numMotorTurns % 10 == 0 and numMotorTurns % 20 != 0) {
-          VibrateJam();
-        }
-        if (numMotorTurns % 20 == 0) {
-          ClearJam();
-        }
+		if (pelletDispensed == false) {
+          if (numMotorTurns % 5 == 0) {
+            pelletDispensed = MinorJam();
+          }
+		}
+        if (pelletDispensed == false) {
+          if (numMotorTurns % 10 == 0 and numMotorTurns % 20 != 0) {
+            pelletDispensed = VibrateJam();
+          }
+		}
+        if (pelletDispensed == false) {
+          if (numMotorTurns % 20 == 0) {
+            pelletDispensed = ClearJam();
+          }
+		}
     }
   } while (PelletAvailable == false);
 }
 
 //minor movement to clear jam
-void FED3::MinorJam(){
-    digitalWrite (MOTOR_ENABLE, HIGH);  //Enable motor driver
-    stepper.step(100); //minor adjustment to try to dislodget pellet
-    ReleaseMotor ();
+bool FED3::MinorJam(){
+	return RotateDisk(100);
 }
-
+	
+	
 //vibration movement to clear jam
-void FED3::VibrateJam() {
+bool FED3::VibrateJam() {
     DisplayJamClear();
-    if (digitalRead (PELLET_WELL) == HIGH) {
-      delay (250); //simple debounce to ensure pellet is out for at least 250ms
-      if (digitalRead (PELLET_WELL) == HIGH) {
-        digitalWrite (MOTOR_ENABLE, HIGH);  //Enable motor driver
-        for (int j = 0; j < 30; j++) {
-          if (digitalRead (PELLET_WELL) == HIGH) {
-            stepper.step(120);
-            if (digitalRead (PELLET_WELL) == HIGH) {
-              stepper.step(-60);
-            }
-          }
-        }
-        ReleaseMotor ();
-      }
-    }
-  display.fillRect (5, 15, 120, 15, WHITE);  //erase the "Jam clear" text without clearing the entire screen by pasting a white box over it
+	
+	//simple debounce to ensure pellet is out for at least 250ms
+	if (dispenseTimer_ms(250)) {
+	  display.fillRect (5, 15, 120, 15, WHITE);  //erase the "Jam clear" text without clearing the entire screen by pasting a white box over it
+	  return true;
+	}	
+	for (int i = 0; i < 30; i++) {
+	  if (RotateDisk(120)) {
+	    display.fillRect (5, 15, 120, 15, WHITE);  //erase the "Jam clear" text without clearing the entire screen by pasting a white box over it
+	    return true;
+	  }
+	  if (RotateDisk(-60)) {
+	    display.fillRect (5, 15, 120, 15, WHITE);  //erase the "Jam clear" text without clearing the entire screen by pasting a white box over it
+	    return true;
+	  }
+	}
+	return false;
 }
 
 //full rotation to clear jam
-void FED3::ClearJam() {
+bool FED3::ClearJam() {
     DisplayJamClear();
-    if (digitalRead (PELLET_WELL) == HIGH) {
-      delay (250); //simple debounce to ensure pellet is out for at least 250ms
-      if (digitalRead (PELLET_WELL) == HIGH) {
-        digitalWrite (MOTOR_ENABLE, HIGH);  //Enable motor driver
-        for (int i = 0; i < 21 + random(0, 20); i++) {
-          if (digitalRead (PELLET_WELL) == HIGH) {
-            stepper.step(-i * 4);
-          }
-        }
-      }
-      ReleaseMotor ();
+	
+	if (dispenseTimer_ms(250)) {
+	  display.fillRect (5, 15, 120, 15, WHITE);  //erase the "Jam clear" text without clearing the entire screen by pasting a white box over it
+	  return true;
+	}
+	
+	for (int i = 0; i < 21 + random(0, 20); i++) {
+	  if (RotateDisk(-i * 4)) {
+	    display.fillRect (5, 15, 120, 15, WHITE);  //erase the "Jam clear" text without clearing the entire screen by pasting a white box over it
+	    return true;
+	  }
+	}
+	
+	if (dispenseTimer_ms(250)) {
+	  display.fillRect (5, 15, 120, 15, WHITE);  //erase the "Jam clear" text without clearing the entire screen by pasting a white box over it
+	  return true;
+	}
+	
+	for (int i = 0; i < 21 + random(0, 20); i++) {
+	  if (RotateDisk(i * 4)) {
+	    display.fillRect (5, 15, 120, 15, WHITE);  //erase the "Jam clear" text without clearing the entire screen by pasting a white box over it
+	    return true;
+	  }
+	}
+	
+    numMotorTurns = 0;
+	return false;
+}
+
+bool FED3::RotateDisk(int steps)
+{
+	digitalWrite (MOTOR_ENABLE, HIGH);  //Enable motor driver
+	for (int i = 0; i < (steps>0?steps:-steps); i++) {	  
+	  if (steps > 0)
+		  stepper.step(1);
+	  else
+		  stepper.step(-1);	  
+	  for (int j = 0; j < 20; j++){
+		delayMicroseconds(100);		
+		if (digitalRead (PELLET_WELL) == LOW) {
+		  delayMicroseconds(100);
+		  // Debounce
+		  if (digitalRead (PELLET_WELL) == LOW) {
+		    ReleaseMotor ();
+		    return true;
+		  }
+		}
+	  }
     }
-    if (digitalRead (PELLET_WELL) == HIGH) {
-      delay (250); //simple debounce
-      if (digitalRead (PELLET_WELL) == HIGH) {
-        digitalWrite (MOTOR_ENABLE, HIGH);  //Enable motor driver
-        for (int i = 0; i < 21 + random(0, 20); i++) {
-          if (digitalRead (PELLET_WELL) == HIGH) {
-            stepper.step(i * 4);
-          }
-        }
-        ReleaseMotor ();
-      }
-    }
-    display.fillRect (5, 15, 120, 15, WHITE);  //erase the "Jam clear" text without clearing the entire screen by pasting a white box over it
+	ReleaseMotor ();
+	return false;
 }
 
 //Function for delaying between motor movements, but also ending this delay if a pellet is detected
-void FED3::dispenseTimer() {
-  for (int i = 1; i < 300; i++) {
-    if (digitalRead (PELLET_WELL) == HIGH) {
-      delay(5);
-    }
-    else{
-      break;
-    }
+bool FED3::dispenseTimer_ms(int ms) {
+  for (int i = 1; i < ms; i++) {
+    for (int j = 0; j < 10; j++) {
+  	  delayMicroseconds(100);		
+	  if (digitalRead (PELLET_WELL) == LOW) {
+		delayMicroseconds(100);
+		// Debounce
+		if (digitalRead (PELLET_WELL) == LOW) {
+		  return true;
+		}
+	  }
+	}
   }
+  return false;
 }
 
 //Timeout function
@@ -348,16 +385,22 @@ void FED3::BNC(byte DELAY_MS, byte loops) {
   }
 }
 
-void FED3::ReadBNC(){
+void FED3::ReadBNC(bool blinkGreen){
     pinMode(BNC_OUT, INPUT_PULLDOWN);
     BNCinput=false;
-    if (digitalRead(BNC_OUT) == HIGH){
-      //blink green LED
-      digitalWrite(GREEN_LED, HIGH);
-      delay (25);
-      digitalWrite(GREEN_LED, LOW);
-      //set BNCinput to true
-      BNCinput=true;
+    if (digitalRead(BNC_OUT) == HIGH)
+	{
+	  delay (1);
+	  if (digitalRead(BNC_OUT) == HIGH)
+	  {
+		if (blinkGreen == true)
+		{
+		  digitalWrite(GREEN_LED, HIGH);
+		  delay (25);
+		  digitalWrite(GREEN_LED, LOW);
+		}		  
+	     BNCinput=true;
+	  }
     }
 }
     
@@ -1073,7 +1116,7 @@ void FED3::begin() {
   strip.show(); // Initialize all pixels to 'off'
 
   // Initialize stepper
-  stepper.setSpeed(12);
+  stepper.setSpeed(250);
 
   // Initialize display
   display.begin();

@@ -23,7 +23,7 @@ This device includes hardware and code from:
   Copyright (c) 2019, 2020 Lex Kravitz
 */
 
-#define VER "1.2.6"  
+#define VER "1.3.0"  
 
 #ifndef FED3_H
 #define FED3_H
@@ -127,7 +127,7 @@ class FED3 {
         void FED3MenuScreen();
         
         //BNC input/output
-        void ReadBNC();
+		void ReadBNC(bool blinkGreen);
         bool BNCinput = false;
         
         // Motor
@@ -150,7 +150,7 @@ class FED3 {
         void logLeftPoke();
         void logRightPoke();
         void Feed();
-        void dispenseTimer();
+        bool dispenseTimer_ms(int ms);
         void pelletTrigger();
         void leftTrigger();
         void rightTrigger();
@@ -159,9 +159,10 @@ class FED3 {
         int minPokeTime = 0;
         
         //jam movements
-        void ClearJam();
-        void VibrateJam();
-        void MinorJam();
+		bool RotateDisk(int steps);
+        bool ClearJam();
+        bool VibrateJam();
+        bool MinorJam();
 
         //timed feeding variables
         int timedStart; //hour to start the timed Feeding session, out of 24 hour clock

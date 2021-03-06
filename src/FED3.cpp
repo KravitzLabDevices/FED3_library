@@ -112,15 +112,15 @@ void FED3::logRightPoke(){
                                                                                                 Feeding functions
 **************************************************************************************************************************************************/
 void FED3::Feed() {
-  //Run this loop repeatedly until while statement below is false
+  //Run this loop repeatedly until statement below is false
   
   bool pelletDispensed = false;
   
   do {	
 	
     if (pelletDispensed == false) {
-	  pelletDispensed = RotateDisk(-300);
-	}
+	    pelletDispensed = RotateDisk(-300);
+	  }
 
     //If pellet is detected during or after this motion
     if (pelletDispensed == true) {
@@ -145,9 +145,9 @@ void FED3::Feed() {
       PelletCount++;
       Left = false;
       Right = false;
-      numMotorTurns = 0; //reset numMotorTurns
       Event = "Pellet";
       logdata();
+      numMotorTurns = 0; //reset numMotorTurns
       retInterval = 0;
       PelletAvailable = true;
       UpdateDisplay();
@@ -235,7 +235,6 @@ bool FED3::ClearJam() {
 	  }
 	}
 	
-    numMotorTurns = 0;
 	return false;
 }
 

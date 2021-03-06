@@ -658,8 +658,10 @@ void FED3::DisplayMouse() {
     previousFED = FED;
     
     // If one poke is pushed change mode
-    if (digitalRead (LEFT_POKE) == LOW | digitalRead (RIGHT_POKE) == LOW) SelectMode();
-
+    if (FED3Menu == true){
+      if (digitalRead (LEFT_POKE) == LOW | digitalRead (RIGHT_POKE) == LOW) SelectMode();
+    }
+    
     // If both pokes are pushed edit device number
     if ((digitalRead(LEFT_POKE) == LOW) && (digitalRead(RIGHT_POKE) == LOW)) {
       tone (BUZZER, 1000, 200);

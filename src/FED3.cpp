@@ -291,6 +291,8 @@ void FED3::Timeout(int seconds) {
     }
     display.fillRect (5, 20, 100, 25, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
     UpdateDisplay();
+    Left = false;
+    Right = false;
 }
 
 /**************************************************************************************************************************************************

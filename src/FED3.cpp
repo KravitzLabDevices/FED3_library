@@ -554,8 +554,10 @@ void FED3::DisplayJamClear() {
 void FED3::DisplayRetrievalInt() {
   display.fillRect (85, 22, 70, 15, WHITE); 
   display.setCursor(90, 36);
-  display.print (retInterval);
-  display.print ("ms");
+  if (retInterval<60000){
+    display.print (retInterval);
+    display.print ("ms");
+  }
   display.refresh();
 }
 

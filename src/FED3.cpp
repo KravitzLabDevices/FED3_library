@@ -554,7 +554,7 @@ void FED3::DisplayJamClear() {
 void FED3::DisplayRetrievalInt() {
   display.fillRect (85, 22, 70, 15, WHITE); 
   display.setCursor(90, 36);
-  if (retInterval<60000){
+  if (retInterval<59000){
     display.print (retInterval);
     display.print ("ms");
   }
@@ -565,8 +565,10 @@ void FED3::DisplayRetrievalInt() {
 void FED3::DisplayLeftInt() {
   display.fillRect (85, 22, 70, 15, WHITE);  
   display.setCursor(90, 36);
-  display.print (leftInterval);
-  display.print ("ms");
+  if (leftInterval<10000){
+    display.print (leftInterval);
+    display.print ("ms");
+  }
   display.refresh();
 }
 
@@ -574,8 +576,10 @@ void FED3::DisplayLeftInt() {
 void FED3::DisplayRightInt() {
   display.fillRect (85, 22, 70, 15, WHITE);  
   display.setCursor(90, 36);
-  display.print (rightInterval);
-  display.print ("ms");
+  if (rightInterval<10000){
+    display.print (rightInterval);
+    display.print ("ms");
+  }
   display.refresh();
 }
 

@@ -5,7 +5,7 @@
   The task starts with left pokes active on an FR1, and incrememnts the FR +2 for each earned pellet. ie: FR1, FR3, FR5, etc.
   If 30 minutes pass without a left or right poke the FR ratio resets to FR1
 
-  Code by: Lex Kravitz and Kia Barclay
+  Code by: Kia Barclay and Lex Kravitz 
   alexxai@wustl.edu, kbarclay@wustl.edu
   January, 2021
 */
@@ -41,9 +41,9 @@ void loop() {
       pellets_in_current_block++;                      //increment the pellet number by 1
       fed3.BlockPelletCount = pellets_in_current_block;
       fed3.Feed();                                     //Deliver pellet
-      fed3.BNC(500, 1);                                //Send 500ms pulse to the BNC output
-      pokes_required += 2;                             //This line sets the PR incremement.  For each pellet, add 2 to the pokes required
-      fed3.FR = pokes_required;
+      fed3.BNC(500, 1);                                //Send 500ms pulse to the BNC output when pellet is detected (move this line to deliver this pulse elsewhere)
+      pokes_required += 2;                             //Edit this line to change the PR incremementing formula.  Default is for each pellet add 2 to the pokes required.
+      fed3.FR = pokes_required;                        //Update the FR requirement in the functions in the FED3 library
       poke_num = 0;                                    //reset poke_num to 0
     }
   }
@@ -69,7 +69,7 @@ void checkReset() {
     fed3.pixelsOn((5, 5, 5));
     delay(200);
     fed3.pixelsOff();
-    poketime = fed3.unixtime;                          //store the current time of poke
+    poketime = fed3.unixtime;                        //store the current time of poke
   }
 }
 

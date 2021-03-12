@@ -18,7 +18,7 @@ int pokes_required = 1;                                //current FR
 unsigned long poketime = 0;                            //time of poke
 int resetInterval = 1800;                              //number of seconds without a poke to reset
 
-String sketch = "CEconPR2";                            //Unique identifier text for each sketch
+String sketch = "ClosedEcon_PR2";                      //Unique identifier text for each sketch - only the first 8 characters will show on the screen
 FED3 fed3 (sketch);                                    //Start the FED3 object
 
 void setup() {
@@ -42,7 +42,7 @@ void loop() {
       fed3.BlockPelletCount = pellets_in_current_block;
       fed3.Feed();                                     //Deliver pellet
       fed3.BNC(500, 1);                                //Send 500ms pulse to the BNC output
-      pokes_required += 2;                              //Add 2 to the pokes required
+      pokes_required += 2;                             //This line sets the PR incremement.  For each pellet, add 2 to the pokes required
       fed3.FR = pokes_required;
       poke_num = 0;                                    //reset poke_num to 0
     }

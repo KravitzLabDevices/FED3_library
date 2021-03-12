@@ -127,7 +127,6 @@ void FED3::Feed() {
       pelletTime = millis();
       display.fillCircle(25, 99, 5, BLACK);
       display.refresh();
-      pixelsOff();      //turn pixels off
       digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver  
       retInterval = (millis() - pelletTime);
       //while pellet is present and under 60s has elapsed
@@ -421,7 +420,15 @@ void FED3::UpdateDisplay() {
   display.fillRect (6, 20, 200, 22, WHITE);  //erase text under battery row without clearing the entire screen
   display.fillRect (35, 46, 120, 68, WHITE);  //erase the pellet data on screen without clearing the entire screen 
   display.setCursor(5, 36); //display which sketch is running
-  display.print(sessiontype);
+  //write the first 8 characters of sessiontype:
+  display.print(sessiontype.charAt(0));
+  display.print(sessiontype.charAt(1));
+  display.print(sessiontype.charAt(2));
+  display.print(sessiontype.charAt(3));
+  display.print(sessiontype.charAt(4));
+  display.print(sessiontype.charAt(5));
+  display.print(sessiontype.charAt(6));
+  display.print(sessiontype.charAt(7));
 
   if (DisplayPokes == 1) {
     display.setCursor(35, 65);
@@ -588,7 +595,14 @@ void FED3::StartScreen(){
     display.print("v: ");
     display.print(VER);
     display.print("_");
-    display.print(sessiontype);
+    display.print(sessiontype.charAt(0));
+    display.print(sessiontype.charAt(1));
+    display.print(sessiontype.charAt(2));
+    display.print(sessiontype.charAt(3));
+    display.print(sessiontype.charAt(4));
+    display.print(sessiontype.charAt(5));
+    display.print(sessiontype.charAt(6));
+    display.print(sessiontype.charAt(7));
     display.refresh();
     DisplayMouse();
   }

@@ -8,6 +8,10 @@
   Code by: Kia Barclay and Lex Kravitz 
   alexxai@wustl.edu, kbarclay@wustl.edu
   January, 2021
+
+  This project is released under the terms of the Creative Commons - Attribution - ShareAlike 3.0 license:
+  human readable: https://creativecommons.org/licenses/by-sa/3.0/
+  legal wording: https://creativecommons.org/licenses/by-sa/3.0/legalcode
 */
 
 #include <FED3.h>                                      //Include the FED3 library 

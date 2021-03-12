@@ -1,38 +1,42 @@
 /*
   Feeding experimentation device 3 (FED3)
   FR1 reversal task
-  Code by: alexxai@wustl.edu and meaghan.creed@wustl.edu
-  December, 2020
 
   Starts with the left poke resulting in a pellet and the right poke not resulting in a pellet
 
-  After a defined number of *pokes* the probabilities on the right and left pokes switch.  This is set
-  by the variable "trialsToSwitch".  Code below can be edited to make this switch after set number of *pellets*
+  After a defined number of *pokes* the probabilities on the right and left pokes switch.  This is set by the
+  variable "trialsToSwitch".  Code below can be edited to make this switch after set number of *pellets* instead of pokes
+
+  Code by: Meaghan Creed and Lex Kravitz
+  alexxai@wustl.edu and meaghan.creed@wustl.edu
+  December, 2020
 
   This project is released under the terms of the Creative Commons - Attribution - ShareAlike 3.0 license:
   human readable: https://creativecommons.org/licenses/by-sa/3.0/
   legal wording: https://creativecommons.org/licenses/by-sa/3.0/legalcode
-  Copyright (c) 2020 Lex Kravitz
 */
 
 #include <FED3.h>                                       //Include the FED3 library 
-String sketch = "RevTask";                              //Unique identifier text for each sketch, change string only
-FED3 fed3 (sketch);                                     //Start the FED3 object - don't change
+String sketch = "ReversalTask";                         //Unique identifier text for each sketch, change string only
+FED3 fed3 (sketch);                                     //Start the FED3 object - don't change this line
 
 int trialsToSwitch = 10;
-int counter = 0;
+int counter = 1;
 
 void setup() {
   fed3.begin();                                         //Setup the FED3 hardware, all pinmode screen etc, initialize SD card
 }
 
 void loop() {
-  fed3.run();                                           //Call fed.run at least once per loop
+  ////////////////////////////////////////////////
+  // Determine which poke is active based on the trial number. 
+  // fed3.activePoke=1 means Left poke is active, fed3.activePoke=0 means Right poke is active.
+  ////////////////////////////////////////////////
+  if (counter == ((trialsToSwitch * 2)+1)) counter = 1;
+  if (counter <= trialsToSwitch) fed3.activePoke = 1;
+  if (counter > trialsToSwitch) fed3.activePoke = 0;
 
-  //Determine which poke is active based on the trial number
-  if (counter == (trialsToSwitch * 2) - 1) counter = 0;
-  if (counter < trialsToSwitch) fed3.activePoke = 1;
-  if (counter >= trialsToSwitch) fed3.activePoke = 0;
+  fed3.run();                                           //Call fed.run at least once per loop
 
   ////////////////////////////////////////////////
   // There are 4 cases we need to account for:

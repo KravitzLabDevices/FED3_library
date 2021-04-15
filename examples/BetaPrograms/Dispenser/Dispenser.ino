@@ -1,6 +1,6 @@
 /*
   Basic Pellet Dispenser
-  FED3 will dispense a pellet when it detects a HIGH pulse on the BNC port
+  FED3 will dispense a pellet when it detects a HIGH pulse on the BNC port.  It will not dispense another until that pellet is removed.  Timestamps of pellet removal are logged.
   alexxai@wustl.edu
   January, 2021
 
@@ -22,7 +22,7 @@ void setup() {
 
 void loop() {
   fed3.run();                                           //Call fed.run at the top of the void loop
-  fed3.ReadBNC();                                       //This sets the BNC to be input and reads it
+  fed3.ReadBNC(true);                                   //This sets the BNC to be input and reads it.  The boolean argument refers to whether you want the green LED on the Adalogger board insied of FED3 to blink when it detects an input (true) or not (false)
   if (fed3.BNCinput) {                                  //If HIGH is detected on BNC input
     fed3.ConditionedStimulus();                         //Deliver conditioned stimulus (tone and lights)
     fed3.Feed();                                        //Deliver pellet

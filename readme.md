@@ -1,5 +1,5 @@
 ## This is the FED3 library (beta)
-The goal of this library is to automate most of the housekeeping functions of [FED3](https://github.com/KravitzLabDevices/FED3) behind the scenes and let the user focus on writing the behavioral control. See the [Wiki](https://github.com/KravitzLabDevices/FED3_library/wiki) for documentation on how to use the library.   This library is in development, please report bugs using Issues. 
+The goal of this library is to abstract most of the housekeeping functions of [FED3](https://github.com/KravitzLabDevices/FED3) smart pellet dispensing device behind the scenes and let the user focus on writing the behavioral control. See the [Wiki](https://github.com/KravitzLabDevices/FED3_library/wiki) for documentation on how to use the library.   This library is in development, please report bugs using Issues. 
 
 ## Installation instructions
 ### 1. Install the FED3 library from the Arduino IDE <br>

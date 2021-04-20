@@ -23,7 +23,7 @@ This device includes hardware and code from:
   Copyright (c) 2019, 2020 Lex Kravitz
 */
 
-#define VER "1.4.3"  
+#define VER "1.4.2"  
 
 #ifndef FED3_H
 #define FED3_H
@@ -216,7 +216,7 @@ class FED3 {
         bool setTimed = false;
         
         // Neopixel strip
-        Adafruit_NeoPixel strip = Adafruit_NeoPixel(10, NEOPIXEL, NEO_GRBW + NEO_KHZ800);
+        Adafruit_NeoPixel strip = Adafruit_NeoPixel(8, NEOPIXEL, NEO_GRBW + NEO_KHZ800);
         // Display
         Adafruit_SharpMem display = Adafruit_SharpMem(SHARP_SCK, SHARP_MOSI, SHARP_SS, 144, 168);
         // Stepper

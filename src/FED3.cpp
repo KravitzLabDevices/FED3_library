@@ -629,7 +629,6 @@ void FED3::DisplayMinPoke(){
   display.refresh();
 }
 
-
 void FED3::DisplayNoProgram(){
   display.clearDisplay();
   display.setCursor(15, 45);
@@ -680,7 +679,7 @@ void FED3::DisplayMouse() {
     previousFED = FED;
     
     // If one poke is pushed change mode
-    if (FED3Menu == true){
+    if (FED3Menu == true or ClassicFED3 == true){
       if (digitalRead (LEFT_POKE) == LOW | digitalRead (RIGHT_POKE) == LOW) SelectMode();
     }
     

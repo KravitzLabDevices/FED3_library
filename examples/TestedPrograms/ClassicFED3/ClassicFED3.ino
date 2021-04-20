@@ -33,7 +33,7 @@ FED3 fed3 (sketch);              //Start the FED3 object
 
 //variables for PR tasks
 int poke_num = 0;                                      // this variable is the number of pokes since last pellet
-int pokes_required = 0;                                // increase the number of pokes required each time a pellet is received using an exponential equation
+int pokes_required = 1;                                // increase the number of pokes required each time a pellet is received using an exponential equation
 
 void setup() {
   fed3.ClassicFED3 = true;

@@ -17,8 +17,3 @@ Copy the extracted libraries to `\Arduino\libraries\`.
 ### 3. Start coding!
 Check out the example FED3 programs by clicking File > Examples > FED3 <br>
 ![FED3 examples](https://raw.githubusercontent.com/KravitzLabDevices/FED3/main/photos/FED3example2.png)
-
-
-This project is released under the terms of the Creative Commons - Attribution - ShareAlike 3.0 license:
-human readable:https://creativecommons.org/licenses/by-sa/3.0/
-legal wording:https://creativecommons.org/licenses/by-sa/3.0/legalcode

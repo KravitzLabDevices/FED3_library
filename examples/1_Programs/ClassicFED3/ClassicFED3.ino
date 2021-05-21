@@ -118,7 +118,7 @@ void loop() {
     //If left poke is active, run FR1 session with left active
     if (fed3.activePoke == 1) {
       
-      //Comment one of these next two lines out, depending on if you have FED3 or FED3.1
+      //Comment one of these next two lines out, depending on if you have FED3 or FED3.1 (with nosepoke lights)
 //      fed3.leftPokePixel() ;                              //turn on left-most pixel inside nosepoke
       fed3.leftPixel() ;                                //turn on left-most pixel on Neopixel strip (comment)
       
@@ -136,8 +136,8 @@ void loop() {
     //If right poke is active, run FR1 session with right active
     if (fed3.activePoke == 0) {
 
-      //Comment one of these next two lines out, depending on if you have FED3 or FED3.1
-//     fed3.rightPokePixel() ;                             //turn on right-most pixel inside nosepoke
+      //Comment one of these next two lines out, depending on if you have FED3 or FED3.1 (with nosepoke lights)
+//      fed3.rightPokePixel() ;                             //turn on right-most pixel inside nosepoke
       fed3.rightPixel() ;
      
       if (fed3.Right) {

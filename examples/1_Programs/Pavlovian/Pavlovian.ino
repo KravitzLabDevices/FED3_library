@@ -16,7 +16,7 @@
 #include <FED3.h>                                       //Include the FED3 library 
 String sketch = "Pavlov";                               //Unique identifier text for each sketch (this will show up on the screen and in log file)
 FED3 fed3 (sketch);                                     //Start the FED3 object
-int Pellet_delay = 60;                                   //How long to wait between conditioned stimulus and pellet (in s)
+int Pellet_delay = 5;                                   //How long to wait between conditioned stimulus and pellet (in s)
 
 void setup() {
   fed3.begin();                                         //Setup the FED3 hardware
@@ -26,8 +26,8 @@ void setup() {
 
 void loop() {
   fed3.run();                                           //Call fed.run at least once per loop
-  fed3.ConditionedStimulus();                           //Play conditioned stimulus (light and tones)
-  delay (Pellet_delay*1000);                            //delay
+  fed3.ConditionedStimulus();                           //Conditioned stimulus (light and tones)
+  fed3.Timeout(Pellet_delay);                           //delay between tone and pellet
   fed3.Feed();                                          //Drop pellet
   
   while (digitalRead (PELLET_WELL) == LOW) {            //Wait here while there's a pellet in the well

@@ -16,7 +16,7 @@
 #include <FED3.h>                                       //Include the FED3 library 
 String sketch = "Pavlov";                               //Unique identifier text for each sketch (this will show up on the screen and in log file)
 FED3 fed3 (sketch);                                     //Start the FED3 object
-int Pellet_delay = 2;                                   //How long to wait between conditioned stimulus and pellet (note, this variable is created in this script so it does not need to be preceeded by fed3. to use it!)
+int Pellet_delay = 60;                                   //How long to wait between conditioned stimulus and pellet (in s)
 
 void setup() {
   fed3.begin();                                         //Setup the FED3 hardware

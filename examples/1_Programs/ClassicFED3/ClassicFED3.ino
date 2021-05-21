@@ -19,12 +19,12 @@
 
   alexxai@wustl.edu
   December, 2020
-  
+
   This project is released under the terms of the Creative Commons - Attribution - ShareAlike 3.0 license:
   human readable: https://creativecommons.org/licenses/by-sa/3.0/
   legal wording: https://creativecommons.org/licenses/by-sa/3.0/legalcode
   Copyright (c) 2020 Lex Kravitz
-  
+
 */
 
 #include <FED3.h>                //Include the FED3 library 
@@ -113,30 +113,38 @@ void loop() {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   if (fed3.FEDmode == 6) {
     fed3.sessiontype = "Light Trk";                       //The text in "sessiontype" will appear on the screen and in the logfile
-    fed3.EnableSleep = false;                             //Sleep mode shuts the NeoPixels off to save power.  Therefore to leave pixels on during this task we must disable sleep mode.
+    fed3.disableSleep();                                  //Sleep mode shuts the NeoPixels off to save power.  Therefore to leave pixels on during this task we must disable sleep mode.
 
     //If left poke is active, run FR1 session with left active
     if (fed3.activePoke == 1) {
-      fed3.leftStimulus() ;
+      
+      //Comment one of these next two lines out, depending on if you have FED3 or FED3.1
+//      fed3.leftPokePixel() ;                              //turn on left-most pixel inside nosepoke
+      fed3.leftPixel() ;                                //turn on left-most pixel on Neopixel strip (comment)
+      
       if (fed3.Left) {
         fed3.logLeftPoke();                               //Log left poke
-        fed3.ConditionedStimulus();                     //deliver conditioned stimulus (tone and lights)
-        fed3.Feed();                                    //deliver pellet
-        fed3.activePoke = random (0, 2);                //randomize which poke is active
+        fed3.ConditionedStimulus();                       //deliver conditioned stimulus (tone and lights)
+        fed3.Feed();         
+        fed3.activePoke = random (0, 2);                  //randomize which poke is active
       }
       if (fed3.Right) {                                   //If right poke is triggered
         fed3.logRightPoke();
       }
     }
 
-    //If rightt poke is active, run FR1 session with right active
+    //If right poke is active, run FR1 session with right active
     if (fed3.activePoke == 0) {
-      fed3.rightStimulus() ;
+
+      //Comment one of these next two lines out, depending on if you have FED3 or FED3.1
+//     fed3.rightPokePixel() ;                             //turn on right-most pixel inside nosepoke
+      fed3.rightPixel() ;
+     
       if (fed3.Right) {
         fed3.logRightPoke();                              //Log left poke
-        fed3.ConditionedStimulus();                     //deliver conditioned stimulus (tone and lights)
-        fed3.Feed();                                    //deliver pellet
-        fed3.activePoke = random (0, 2);                //randomize which poke is active
+        fed3.ConditionedStimulus();                       //deliver conditioned stimulus (tone and lights)
+        fed3.Feed();                                      //deliver pellet
+        fed3.activePoke = random (0, 2);                  //randomize which poke is active
       }
       if (fed3.Left) {                                    //If right poke is triggered
         fed3.logLeftPoke();
@@ -148,15 +156,15 @@ void loop() {
   //                                                                     Mode 7: FR1 (reversed)
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   if (fed3.FEDmode == 7) {
-    fed3.sessiontype = "FR1_R";                         //The text in "sessiontype" will appear on the screen and in the logfile
-    fed3.activePoke = 0;                                //Set activePoke to 0 to make right poke active
-    if (fed3.Left) {                                    //If left poke
-      fed3.logLeftPoke();                               //Log left poke
+    fed3.sessiontype = "FR1_R";                           //The text in "sessiontype" will appear on the screen and in the logfile
+    fed3.activePoke = 0;                                  //Set activePoke to 0 to make right poke active
+    if (fed3.Left) {                                      //If left poke
+      fed3.logLeftPoke();                                 //Log left poke
     }
-    if (fed3.Right) {                                   //If right poke is triggered
-      fed3.logRightPoke();                              //Log Right Poke
-      fed3.ConditionedStimulus();                       //Deliver conditioned stimulus (tone and lights)
-      fed3.Feed();                                      //deliver pellet
+    if (fed3.Right) {                                     //If right poke is triggered
+      fed3.logRightPoke();                                //Log Right Poke
+      fed3.ConditionedStimulus();                         //Deliver conditioned stimulus (tone and lights)
+      fed3.Feed();                                        //deliver pellet
     }
   }
 
@@ -230,9 +238,9 @@ void loop() {
       fed3.Feed();
     }
   }
-  
+
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  //                                                                    Call fed.run at least once per loop 
+  //                                                                    Call fed.run at least once per loop
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   fed3.run();
 }

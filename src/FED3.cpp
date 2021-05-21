@@ -51,7 +51,7 @@ static void outsideRightTriggerHandler(void) {
                                                                                                         Main loop
 **************************************************************************************************************************************************/
 void FED3::run() {
-  //This should be called at least once per loop.  It updates the time, updates display, and goes to sleep if sleep is enabled
+  //This should be called at least once per loop.  It updates the time, updates display, and controls sleep 
   if (digitalRead(PELLET_WELL) == HIGH) {  //check for pellet
     PelletAvailable = false;
   }
@@ -113,21 +113,23 @@ void FED3::logRightPoke(){
 **************************************************************************************************************************************************/
 void FED3::Feed() {
   //Run this loop repeatedly until statement below is false
-  
   bool pelletDispensed = false;
   
   do {	
 	
     if (pelletDispensed == false) {
 	    pelletDispensed = RotateDisk(-300);
-	  }
+	}
 
+//     digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
+    pixelsOff();
+//      
     //If pellet is detected during or after this motion
     if (pelletDispensed == true) {
+     digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
       pelletTime = millis();
       display.fillCircle(25, 99, 5, BLACK);
       display.refresh();
-      digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver  
       retInterval = (millis() - pelletTime);
       //while pellet is present and under 60s has elapsed
       while (digitalRead (PELLET_WELL) == LOW and retInterval < 60000) {  //After pellet is detected, hang here for up to 1 minute to detect when it is removed
@@ -139,8 +141,7 @@ void FED3::Feed() {
       while (digitalRead (PELLET_WELL) == LOW) { //if pellet is not taken after 60 seconds, wait here and go to sleep
         run();
       }
-
-      //BNC(500, 1);
+      digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
       PelletCount++;
       Left = false;
       Right = false;
@@ -157,7 +158,7 @@ void FED3::Feed() {
     if (PelletAvailable == false){
         pelletDispensed = dispenseTimer_ms(1500);  //delay between pellets that also checks pellet well
         numMotorTurns++;
-    
+
         //Jam clearing movements
 		if (pelletDispensed == false) {
           if (numMotorTurns % 5 == 0) {
@@ -182,7 +183,6 @@ void FED3::Feed() {
 bool FED3::MinorJam(){
 	return RotateDisk(100);
 }
-	
 	
 //vibration movement to clear jam
 bool FED3::VibrateJam() {
@@ -237,10 +237,9 @@ bool FED3::ClearJam() {
 	return false;
 }
 
-bool FED3::RotateDisk(int steps)
-{
-	digitalWrite (MOTOR_ENABLE, HIGH);  //Enable motor driver
-	for (int i = 0; i < (steps>0?steps:-steps); i++) {	  
+bool FED3::RotateDisk(int steps) {
+  digitalWrite (MOTOR_ENABLE, HIGH);  //Enable motor driver
+  for (int i = 0; i < (steps>0?steps:-steps); i++) {	  
 	  if (steps > 0)
 		  stepper.step(1);
 	  else
@@ -298,8 +297,8 @@ void FED3::Timeout(int seconds) {
                                                                                        Audio and neopixel stimuli
 **************************************************************************************************************************************************/
 void FED3::ConditionedStimulus() {
-  pixelsOn((0, 2, 2)); 
   tone (BUZZER, 4000, 200);
+  pixelsOn((0, 2, 2));
 }
 
 void FED3::Click() {
@@ -321,46 +320,75 @@ void FED3::Noise(int duration) {
 //Turn all pixels on to a specific color
 void FED3::pixelsOn(uint32_t c) {
   digitalWrite (MOTOR_ENABLE, HIGH);  //ENABLE motor driver
-  for (uint16_t i = 0; i < strip.numPixels(); i++) {
+  delay(2); //let things settle
+  for (uint16_t i = 0; i < 8; i++) {
     strip.setPixelColor(i, c);
     strip.show();
   }
-  digitalWrite (MOTOR_ENABLE, LOW);  //DISABLE motor driver
+  delay(2); //let things settle
+  digitalWrite (MOTOR_ENABLE, LOW);  ////disable motor driver and neopixels
 }
 
 //Turn all pixels off
 void FED3::pixelsOff() {
   digitalWrite (MOTOR_ENABLE, HIGH);  //ENABLE motor driver
-  for (uint16_t i = 0; i < strip.numPixels(); i++) {
+  delay (2); //let things settle
+    for (uint16_t i = 0; i < strip.numPixels(); i++) {
     strip.setPixelColor(i, (0,0,0));
     strip.show();
+    delay (2); //let things settle
   }
-  digitalWrite (MOTOR_ENABLE, LOW);  //DISABLE motor driver
+  delay (10); //let things settle
+      digitalWrite (MOTOR_ENABLE, LOW);  //disable motor driver and neopixels
 }
 
 //colorWipe does a color wipe from left to right
 void FED3::colorWipe(uint32_t c, uint8_t wait) {
   digitalWrite (MOTOR_ENABLE, HIGH);  //ENABLE motor driver
+  delay(2); //let things settle
   for (uint16_t i = 0; i < strip.numPixels(); i++) {
     strip.setPixelColor(i, c);
     strip.show();
     delay(wait);
   }
-  digitalWrite (MOTOR_ENABLE, LOW);  //DISABLE motor driver
+  digitalWrite (MOTOR_ENABLE, LOW);  ////disable motor driver and neopixels
+  delay(2); //let things settle
 }
 
-// Visual tracking stimulus - left
-void FED3::leftStimulus() {
+// Visual tracking stimulus - left-most pixel on strip
+void FED3::leftPixel() {
   digitalWrite (MOTOR_ENABLE, HIGH);
+  delay(2); //let things settle
   strip.setPixelColor(0, strip.Color(2, 0, 2, 2) );
   strip.show();
+  delay(2); //let things settle
 }
 
-// Visual tracking stimulus - right
-void FED3::rightStimulus() {
+// Visual tracking stimulus - left-most pixel on strip
+void FED3::rightPixel() {
   digitalWrite (MOTOR_ENABLE, HIGH);
+  delay(2); //let things settle
   strip.setPixelColor(7, strip.Color(2, 0, 2, 2) );
   strip.show();
+  delay(2); //let things settle
+}
+
+// Visual tracking stimulus - left poke pixel
+void FED3::leftPokePixel() {
+  digitalWrite (MOTOR_ENABLE, HIGH);
+  delay(2); //let things settle
+  strip.setPixelColor(9, strip.Color(2, 0, 2, 2) );
+  strip.show();
+  delay(2); //let things settle
+}
+
+// Visual tracking stimulus - right poke pixel
+void FED3::rightPokePixel() {
+  digitalWrite (MOTOR_ENABLE, HIGH);
+  delay(2); //let things settle
+  strip.setPixelColor(8, strip.Color(2, 0, 2, 2) );
+  strip.show();
+  delay(2); //let things settle
 }
 
 //Short helper function for blinking LEDs and BNC out port
@@ -1056,6 +1084,10 @@ void FED3::disableSleep(){
   EnableSleep = false;                             
 }
 
+void FED3::enableSleep(){
+  EnableSleep = true;                             
+}
+
 //What happens when pellet is detected
 void FED3::pelletTrigger() {
   if (digitalRead(PELLET_WELL) == HIGH) {
@@ -1085,6 +1117,8 @@ void FED3::rightTrigger() {
 void FED3::goToSleep() {
   ReleaseMotor();
   if (EnableSleep==true){
+    pixelsOff();
+    delay (2); //let things settle
     LowPower.sleep(1000);  //Wake up every 1 sec to check the pellet well
   }
   pelletTrigger();       //check pellet well to make sure it's not stuck thinking there's a pellet when there's not
@@ -1096,7 +1130,7 @@ void FED3::ReleaseMotor () {
   digitalWrite(A3, LOW);
   digitalWrite(A4, LOW);
   digitalWrite(A5, LOW);
-  digitalWrite(MOTOR_ENABLE, LOW);  //Disable motor driver
+  digitalWrite(MOTOR_ENABLE, LOW);  //disable motor driver and neopixels
 }
 
 /**************************************************************************************************************************************************
@@ -1123,6 +1157,7 @@ void FED3::begin() {
   pinMode(PELLET_WELL, INPUT);
   pinMode(LEFT_POKE, INPUT);
   pinMode(RIGHT_POKE, INPUT);
+  pinMode(VBATPIN, INPUT);
   pinMode(MOTOR_ENABLE, OUTPUT);
   pinMode(GREEN_LED, OUTPUT);
   pinMode(BUZZER, OUTPUT);
@@ -1325,7 +1360,8 @@ void FED3::ClassicMenu () {
   if (FEDmode == 5) { // Extinction
     FR = 1;
     ReleaseMotor ();
-    digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver
+    digitalWrite (MOTOR_ENABLE, LOW);  //disable motor driver and neopixels
+    delay(2); //let things settle
   }
   if (FEDmode == 6) FR = 1;  // Light tracking
   if (FEDmode == 7) FR = 1; // FR1 (reversed)

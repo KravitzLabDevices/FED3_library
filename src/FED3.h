@@ -2,10 +2,9 @@
 Feeding experimentation device 3 (FED3) library 
 Code by Lex Kravitz, adapted to Arduino library format by Eric Lin
 alexxai@wustl.edu
-erclin@ucdavis.edu
-December 2020
+May 2021
 
-FED was originally developed by Nguyen at al and published in 2016:
+The original FED device was developed by Katrina Nguyen at al in 2016:
 https://www.ncbi.nlm.nih.gov/pubmed/27060385
 
 This device includes hardware and code from:
@@ -23,7 +22,7 @@ This device includes hardware and code from:
   Copyright (c) 2019, 2020 Lex Kravitz
 */
 
-#define VER "1.4.5"  
+#define VER "1.5.0"
 
 #ifndef FED3_H
 #define FED3_H
@@ -38,7 +37,7 @@ This device includes hardware and code from:
 #include <SPI.h>
 #include <Stepper.h>
 #include <ArduinoLowPower.h>
-#include "RTClib.h"  
+#include "RTClib.h"
 #include <SdFat.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SharpMem.h>
@@ -46,19 +45,19 @@ This device includes hardware and code from:
 #include <Adafruit_NeoPixel.h>
 
 // Pin definitions
-#define NEOPIXEL        A1   // Neopixel
+#define NEOPIXEL        A1
 #define MOTOR_ENABLE    13
 #define GREEN_LED       8
 #define PELLET_WELL     1
 #define LEFT_POKE       6
 #define RIGHT_POKE      5
-#define BUZZER          0    // 0 to activate beeper, 99 to turn it off and stop annoying people on the train
+#define BUZZER          0
 #define VBATPIN         A7
 #define cardSelect      4
 #define BNC_OUT         A0
-#define SHARP_SCK       12   // Sharp memory display
-#define SHARP_MOSI      11   // Sharp memory display
-#define SHARP_SS        10   // Sharp memory display
+#define SHARP_SCK       12
+#define SHARP_MOSI      11
+#define SHARP_SS        10
 
 #define BLACK 0
 #define WHITE 1
@@ -118,8 +117,10 @@ class FED3 {
         void DisplayNoProgram();
         void DisplayMinPoke();
         void DisplayMouse();
-        void leftStimulus();
-        void rightStimulus();
+        void leftPixel();
+        void rightPixel();
+        void leftPokePixel();
+        void rightPokePixel();
         
         // Startup menu function
         void ClassicMenu();
@@ -204,6 +205,7 @@ class FED3 {
         bool Ratio_Met = false;
         bool EnableSleep = true;
         void disableSleep();
+        void enableSleep();
         bool ClassicFED3 = false;
         bool FED3Menu = false;
         
@@ -216,7 +218,7 @@ class FED3 {
         bool setTimed = false;
         
         // Neopixel strip
-        Adafruit_NeoPixel strip = Adafruit_NeoPixel(8, NEOPIXEL, NEO_GRBW + NEO_KHZ800);
+        Adafruit_NeoPixel strip = Adafruit_NeoPixel(10, NEOPIXEL, NEO_GRBW + NEO_KHZ800);
         // Display
         Adafruit_SharpMem display = Adafruit_SharpMem(SHARP_SCK, SHARP_MOSI, SHARP_SS, 144, 168);
         // Stepper

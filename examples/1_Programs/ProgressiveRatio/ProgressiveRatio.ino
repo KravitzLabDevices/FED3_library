@@ -30,8 +30,10 @@ void loop() {
     if (poke_num == pokes_required) {                  //check to see if the mouse has acheived the correct number of pokes in order to receive the pellet
       fed3.ConditionedStimulus();                      //Deliver conditioned stimulus (tone and lights)
       fed3.Feed();                                     //Deliver pellet
+      
       //increment the number of pokes required according to the progressive ratio:
-      pokes_required = round((5 * exp((fed3.PelletCount + 1) * 0.2)) - 5);
+      pokes_required = round((5 * exp((fed3.PelletCount + 1) * 0.2)) - 5);  //this is an exponential ratio, change this line to edit ratio formula
+      
       fed3.FR = pokes_required;
       poke_num = 0;                                    //reset the number of pokes back to 0, for the next trial
       fed3.Left = false;

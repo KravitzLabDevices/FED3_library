@@ -1,4 +1,4 @@
-## This is the FED3 library (beta)
+## This is the FED3 library
 This library controls [FED3](https://github.com/KravitzLabDevices/FED3), a device for training mice. See the [Wiki](https://github.com/KravitzLabDevices/FED3_library/wiki) for documentation on how to use the library.   This library is in development, please report bugs using Issues. 
 
 ## Installation instructions

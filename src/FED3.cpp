@@ -514,14 +514,14 @@ void FED3::UpdateDisplay() {
 void FED3::DisplayDateTime(){
   // Print date and time at bottom of the screen
   DateTime now = rtc.now();
-  display.setCursor(10, 135);
+  display.setCursor(0, 135);
   display.fillRect (0, 123, 200, 60, WHITE);
   display.print(now.month());
   display.print("/");
   display.print(now.day());
   display.print("/");
   display.print(now.year());
-  display.print("    ");
+  display.print(" ");
   if (now.hour() < 10)
     display.print('0');      // Trick to add leading zero for formatting
   display.print(now.hour());
@@ -587,9 +587,14 @@ void FED3::DisplayBattery(){
   }
   
   //display voltage
-  display.fillRect (86, 13, 23, 8, WHITE);
-  display.setCursor(87, 15);
+  display.setTextSize(2);
+  display.setFont(&Org_01);
+
+  display.fillRect (86, 9, 23, 8, WHITE);
+  display.setCursor(87, 10);
   display.print(measuredvbat, 1);
+  display.setFont(&FreeSans9pt7b);
+  display.setTextSize(1);
 }
 
 //Display "Check SD Card!" if there is a card error

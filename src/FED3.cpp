@@ -521,7 +521,7 @@ void FED3::DisplayDateTime(){
   display.print(now.day());
   display.print("/");
   display.print(now.year());
-  display.print(" ");
+  display.print("    ");
   if (now.hour() < 10)
     display.print('0');      // Trick to add leading zero for formatting
   display.print(now.hour());

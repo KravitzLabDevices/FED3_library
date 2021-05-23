@@ -36,6 +36,7 @@ int poke_num = 0;                                      // this variable is the n
 int pokes_required = 1;                                // increase the number of pokes required each time a pellet is received using an exponential equation
 
 void setup() {
+  fed3.supressSDerrors = true;
   fed3.ClassicFED3 = true;
   fed3.begin();                                        //Setup the FED3 hardware
 }
@@ -117,35 +118,34 @@ void loop() {
 
     //If left poke is active, run FR1 session with left active
     if (fed3.activePoke == 1) {
-      
+
       //Comment one of these next two lines out, depending on if you have FED3 or FED3.1 (with nosepoke lights)
-      fed3.leftPokePixel() ;                              //turn on left-most pixel inside nosepoke
-//      fed3.leftPixel() ;                                //turn on left-most pixel on Neopixel strip (comment)
-      
+      //      fed3.leftPokePixel(5,5,5,5) ;                       //turn on pixel inside left nosepoke dim white
+      fed3.leftPixel(5, 5, 5, 5) ;                       //turn on left-most pixel on Neopixel strip
+
       if (fed3.Left) {
         fed3.logLeftPoke();                               //Log left poke
         fed3.ConditionedStimulus();                       //deliver conditioned stimulus (tone and lights)
-        fed3.Feed();         
+        fed3.Feed();
         fed3.randomizeActivePoke(3);                      //randomize which poke is active, specifying maximum on the same poke before forcing a switch
       }
       if (fed3.Right) {                                   //If right poke is triggered
         fed3.logRightPoke();
       }
     }
-
     //If right poke is active, run FR1 session with right active
     if (fed3.activePoke == 0) {
 
       //Comment one of these next two lines out, depending on if you have FED3 or FED3.1 (with nosepoke lights)
-      fed3.rightPokePixel() ;                             //turn on right-most pixel inside nosepoke
-//      fed3.rightPixel() ;
-     
+      //      fed3.rightPokePixel(5,5,5,5) ;                    //turn on pixel inside right nosepoke dim white
+      fed3.rightPixel(5, 5, 5, 5) ;                      //turn on right-most pixel on Neopixel strip
+
       if (fed3.Right) {
         fed3.logRightPoke();                              //Log left poke
         fed3.ConditionedStimulus();                       //deliver conditioned stimulus (tone and lights)
         fed3.Feed();                                      //deliver pellet
         fed3.randomizeActivePoke(3);                      //randomize which poke is active, specifying maximum on the same poke before forcing a switch
-        }
+      }
       if (fed3.Left) {                                    //If right poke is triggered
         fed3.logLeftPoke();
       }

@@ -22,7 +22,7 @@ This device includes hardware and code from:
   Copyright (c) 2019, 2020 Lex Kravitz
 */
 
-#define VER "1.5.1"
+#define VER "1.6.0"
 
 #ifndef FED3_H
 #define FED3_H
@@ -42,6 +42,7 @@ This device includes hardware and code from:
 #include <Adafruit_GFX.h>
 #include <Adafruit_SharpMem.h>
 #include <Fonts/FreeSans9pt7b.h>
+#include <Fonts/Org_01.h>
 #include <Adafruit_NeoPixel.h>
 
 // Pin definitions
@@ -92,16 +93,21 @@ class FED3 {
         void writeFEDmode();
         void error(uint8_t errno);
         void getFilename(char *filename);
+        bool supressSDerrors = false;  //set to true to supress SD card errors at startup 
 
         // Battery
         float measuredvbat = 1.0;
         void ReadBatteryLevel();
 
         // Neopixel
-        void pixelsOn(uint32_t c);
+        void pixelsOn(int R, int G, int B, int W);
         void pixelsOff();
         void Blink(byte PIN, byte DELAY_MS, byte loops);
         void colorWipe(uint32_t c, uint8_t wait);
+        void leftPixel(int R, int G, int B, int W);
+        void rightPixel(int R, int G, int B, int W);
+        void leftPokePixel(int R, int G, int B, int W);
+        void rightPokePixel(int R, int G, int B, int W);
         
         // Display functions
         void UpdateDisplay();
@@ -117,10 +123,7 @@ class FED3 {
         void DisplayNoProgram();
         void DisplayMinPoke();
         void DisplayMouse();
-        void leftPixel();
-        void rightPixel();
-        void leftPokePixel();
-        void rightPokePixel();
+
         
         // Startup menu function
         void ClassicMenu();
@@ -140,9 +143,9 @@ class FED3 {
         void SetDeviceNumber();
 
         // Stimuli
-        void ConditionedStimulus();
+        void ConditionedStimulus(int duration = 200);
         void Click();
-        void Noise(int duration);
+        void Noise(int duration = 200);
         void BNC(byte DELAY_MS, byte loops);
         void Tone(int freq, int duration);
         

@@ -152,9 +152,8 @@ void FED3::Feed() {
 	    pelletDispensed = RotateDisk(-300);
 	}
 
-//     digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
     pixelsOff();
-//      
+
     //If pellet is detected during or after this motion
     if (pelletDispensed == true) {
      digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
@@ -327,9 +326,9 @@ void FED3::Timeout(int seconds) {
 /**************************************************************************************************************************************************
                                                                                        Audio and neopixel stimuli
 **************************************************************************************************************************************************/
-void FED3::ConditionedStimulus() {
-  tone (BUZZER, 4000, 200);
-  pixelsOn((0, 2, 2));
+void FED3::ConditionedStimulus(int duration) {
+  tone (BUZZER, 4000, duration);
+  pixelsOn(0,0,10,0);  //blue light for all
 }
 
 void FED3::Click() {
@@ -341,22 +340,21 @@ void FED3::Tone(int freq, int duration){
 }
 
 void FED3::Noise(int duration) {
-  // Random noise to signal errors
+  // White noise to signal errors
   for (int i = 0; i < duration/50; i++) {
-    tone (BUZZER, random(10, 250), 50);
+    tone (BUZZER, random(50, 250), 50);
     delay(duration/50);
   }
 }
 
 //Turn all pixels on to a specific color
-void FED3::pixelsOn(uint32_t c) {
+void FED3::pixelsOn(int R, int G, int B, int W) {
   digitalWrite (MOTOR_ENABLE, HIGH);  //ENABLE motor driver
   delay(2); //let things settle
   for (uint16_t i = 0; i < 8; i++) {
-    strip.setPixelColor(i, c);
+    strip.setPixelColor(i, R, G, B, W);
     strip.show();
   }
-  digitalWrite (MOTOR_ENABLE, LOW);  ////disable motor driver and neopixels
 }
 
 //Turn all pixels off
@@ -364,7 +362,7 @@ void FED3::pixelsOff() {
   digitalWrite (MOTOR_ENABLE, HIGH);  //ENABLE motor driver
   delay (2); //let things settle
     for (uint16_t i = 0; i < strip.numPixels(); i++) {
-    strip.setPixelColor(i, (0,0,0));
+    strip.setPixelColor(i, 0,0,0,0);
     strip.show();   
   }
   digitalWrite (MOTOR_ENABLE, LOW);  //disable motor driver and neopixels
@@ -374,7 +372,7 @@ void FED3::pixelsOff() {
 void FED3::colorWipe(uint32_t c, uint8_t wait) {
   digitalWrite (MOTOR_ENABLE, HIGH);  //ENABLE motor driver
   delay(2); //let things settle
-  for (uint16_t i = 0; i < strip.numPixels(); i++) {
+  for (uint16_t i = 0; i < 8; i++) {
     strip.setPixelColor(i, c);
     strip.show();
     delay(wait);
@@ -384,37 +382,37 @@ void FED3::colorWipe(uint32_t c, uint8_t wait) {
 }
 
 // Visual tracking stimulus - left-most pixel on strip
-void FED3::leftPixel() {
+void FED3::leftPixel(int R, int G, int B, int W) {
   digitalWrite (MOTOR_ENABLE, HIGH);
   delay(2); //let things settle
-  strip.setPixelColor(0, strip.Color(2, 0, 2, 2) );
+  strip.setPixelColor(0, R, G, B, W);
   strip.show();
 //   delay(2); //let things settle
 }
 
 // Visual tracking stimulus - left-most pixel on strip
-void FED3::rightPixel() {
+void FED3::rightPixel(int R, int G, int B, int W) {
   digitalWrite (MOTOR_ENABLE, HIGH);
   delay(2); //let things settle
-  strip.setPixelColor(7, strip.Color(2, 0, 2, 2) );
+  strip.setPixelColor(7, R, G, B, W);
   strip.show();
 //   delay(2); //let things settle
 }
 
 // Visual tracking stimulus - left poke pixel
-void FED3::leftPokePixel() {
+void FED3::leftPokePixel(int R, int G, int B, int W) {
   digitalWrite (MOTOR_ENABLE, HIGH);
   delay(2); //let things settle
-  strip.setPixelColor(9, strip.Color(2, 0, 2, 2) );
+  strip.setPixelColor(9, R, G, B, W);
   strip.show();
 //   delay(2); //let things settle
 }
 
 // Visual tracking stimulus - right poke pixel
-void FED3::rightPokePixel() {
+void FED3::rightPokePixel(int R, int G, int B, int W) {
   digitalWrite (MOTOR_ENABLE, HIGH);
   delay(2); //let things settle
-  strip.setPixelColor(8, strip.Color(2, 0, 2, 2) );
+  strip.setPixelColor(8, R, G, B, W);
   strip.show();
   //delay(2); //let things settle
 }
@@ -476,6 +474,7 @@ void FED3::UpdateDisplay() {
   display.fillRect (6, 20, 200, 22, WHITE);  //erase text under battery row without clearing the entire screen
   display.fillRect (35, 46, 120, 68, WHITE);  //erase the pellet data on screen without clearing the entire screen 
   display.setCursor(5, 36); //display which sketch is running
+  
   //write the first 8 characters of sessiontype:
   display.print(sessiontype.charAt(0));
   display.print(sessiontype.charAt(1));
@@ -586,6 +585,11 @@ void FED3::DisplayBattery(){
     display.fillRect (119, 3, 26, 13, WHITE);
     display.fillRect (120, 4, 7, 12, BLACK);
   }
+  
+  //display voltage
+  display.fillRect (86, 13, 23, 8, WHITE);
+  display.setCursor(87, 15);
+  display.print(measuredvbat, 1);
 }
 
 //Display "Check SD Card!" if there is a card error
@@ -948,15 +952,17 @@ void FED3::logdata() {
 // will blink both LEDs on the Feather M0, turn the NeoPixel into red wipe pattern,
 // and display "Check SD Card" on the screen
 void FED3::error(uint8_t errno) {
-  DisplaySDError();
-  while (1) {
-    uint8_t i;
-    for (i = 0; i < errno; i++) {
-      Blink(GREEN_LED, 25, 2);
-      colorWipe(strip.Color(5, 0, 0), 25); // RED
-    }
-    for (i = errno; i < 10; i++) {
-      colorWipe(strip.Color(0, 0, 0), 25); // clear
+  if (supressSDerrors == false){
+    DisplaySDError();
+    while (1) {
+      uint8_t i;
+      for (i = 0; i < errno; i++) {
+        Blink(GREEN_LED, 25, 2);
+        colorWipe(strip.Color(5, 0, 0), 25); // RED
+      }
+      for (i = errno; i < 10; i++) {
+        colorWipe(strip.Color(0, 0, 0), 25); // clear
+      }
     }
   }
 }
@@ -1143,8 +1149,8 @@ void FED3::rightTrigger() {
 
 //Sleep function
 void FED3::goToSleep() {
-  ReleaseMotor();
   if (EnableSleep==true){
+    ReleaseMotor();
     pixelsOff();
     delay (2); //let things settle
     LowPower.sleep(1000);  //Wake up every 1 sec to check the pellet well

@@ -16,14 +16,14 @@ FED3 fed3 (sketch);                                     //Start the FED3 object
 
 void setup() {
   fed3.begin();                                         //Setup the FED3 hardware
+  fed3.disableSleep();
 }
 
 void loop() {
   fed3.run();                                           //Call fed.run at least once per loop
-
   if (fed3.Left) {                                      //If left poke is triggered
     fed3.logLeftPoke();                                 //Log left poke
-    fed3.ConditionedStimulus();                         //Deliver conditioned stimulus (tone and lights)
+    fed3.ConditionedStimulus();                         //Deliver conditioned stimulus (tone and lights for 200ms)
     fed3.Feed();                                        //Deliver pellet
   }
 

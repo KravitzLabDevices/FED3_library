@@ -36,7 +36,6 @@ int poke_num = 0;                                      // this variable is the n
 int pokes_required = 1;                                // increase the number of pokes required each time a pellet is received using an exponential equation
 
 void setup() {
-  fed3.supressSDerrors = true;
   fed3.ClassicFED3 = true;
   fed3.begin();                                        //Setup the FED3 hardware
 }
@@ -120,8 +119,8 @@ void loop() {
     if (fed3.activePoke == 1) {
 
       //Comment one of these next two lines out, depending on if you have FED3 or FED3.1 (with nosepoke lights)
-      //      fed3.leftPokePixel(5,5,5,5) ;                       //turn on pixel inside left nosepoke dim white
-      fed3.leftPixel(5, 5, 5, 5) ;                       //turn on left-most pixel on Neopixel strip
+            fed3.leftPokePixel(0,5,5,0) ;                       //turn on pixel inside left nosepoke dim white
+//      fed3.leftPixel(5, 5, 5, 5) ;                       //turn on left-most pixel on Neopixel strip
 
       if (fed3.Left) {
         fed3.logLeftPoke();                               //Log left poke
@@ -137,8 +136,8 @@ void loop() {
     if (fed3.activePoke == 0) {
 
       //Comment one of these next two lines out, depending on if you have FED3 or FED3.1 (with nosepoke lights)
-      //      fed3.rightPokePixel(5,5,5,5) ;                    //turn on pixel inside right nosepoke dim white
-      fed3.rightPixel(5, 5, 5, 5) ;                      //turn on right-most pixel on Neopixel strip
+            fed3.rightPokePixel(5,0,5,0) ;                    //turn on pixel inside right nosepoke dim white
+//      fed3.rightPixel(5, 5, 5, 5) ;                      //turn on right-most pixel on Neopixel strip
 
       if (fed3.Right) {
         fed3.logRightPoke();                              //Log left poke

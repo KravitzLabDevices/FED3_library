@@ -119,14 +119,14 @@ void loop() {
     if (fed3.activePoke == 1) {
       
       //Comment one of these next two lines out, depending on if you have FED3 or FED3.1 (with nosepoke lights)
-//      fed3.leftPokePixel() ;                              //turn on left-most pixel inside nosepoke
-      fed3.leftPixel() ;                                //turn on left-most pixel on Neopixel strip (comment)
+      fed3.leftPokePixel() ;                              //turn on left-most pixel inside nosepoke
+//      fed3.leftPixel() ;                                //turn on left-most pixel on Neopixel strip (comment)
       
       if (fed3.Left) {
         fed3.logLeftPoke();                               //Log left poke
         fed3.ConditionedStimulus();                       //deliver conditioned stimulus (tone and lights)
         fed3.Feed();         
-        fed3.activePoke = random (0, 2);                  //randomize which poke is active
+        fed3.randomizeActivePoke(3);                      //randomize which poke is active, specifying maximum on the same poke before forcing a switch
       }
       if (fed3.Right) {                                   //If right poke is triggered
         fed3.logRightPoke();
@@ -137,15 +137,15 @@ void loop() {
     if (fed3.activePoke == 0) {
 
       //Comment one of these next two lines out, depending on if you have FED3 or FED3.1 (with nosepoke lights)
-//      fed3.rightPokePixel() ;                             //turn on right-most pixel inside nosepoke
-      fed3.rightPixel() ;
+      fed3.rightPokePixel() ;                             //turn on right-most pixel inside nosepoke
+//      fed3.rightPixel() ;
      
       if (fed3.Right) {
         fed3.logRightPoke();                              //Log left poke
         fed3.ConditionedStimulus();                       //deliver conditioned stimulus (tone and lights)
         fed3.Feed();                                      //deliver pellet
-        fed3.activePoke = random (0, 2);                  //randomize which poke is active
-      }
+        fed3.randomizeActivePoke(3);                      //randomize which poke is active, specifying maximum on the same poke before forcing a switch
+        }
       if (fed3.Left) {                                    //If right poke is triggered
         fed3.logLeftPoke();
       }

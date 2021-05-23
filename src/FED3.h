@@ -22,7 +22,7 @@ This device includes hardware and code from:
   Copyright (c) 2019, 2020 Lex Kravitz
 */
 
-#define VER "1.5.0"
+#define VER "1.5.1"
 
 #ifndef FED3_H
 #define FED3_H
@@ -158,6 +158,8 @@ class FED3 {
         void goToSleep();
         void Timeout(int timeout);
         int minPokeTime = 0;
+        void randomizeActivePoke(int max);
+        int consecutive = 0;
         
         //jam movements
 		bool RotateDisk(int steps);

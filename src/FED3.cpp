@@ -108,6 +108,37 @@ void FED3::logRightPoke(){
   }
 }
 
+void FED3::randomizeActivePoke(int max){
+  //Store last active side and randomize
+  byte lastActive = activePoke;
+  activePoke = random (0, 2);
+  Serial.print("ActivePoke: ");
+  Serial.println(activePoke);
+
+  //Increment consecutive active pokes, or reset consecutive to zero
+  if (activePoke == lastActive) {
+    consecutive ++;
+  }
+  else {
+    consecutive = 0;
+  }
+  
+  //if consecutive pokes are too many, swap pokes
+  if (consecutive >= max){
+    Serial.println("SWAPPING");
+    if (activePoke == 0) {
+      activePoke = 1;
+    }
+    else if (activePoke == 1) {
+      activePoke = 0;
+    }
+    consecutive = 0;
+    Serial.print("New ActivePoke: ");
+    Serial.println(activePoke);
+    }
+  Serial.println();
+}
+
 /**************************************************************************************************************************************************
                                                                                                 Feeding functions
 **************************************************************************************************************************************************/
@@ -325,7 +356,6 @@ void FED3::pixelsOn(uint32_t c) {
     strip.setPixelColor(i, c);
     strip.show();
   }
-  delay(2); //let things settle
   digitalWrite (MOTOR_ENABLE, LOW);  ////disable motor driver and neopixels
 }
 
@@ -335,11 +365,9 @@ void FED3::pixelsOff() {
   delay (2); //let things settle
     for (uint16_t i = 0; i < strip.numPixels(); i++) {
     strip.setPixelColor(i, (0,0,0));
-    strip.show();
-    delay (2); //let things settle
+    strip.show();   
   }
-  delay (10); //let things settle
-      digitalWrite (MOTOR_ENABLE, LOW);  //disable motor driver and neopixels
+  digitalWrite (MOTOR_ENABLE, LOW);  //disable motor driver and neopixels
 }
 
 //colorWipe does a color wipe from left to right
@@ -361,7 +389,7 @@ void FED3::leftPixel() {
   delay(2); //let things settle
   strip.setPixelColor(0, strip.Color(2, 0, 2, 2) );
   strip.show();
-  delay(2); //let things settle
+//   delay(2); //let things settle
 }
 
 // Visual tracking stimulus - left-most pixel on strip
@@ -370,7 +398,7 @@ void FED3::rightPixel() {
   delay(2); //let things settle
   strip.setPixelColor(7, strip.Color(2, 0, 2, 2) );
   strip.show();
-  delay(2); //let things settle
+//   delay(2); //let things settle
 }
 
 // Visual tracking stimulus - left poke pixel
@@ -379,7 +407,7 @@ void FED3::leftPokePixel() {
   delay(2); //let things settle
   strip.setPixelColor(9, strip.Color(2, 0, 2, 2) );
   strip.show();
-  delay(2); //let things settle
+//   delay(2); //let things settle
 }
 
 // Visual tracking stimulus - right poke pixel
@@ -388,7 +416,7 @@ void FED3::rightPokePixel() {
   delay(2); //let things settle
   strip.setPixelColor(8, strip.Color(2, 0, 2, 2) );
   strip.show();
-  delay(2); //let things settle
+  //delay(2); //let things settle
 }
 
 //Short helper function for blinking LEDs and BNC out port

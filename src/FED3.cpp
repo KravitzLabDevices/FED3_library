@@ -590,7 +590,7 @@ void FED3::DisplayBattery(){
   display.setTextSize(2);
   display.setFont(&Org_01);
 
-  display.fillRect (86, 9, 23, 8, WHITE);
+  display.fillRect (86, 0, 28, 12, WHITE);
   display.setCursor(87, 10);
   display.print(measuredvbat, 1);
   display.setFont(&FreeSans9pt7b);
@@ -811,8 +811,9 @@ void FED3::CreateDataFile () {
 
 //Write the header to the datafile
 void FED3::writeHeader() {
-  // Write data header to file of uSD.
+  // Write data header to file of microSD card
   logfile.println("MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,Poke_Time");
+  logfile.close();
 }
 
 //write a configfile (this contains the FED device number)
@@ -826,6 +827,37 @@ void FED3::writeConfigFile() {
 
 //Write to SD card
 void FED3::logdata() {
+  SD.begin(cardSelect, SD_SCK_MHZ(4));
+  
+  //fix filename (the .CSV extension can become corrupted) and open file
+  filename[16] = '.';
+  filename[17] = 'C';
+  filename[18] = 'S';
+  filename[19] = 'V';
+  logfile = SD.open(filename, FILE_WRITE);
+
+  //if FED3 cannot open file put SD card icon on screen 
+  display.fillRect (68, 1, 15, 22, WHITE); //clear a space
+  if ( ! logfile ) {
+  
+    //draw SD card icon
+    display.drawRect (70, 2, 11, 14, BLACK);
+    display.drawRect (69, 6, 2, 10, BLACK);
+    display.fillRect (70, 7, 4, 8, WHITE);
+    display.drawRect (72, 4, 1, 3, BLACK);
+    display.drawRect (74, 4, 1, 3, BLACK);
+    display.drawRect (76, 4, 1, 3, BLACK);
+    display.drawRect (78, 4, 1, 3, BLACK);
+    //exclamation point
+    display.fillRect (72, 6, 6, 16, WHITE);
+    display.setCursor(74, 16);
+    display.setTextSize(2);
+    display.setFont(&Org_01);
+    display.print("!");
+    display.setFont(&FreeSans9pt7b);
+    display.setTextSize(1);
+  }
+  
   /////////////////////////////////
   // Log data and time 
   /////////////////////////////////
@@ -868,6 +900,7 @@ void FED3::logdata() {
   /////////////////////////////////
   // Log battery voltage
   /////////////////////////////////
+  ReadBatteryLevel();
   logfile.print(measuredvbat); // 
   logfile.print(",");
 
@@ -949,8 +982,9 @@ void FED3::logdata() {
   /////////////////////////////////
   // logfile.flush write to the SD card
   /////////////////////////////////
-  Blink(GREEN_LED, 100, 2);
+  Blink(GREEN_LED, 25, 2);
   logfile.flush();
+  logfile.close();
 }
 
 // If any errors are detected with the SD card upon boot this function
@@ -974,7 +1008,8 @@ void FED3::error(uint8_t errno) {
 
 
 // This function creates a unique filename for each file that
-// starts with "FED", then the date in MMDDYY,
+// starts with the letters: "FED_" 
+// then the date in MMDDYY followed by "_"
 // then an incrementing number for each new file created on the same date
 void FED3::getFilename(char *filename) {
   DateTime now = rtc.now();

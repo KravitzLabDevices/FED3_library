@@ -156,8 +156,12 @@ void FED3::Feed() {
 
     //If pellet is detected during or after this motion
     if (pelletDispensed == true) {
-     digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
+      digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
       pelletTime = millis();
+
+      DateTime now = rtc.now();
+      interPelletInterval = now.unixtime() - lastPellet;  //calculate time in seconds since last pellet logged
+
       display.fillCircle(25, 99, 5, BLACK);
       display.refresh();
       retInterval = (millis() - pelletTime);
@@ -176,6 +180,7 @@ void FED3::Feed() {
       Left = false;
       Right = false;
       Event = "Pellet";
+     
       logdata();
       numMotorTurns = 0; //reset numMotorTurns
       retInterval = 0;
@@ -812,7 +817,7 @@ void FED3::CreateDataFile () {
 //Write the header to the datafile
 void FED3::writeHeader() {
   // Write data header to file of microSD card
-  logfile.println("MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,Poke_Time");
+  logfile.println("MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
   logfile.close();
 }
 
@@ -950,22 +955,34 @@ void FED3::logdata() {
   if (Event != "Pellet"){
     logfile.print(sqrt (-1)); // print NaN if it's not a pellet Event
   }
-
   else if (retInterval < 60000 ) {  // only log retrieval intervals below 1 minute (FED should not record any longer than this)
     logfile.print(retInterval/1000.000); // print interval between pellet dispensing and being taken
+    lastPellet  = now.unixtime();
   }
-
   else if (retInterval >= 60000) {
     logfile.print("Timed_out"); // print "Timed_out" if retreival interval is >60s
+    lastPellet  = now.unixtime();
   }
-
   else {
     logfile.print("Error"); // print error if value is < 0 (this shouldn't ever happen)
   }
   logfile.print(",");
   
+  
   /////////////////////////////////
-  // Log poke duration
+  // Inter-Pellet-Interval
+  /////////////////////////////////
+  if ((Event != "Pellet") or (PelletCount < 2)){
+    logfile.print(sqrt (-1)); // print NaN if it's not a pellet Event
+  }
+  else {
+    logfile.print (interPelletInterval);
+    Serial.println (interPelletInterval);
+  }
+  logfile.print(",");
+      
+  /////////////////////////////////
+  // Poke duration
   /////////////////////////////////
   if (Event == "Pellet"){
     logfile.println(sqrt (-1)); // print NaN 
@@ -986,6 +1003,8 @@ void FED3::logdata() {
   logfile.flush();
   logfile.close();
 }
+
+
 
 // If any errors are detected with the SD card upon boot this function
 // will blink both LEDs on the Feather M0, turn the NeoPixel into red wipe pattern,

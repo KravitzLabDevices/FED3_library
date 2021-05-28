@@ -22,7 +22,7 @@ This device includes hardware and code from:
   Copyright (c) 2019, 2020 Lex Kravitz
 */
 
-#define VER "1.7.0"
+#define VER "1.7.1"
 
 #ifndef FED3_H
 #define FED3_H
@@ -204,7 +204,9 @@ class FED3 {
         int leftPokeTime = 0.0;
         int rightPokeTime = 0.0;
         unsigned long pelletTime = 0;
+        unsigned long lastPellet = 0;
         unsigned long unixtime = 0;
+        int interPelletInterval = 0;
 
         // flags
         bool Ratio_Met = false;

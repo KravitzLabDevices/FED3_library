@@ -70,7 +70,7 @@ void checkReset() {
     Serial.println("          ");
     Serial.println("****");                           //print **** on the serial monitor
 
-    fed3.pixelsOn((5, 5, 5));
+    fed3.pixelsOn(5, 5, 5, 5);
     delay(200);
     fed3.pixelsOff();
     poketime = fed3.unixtime;                        //store the current time of poke

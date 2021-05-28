@@ -117,7 +117,7 @@ void Timer_reset() {
     Serial.println("          ");
     Serial.println("****");                           //if more than 30 mins has passed since last poke --print **** on the serial monitor
 
-    fed3.pixelsOn((5, 5, 5));
+    fed3.pixelsOn(5, 5, 5, 5);
     delay(200);
     fed3.pixelsOff();
     poketime = fed3.unixtime;                          //store the current time of poke

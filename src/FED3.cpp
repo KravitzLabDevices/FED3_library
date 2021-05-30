@@ -1212,7 +1212,7 @@ void FED3::goToSleep() {
     ReleaseMotor();
     pixelsOff();
     delay (2); //let things settle
-    LowPower.sleep(1000);  //Wake up every 1 sec to check the pellet well
+    LowPower.sleep(5000);  //Wake up every 5 sec to check the pellet well
   }
   pelletTrigger();       //check pellet well to make sure it's not stuck thinking there's a pellet when there's not
 }

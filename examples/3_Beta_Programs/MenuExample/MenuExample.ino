@@ -27,7 +27,7 @@ FED3 fed3 (sketch);              //Start the FED3 object
 //variables for PR tasks
 //(you can set and use any variables you want for your custom tasks)
 int poke_num = 0;                                      // this variable is the number of pokes since last pellet
-int pokes_required = 0;                                // increase the number of pokes required each time a pellet is received using an exponential equation
+int pokes_required = 1;                                // increase the number of pokes required each time a pellet is received using an exponential equation
 
 void setup() {
   fed3.FED3Menu = true;                                //Activate the menu function at startup

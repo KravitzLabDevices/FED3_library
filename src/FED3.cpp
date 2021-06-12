@@ -158,10 +158,7 @@ void FED3::Feed() {
     if (pelletDispensed == true) {
       digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
       pelletTime = millis();
-
-      DateTime now = rtc.now();
-      interPelletInterval = now.unixtime() - lastPellet;  //calculate time in seconds since last pellet logged
-
+      
       display.fillCircle(25, 99, 5, BLACK);
       display.refresh();
       retInterval = (millis() - pelletTime);
@@ -180,6 +177,11 @@ void FED3::Feed() {
       Left = false;
       Right = false;
       Event = "Pellet";
+      
+      //calcualte IntetPelletInterval
+      DateTime now = rtc.now();
+      interPelletInterval = now.unixtime() - lastPellet;  //calculate time in seconds since last pellet logged
+      lastPellet  = now.unixtime();
      
       logdata();
       numMotorTurns = 0; //reset numMotorTurns
@@ -957,11 +959,9 @@ void FED3::logdata() {
   }
   else if (retInterval < 60000 ) {  // only log retrieval intervals below 1 minute (FED should not record any longer than this)
     logfile.print(retInterval/1000.000); // print interval between pellet dispensing and being taken
-    lastPellet  = now.unixtime();
   }
   else if (retInterval >= 60000) {
     logfile.print("Timed_out"); // print "Timed_out" if retreival interval is >60s
-    lastPellet  = now.unixtime();
   }
   else {
     logfile.print("Error"); // print error if value is < 0 (this shouldn't ever happen)
@@ -1212,7 +1212,7 @@ void FED3::goToSleep() {
     ReleaseMotor();
     pixelsOff();
     delay (2); //let things settle
-    LowPower.sleep(1000);  //Wake up every 1 sec to check the pellet well
+    LowPower.sleep(5000);  //Wake up every 5 sec to check the pellet well
   }
   pelletTrigger();       //check pellet well to make sure it's not stuck thinking there's a pellet when there's not
 }

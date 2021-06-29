@@ -44,6 +44,7 @@ This device includes hardware and code from:
 #include <Fonts/FreeSans9pt7b.h>
 #include <Fonts/Org_01.h>
 #include <Adafruit_NeoPixel.h>
+#include "SoftwareSerial.h"
 
 // Pin definitions
 #define NEOPIXEL        A1
@@ -230,6 +231,11 @@ class FED3 {
         Adafruit_SharpMem display = Adafruit_SharpMem(SHARP_SCK, SHARP_MOSI, SHARP_SS, 144, 168);
         // Stepper
         Stepper stepper = Stepper(STEPS, A2, A3, A4, A5);
+
+        SoftwareSerial serial = SoftwareSerial(A0);
+        long serialSpeed = 57600;
+        bool serialOn = true;
+        void setSerial(bool b);
 
     private:
         static FED3* staticFED;

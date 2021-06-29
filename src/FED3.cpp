@@ -74,8 +74,6 @@ void FED3::logLeftPoke(){
     leftInterval = 0.0;
     while (digitalRead (LEFT_POKE) == LOW) {}  //Hang here until poke is clear
     leftInterval = (millis()-leftPokeTime);
-    UpdateDisplay();
-    DisplayLeftInt();
     if (leftInterval < minPokeTime) {
       Event = "LeftShort";
     }
@@ -83,6 +81,8 @@ void FED3::logLeftPoke(){
       Event = "Left";
     }
     logdata();
+    UpdateDisplay();
+    DisplayLeftInt();
     Left = false;
   }
 }
@@ -95,8 +95,6 @@ void FED3::logRightPoke(){
     rightInterval = 0.0;
     while (digitalRead (RIGHT_POKE) == LOW) {} //Hang here until poke is clear
     rightInterval = (millis()-rightPokeTime);
-    UpdateDisplay();
-    DisplayRightInt();
     if (rightInterval < minPokeTime) {
       Event = "RightShort";
     }
@@ -104,6 +102,8 @@ void FED3::logRightPoke(){
       Event = "Right";
     }
     logdata();
+    UpdateDisplay();
+    DisplayRightInt();
     Right = false; 
   }
 }
@@ -834,6 +834,64 @@ void FED3::writeConfigFile() {
 
 //Write to SD card
 void FED3::logdata() {
+  DateTime now = rtc.now();
+  
+  if serialOn {
+    //////////////////////////////////////////////////////
+    //  Creating and sending string to software serial  //
+    //////////////////////////////////////////////////////
+    char activePokeStr[6];
+    if (activePoke == 0){
+      strcpy(activePokeStr, "Right");
+    } else {
+      strcpy(activePokeStr, "Left");
+    }
+    
+    char retIntervalStr[10];
+    if (strcmp(Event, "Pellet") != 0){
+      strcpy(retIntervalStr, "nan"); // print NaN if it's not a pellet Event
+    }
+    else if (retInterval < 60000 ) {  // only log retrieval intervals below 1 minute (FED should not record any longer than this)
+      sprintf(retIntervalStr, "%.2f", retInterval/1000.000); // print interval between pellet dispensing and being taken
+    }
+    else if (retInterval >= 60000) {
+      strcpy(retIntervalStr, "Timed_out"); // print "Timed_out" if retreival interval is >60s
+    }
+    else {
+      strcpy(retIntervalStr, "Error"); // print error if value is < 0 (this shouldn't ever happen)
+    }  
+    
+    char interPelletIntervalStr[10];
+    if (strcmp(Event, "Pellet") or (PelletCount < 2)){
+      strcpy(interPelletIntervalStr, "nan"); // print NaN if it's not a pellet Event
+    }
+    else {
+      sprintf(interPelletIntervalStr, "%d", interPelletInterval);
+    }
+        
+    char durationStr[10];
+    if (strcmp(Event, "Pellet") == 0){
+      strcpy(durationStr, "nan");
+    }
+    else if (Left) {  
+      sprintf(durationStr, "%.2f", leftInterval/1000.000);
+    }
+
+    else if (Right) {
+      sprintf(durationStr, "%.2f", rightInterval/1000.000);
+    }
+
+    const uint8_t ssize = 100;
+    char s[ssize];
+    sprintf(s, "%02d/%02d/%04d %02d:%02d:%02d,%s,%s,%d,%.2f,%d,%d,%s,%s,%d,%d,%d,%d,%s,%s,%s\0",
+      now.month(), now.day(), now.year(), now.hour(), now.minute(), now.second(), VER, sessiontype, FED, measuredvbat, numMotorTurns+1, FR, Event, activePokeStr,
+      LeftCount, RightCount, PelletCount, BlockPelletCount, retIntervalStr, interPelletIntervalStr, durationStr);
+
+    serial.begin(serialSpeed);
+    serial.println(s);
+    serial.end();
+  }
+
   SD.begin(cardSelect, SD_SCK_MHZ(4));
   
   //fix filename (the .CSV extension can become corrupted) and open file
@@ -868,7 +926,6 @@ void FED3::logdata() {
   /////////////////////////////////
   // Log data and time 
   /////////////////////////////////
-  DateTime now = rtc.now();
   logfile.print(now.month());
   logfile.print("/");
   logfile.print(now.day());
@@ -1509,4 +1566,12 @@ void FED3::writeFEDmode() {
   stopfile.println(timedEnd);
   stopfile.flush();
   stopfile.close();
+}
+
+/******************************************************************************************************************************************************
+                                                                                           Software Serial functions
+******************************************************************************************************************************************************/
+
+void setSerial(bool b) {
+  serialOn = b;
 }

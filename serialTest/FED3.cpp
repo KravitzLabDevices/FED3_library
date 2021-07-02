@@ -880,10 +880,17 @@ void FED3::logdata() {
       sprintf(durationStr, "%.2f", rightInterval/1000.000);
     }
 
+    char VERchar[10];
+    for (int i = 0; i < 5; i++)
+      VERchar[i] = VER[i];
+    char sessionChar[20];
+    for (int i = 0; i < sessiontype.length(); i++)
+      sessionChar[i] = sessiontype[i];
+
     const uint8_t ssize = 100;
     char s[ssize];
     sprintf(s, "%02d/%02d/%04d %02d:%02d:%02d,%s,%s,%d,%.2f,%d,%d,%s,%s,%d,%d,%d,%d,%s,%s,%s\0",
-      now.month(), now.day(), now.year(), now.hour(), now.minute(), now.second(), VER, sessiontype, FED, measuredvbat, numMotorTurns+1, FR, Event, activePokeStr,
+      now.month(), now.day(), now.year(), now.hour(), now.minute(), now.second(), VERchar, sessionChar, FED, measuredvbat, numMotorTurns+1, FR, Event, activePokeStr,
       LeftCount, RightCount, PelletCount, BlockPelletCount, retIntervalStr, interPelletIntervalStr, durationStr);
 
     serial.begin(serialSpeed);

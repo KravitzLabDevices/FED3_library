@@ -834,9 +834,8 @@ void FED3::writeConfigFile() {
 
 //Write to SD card
 void FED3::logdata() {
-  DateTime now = rtc.now();
+    DateTime now = rtc.now();
   
-  if serialOn {
     //////////////////////////////////////////////////////
     //  Creating and sending string to software serial  //
     //////////////////////////////////////////////////////
@@ -848,7 +847,7 @@ void FED3::logdata() {
     }
     
     char retIntervalStr[10];
-    if (strcmp(Event, "Pellet") != 0){
+    if (Event != "Pellet"){
       strcpy(retIntervalStr, "nan"); // print NaN if it's not a pellet Event
     }
     else if (retInterval < 60000 ) {  // only log retrieval intervals below 1 minute (FED should not record any longer than this)
@@ -859,10 +858,10 @@ void FED3::logdata() {
     }
     else {
       strcpy(retIntervalStr, "Error"); // print error if value is < 0 (this shouldn't ever happen)
-    }  
+    }
     
     char interPelletIntervalStr[10];
-    if (strcmp(Event, "Pellet") or (PelletCount < 2)){
+    if (Event != "Pellet" or PelletCount < 2){
       strcpy(interPelletIntervalStr, "nan"); // print NaN if it's not a pellet Event
     }
     else {
@@ -870,7 +869,7 @@ void FED3::logdata() {
     }
         
     char durationStr[10];
-    if (strcmp(Event, "Pellet") == 0){
+    if (Event == "Pellet"){
       strcpy(durationStr, "nan");
     }
     else if (Left) {  
@@ -890,7 +889,6 @@ void FED3::logdata() {
     serial.begin(serialSpeed);
     serial.println(s);
     serial.end();
-  }
 
   SD.begin(cardSelect, SD_SCK_MHZ(4));
   
@@ -1572,6 +1570,6 @@ void FED3::writeFEDmode() {
                                                                                            Software Serial functions
 ******************************************************************************************************************************************************/
 
-void setSerial(bool b) {
+void FED3::setSerial(bool b) {
   serialOn = b;
 }

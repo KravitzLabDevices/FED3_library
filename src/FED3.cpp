@@ -832,63 +832,86 @@ void FED3::writeConfigFile() {
   configfile.close();
 }
 
+//Format a string s (recommended size at least 100) for sending over serial or logging to sd card
+void FED3::writeDataString(char* s, DateTime now){
+  char activePokeStr[6];
+  if (activePoke == 0){
+    strcpy(activePokeStr, "Right");
+  } else {
+    strcpy(activePokeStr, "Left");
+  }
+  
+  char retIntervalStr[10];
+  if (Event != "Pellet"){
+    strcpy(retIntervalStr, "nan"); // print NaN if it's not a pellet Event
+  }
+  else if (retInterval < 60000 ) {  // only log retrieval intervals below 1 minute (FED should not record any longer than this)
+    sprintf(retIntervalStr, "%.2f", retInterval/1000.0); // print interval between pellet dispensing and being taken
+  }
+  else if (retInterval >= 60000) {
+    strcpy(retIntervalStr, "Timed_out"); // print "Timed_out" if retreival interval is >60s
+  }
+  else {
+    strcpy(retIntervalStr, "Error"); // print error if value is < 0 (this shouldn't ever happen)
+  }
+  
+  char interPelletIntervalStr[10];
+  if (Event != "Pellet" or PelletCount < 2){
+    strcpy(interPelletIntervalStr, "nan"); // print NaN if it's not a pellet Event
+  }
+  else {
+    sprintf(interPelletIntervalStr, "%d", interPelletInterval);
+  }
+      
+  char durationStr[10];
+  if (Event == "Pellet"){
+    strcpy(durationStr, "nan");
+  }
+  else if (Left) {  
+    sprintf(durationStr, "%.2f", leftInterval/1000.0);
+  }
+
+  else if (Right) {
+    sprintf(durationStr, "%.2f", rightInterval/1000.0);
+  }
+
+  int i = 0;
+  char VERchar[10];
+  for (i = 0; i < 5; i++) {
+    VERchar[i] = VER[i];
+  }
+  VERchar[i] = '\0';
+  
+  char sessionchar[sessiontype.length()];
+  for (i = 0; i < sessiontype.length(); i++) {
+    sessionchar[i] = sessiontype[i];
+  }
+  sessionchar[i] = '\0';
+  
+  char EventChar[Event.length()];
+  for (i = 0; i < Event.length(); i++) {
+    EventChar[i] = Event[i];
+  }
+  EventChar[i] = '\0';
+
+  sprintf(s, "%02d/%02d/%04d %02d:%02d:%02d,%s,%s,%d,%.2f,%d,%d,%s,%s,%d,%d,%d,%d,%s,%s,%s\0",
+    now.month(), now.day(), now.year(), now.hour(), now.minute(), now.second(), VERchar, sessionchar, FED, measuredvbat, numMotorTurns+1, FR, EventChar, activePokeStr,
+    LeftCount, RightCount, PelletCount, BlockPelletCount, retIntervalStr, interPelletIntervalStr, durationStr);
+}
+
 //Write to SD card
 void FED3::logdata() {
-    DateTime now = rtc.now();
-  
-    //////////////////////////////////////////////////////
-    //  Creating and sending string to software serial  //
-    //////////////////////////////////////////////////////
-    char activePokeStr[6];
-    if (activePoke == 0){
-      strcpy(activePokeStr, "Right");
-    } else {
-      strcpy(activePokeStr, "Left");
-    }
-    
-    char retIntervalStr[10];
-    if (Event != "Pellet"){
-      strcpy(retIntervalStr, "nan"); // print NaN if it's not a pellet Event
-    }
-    else if (retInterval < 60000 ) {  // only log retrieval intervals below 1 minute (FED should not record any longer than this)
-      sprintf(retIntervalStr, "%.2f", retInterval/1000.000); // print interval between pellet dispensing and being taken
-    }
-    else if (retInterval >= 60000) {
-      strcpy(retIntervalStr, "Timed_out"); // print "Timed_out" if retreival interval is >60s
-    }
-    else {
-      strcpy(retIntervalStr, "Error"); // print error if value is < 0 (this shouldn't ever happen)
-    }
-    
-    char interPelletIntervalStr[10];
-    if (Event != "Pellet" or PelletCount < 2){
-      strcpy(interPelletIntervalStr, "nan"); // print NaN if it's not a pellet Event
-    }
-    else {
-      sprintf(interPelletIntervalStr, "%d", interPelletInterval);
-    }
-        
-    char durationStr[10];
-    if (Event == "Pellet"){
-      strcpy(durationStr, "nan");
-    }
-    else if (Left) {  
-      sprintf(durationStr, "%.2f", leftInterval/1000.000);
-    }
+  DateTime now = rtc.now();
 
-    else if (Right) {
-      sprintf(durationStr, "%.2f", rightInterval/1000.000);
-    }
-
-    const uint8_t ssize = 100;
-    char s[ssize];
-    sprintf(s, "%02d/%02d/%04d %02d:%02d:%02d,%s,%s,%d,%.2f,%d,%d,%s,%s,%d,%d,%d,%d,%s,%s,%s\0",
-      now.month(), now.day(), now.year(), now.hour(), now.minute(), now.second(), VER, sessiontype, FED, measuredvbat, numMotorTurns+1, FR, Event, activePokeStr,
-      LeftCount, RightCount, PelletCount, BlockPelletCount, retIntervalStr, interPelletIntervalStr, durationStr);
-
-    serial.begin(serialSpeed);
-    serial.println(s);
-    serial.end();
+  //////////////////////////////////////////////////////
+  //  Creating and sending string to software serial  //
+  //////////////////////////////////////////////////////
+  const uint8_t ssize = 100;
+  char s[ssize];
+  writeDataString(s, now);
+  serial.begin(serialSpeed);
+  serial.println(s);
+  serial.end();
 
   SD.begin(cardSelect, SD_SCK_MHZ(4));
   

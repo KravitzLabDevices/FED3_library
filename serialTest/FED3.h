@@ -233,6 +233,7 @@ class FED3 {
         Stepper stepper = Stepper(STEPS, A2, A3, A4, A5);
 
         SoftwareSerial serial = SoftwareSerial(A0);
+        void writeDataString(char* s, DateTime now);
         long serialSpeed = 57600;
         bool serialOn = true;
         void setSerial(bool b);

@@ -246,6 +246,9 @@ bool FED3::VibrateJam() {
 //full rotation to clear jam
 bool FED3::ClearJam() {
     DisplayJamClear();
+    if (serialOn) {
+      jamAlertUpdate();
+    }
 	
 	if (dispenseTimer_ms(250)) {
 	  display.fillRect (5, 15, 120, 15, WHITE);  //erase the "Jam clear" text without clearing the entire screen by pasting a white box over it
@@ -906,12 +909,14 @@ void FED3::logdata() {
   //////////////////////////////////////////////////////
   //  Creating and sending string to software serial  //
   //////////////////////////////////////////////////////
-  const uint8_t ssize = 100;
-  char s[ssize];
-  writeDataString(s, now);
-  serial.begin(serialSpeed);
-  serial.println(s);
-  serial.end();
+  if (serialOn) {
+    const uint8_t ssize = 100;
+    char s[ssize];
+    writeDataString(s, now);
+    serial.begin(serialSpeed);
+    serial.println(s);
+    serial.end();
+  }
 
   SD.begin(cardSelect, SD_SCK_MHZ(4));
   
@@ -1595,4 +1600,21 @@ void FED3::writeFEDmode() {
 
 void FED3::setSerial(bool b) {
   serialOn = b;
+}
+
+void FED3::sendJamAlert(){
+  char s[10];
+  sprintf(s, "%d,jam\0", FED);
+  serial.begin(serialSpeed);
+  serial.println(s);
+  serial.end();
+}
+
+void FED3::jamAlertUpdate(){
+  DateTime now = rtc.now();
+  uint32_t diff = now.secondstime() - jamTimer.secondstime();
+  if (diff >= jamAlertInterval){
+    sendJamAlert();
+    jamTimer = DateTime(now);
+  }
 }

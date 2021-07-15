@@ -235,8 +235,13 @@ class FED3 {
         SoftwareSerial serial = SoftwareSerial(A0);
         void writeDataString(char* s, DateTime now);
         long serialSpeed = 57600;
-        bool serialOn = true;
+        bool serialOn = false;
         void setSerial(bool b);
+
+        DateTime jamTimer = DateTime(0, 1, 1);
+        uint32_t jamAlertInterval = 300; // in seconds
+        void sendJamAlert();
+        void jamAlertUpdate();
 
     private:
         static FED3* staticFED;

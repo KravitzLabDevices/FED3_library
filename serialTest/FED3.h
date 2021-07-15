@@ -238,6 +238,11 @@ class FED3 {
         bool serialOn = true;
         void setSerial(bool b);
 
+        DateTime jamTimer = DateTime(0, 1, 1);
+        uint32_t jamAlertInterval = 300; // in seconds
+        void sendJamAlert();
+        void jamAlertUpdate();
+
     private:
         static FED3* staticFED;
         static void updatePelletTriggerISR();

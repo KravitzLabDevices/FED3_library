@@ -16,7 +16,6 @@ FED3 fed3 (sketch);                                     //Start the FED3 object
 
 void setup() {
   fed3.begin();                                         //Setup the FED3 hardware
-  fed3.disableSleep();
 }
 
 void loop() {

@@ -994,6 +994,10 @@ void FED3::logdata() {
   else if (Right) {
     logfile.println(rightInterval/1000.000); // print left poke timing
   }
+  
+  else {
+    logfile.println(sqrt (-1)); // print NaN 
+  }
 
   /////////////////////////////////
   // logfile.flush write to the SD card

@@ -185,7 +185,6 @@ void FED3::Feed() {
      
       logdata();
       numMotorTurns = 0; //reset numMotorTurns
-      retInterval = 0;
       PelletAvailable = true;
       UpdateDisplay();
       if (timeout > 0) Timeout(timeout); //timeout after each pellet is dropped (you can edit this number)
@@ -1077,6 +1076,10 @@ void FED3::logdata() {
 
   else if (Right) {
     logfile.println(rightInterval/1000.000); // print left poke timing
+  }
+  
+  else {
+    logfile.println(sqrt (-1)); // print NaN 
   }
 
   /////////////////////////////////

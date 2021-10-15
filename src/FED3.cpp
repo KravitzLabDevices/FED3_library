@@ -166,8 +166,16 @@ void FED3::Feed() {
       while (digitalRead (PELLET_WELL) == LOW and retInterval < 60000) {  //After pellet is detected, hang here for up to 1 minute to detect when it is removed
         retInterval = (millis() - pelletTime);
         DisplayRetrievalInt();
+       
+       //Log pokes while pellet is present 
+       if (digitalRead(LEFT_POKE) == LOW) {             //If left poke is triggered
+         logLeftPoke();                                 //Log left poke
+       }
+       if (digitalRead(RIGHT_POKE) == LOW) {            //If right poke is triggered
+         logRightPoke();                                //Log right poke
+       }
       }
-
+      
       //after 60s has elapsed
       while (digitalRead (PELLET_WELL) == LOW) { //if pellet is not taken after 60 seconds, wait here and go to sleep
         run();

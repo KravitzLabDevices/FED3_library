@@ -150,7 +150,7 @@ void FED3::Feed() {
 	
     if (pelletDispensed == false) {
 	    pelletDispensed = RotateDisk(-300);
-	}
+    }
 
     pixelsOff();
 
@@ -169,11 +169,26 @@ void FED3::Feed() {
        
        //Log pokes while pellet is present 
        if (digitalRead(LEFT_POKE) == LOW) {             //If left poke is triggered
-         logLeftPoke();                                 //Log left poke
-       }
+         leftPokeTime = millis();
+         LeftCount ++;
+         leftInterval = 0.0;
+         while (digitalRead (LEFT_POKE) == LOW) {}  //Hang here until poke is clear
+         leftInterval = (millis()-leftPokeTime);
+         UpdateDisplay();
+         Event = "LeftWithPellet";
+         logdata();
+         }
+
        if (digitalRead(RIGHT_POKE) == LOW) {            //If right poke is triggered
-         logRightPoke();                                //Log right poke
-       }
+         rightPokeTime = millis();
+         RightCount ++;
+         rightInterval = 0.0;
+         while (digitalRead (RIGHT_POKE) == LOW) {}  //Hang here until poke is clear
+         rightInterval = (millis()-rightPokeTime);
+         UpdateDisplay();
+         Event = "RightWithPellet";
+         logdata();       }
+       
       }
       
       //after 60s has elapsed
@@ -995,11 +1010,11 @@ void FED3::logdata() {
     logfile.println(sqrt (-1)); // print NaN 
   }
 
-  else if (Left) {  // 
+  else if ((Event == "Left") or (Event == "LeftShort") or (Event == "LeftWithPellet")) {  // 
     logfile.println(leftInterval/1000.000); // print left poke timing
   }
 
-  else if (Right) {
+  else if ((Event == "Right") or (Event == "RightShort") or (Event == "RightWithPellet")) {  // 
     logfile.println(rightInterval/1000.000); // print left poke timing
   }
   

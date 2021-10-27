@@ -798,6 +798,7 @@ void FED3::DisplayMouse() {
 **************************************************************************************************************************************************/
 // Create new files on uSD for FED3 settings
 void FED3::CreateFile() {
+  digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
   // see if the card is present and can be initialized:
   if (!SD.begin(cardSelect, SD_SCK_MHZ(4))) {
     error(2);
@@ -831,6 +832,7 @@ void FED3::CreateFile() {
 
 //Create a new datafile
 void FED3::CreateDataFile () {
+  digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
   getFilename(filename);
   logfile = SD.open(filename, FILE_WRITE);
   if ( ! logfile ) {
@@ -840,6 +842,7 @@ void FED3::CreateDataFile () {
 
 //Write the header to the datafile
 void FED3::writeHeader() {
+  digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
   // Write data header to file of microSD card
   logfile.println("MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
   logfile.close();
@@ -847,6 +850,7 @@ void FED3::writeHeader() {
 
 //write a configfile (this contains the FED device number)
 void FED3::writeConfigFile() {
+  digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
   configfile = SD.open("DeviceNumber.csv", FILE_WRITE);
   configfile.rewind();
   configfile.println(FED);
@@ -856,6 +860,7 @@ void FED3::writeConfigFile() {
 
 //Write to SD card
 void FED3::logdata() {
+  digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
   SD.begin(cardSelect, SD_SCK_MHZ(4));
   
   //fix filename (the .CSV extension can become corrupted) and open file

@@ -167,34 +167,57 @@ void FED3::Feed() {
         retInterval = (millis() - pelletTime);
         DisplayRetrievalInt();
        
-       //Log pokes while pellet is present 
-       if (digitalRead(LEFT_POKE) == LOW) {             //If left poke is triggered
-         leftPokeTime = millis();
-         LeftCount ++;
-         leftInterval = 0.0;
-         while (digitalRead (LEFT_POKE) == LOW) {}  //Hang here until poke is clear
-         leftInterval = (millis()-leftPokeTime);
-         UpdateDisplay();
-         Event = "LeftWithPellet";
-         logdata();
-         }
+        //Log pokes while pellet is present 
+        if (digitalRead(LEFT_POKE) == LOW) {             //If left poke is triggered
+          leftPokeTime = millis();
+          LeftCount ++;
+          leftInterval = 0.0;
+          while (digitalRead (LEFT_POKE) == LOW) {}  //Hang here until poke is clear
+          leftInterval = (millis()-leftPokeTime);
+          UpdateDisplay();
+          Event = "LeftWithPellet";
+          logdata();
+          }
 
-       if (digitalRead(RIGHT_POKE) == LOW) {            //If right poke is triggered
-         rightPokeTime = millis();
-         RightCount ++;
-         rightInterval = 0.0;
-         while (digitalRead (RIGHT_POKE) == LOW) {}  //Hang here until poke is clear
-         rightInterval = (millis()-rightPokeTime);
-         UpdateDisplay();
-         Event = "RightWithPellet";
-         logdata();       }
-       
-      }
+        if (digitalRead(RIGHT_POKE) == LOW) {            //If right poke is triggered
+          rightPokeTime = millis();
+          RightCount ++;
+           rightInterval = 0.0;
+          while (digitalRead (RIGHT_POKE) == LOW) {}  //Hang here until poke is clear
+          rightInterval = (millis()-rightPokeTime);
+          UpdateDisplay();
+          Event = "RightWithPellet";
+          logdata();       
+          }
+        } 
       
       //after 60s has elapsed
       while (digitalRead (PELLET_WELL) == LOW) { //if pellet is not taken after 60 seconds, wait here and go to sleep
         run();
+        //Log pokes while pellet is present 
+        if (digitalRead(LEFT_POKE) == LOW) {             //If left poke is triggered
+          leftPokeTime = millis();
+          LeftCount ++;
+          leftInterval = 0.0;
+          while (digitalRead (LEFT_POKE) == LOW) {}  //Hang here until poke is clear
+          leftInterval = (millis()-leftPokeTime);
+          UpdateDisplay();
+          Event = "LeftWithPellet";
+          logdata();
+          }
+
+        if (digitalRead(RIGHT_POKE) == LOW) {            //If right poke is triggered
+          rightPokeTime = millis();
+          RightCount ++;
+           rightInterval = 0.0;
+          while (digitalRead (RIGHT_POKE) == LOW) {}  //Hang here until poke is clear
+          rightInterval = (millis()-rightPokeTime);
+          UpdateDisplay();
+          Event = "RightWithPellet";
+          logdata();       
+          }
       }
+
       digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
       PelletCount++;
       Left = false;
@@ -1104,7 +1127,7 @@ void FED3::SetDeviceNumber() {
     delay (100);
     display.refresh();
 
-    display.setCursor(35, 135);
+    display.setCursor(38, 138);
     if (FED < 100 & FED >= 10) {
       display.print ("0");
     }

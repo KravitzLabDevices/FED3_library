@@ -1645,3 +1645,28 @@ void FED3::writeFEDmode() {
   stopfile.flush();
   stopfile.close();
 }
+
+/******************************************************************************************************************************************************
+                                                                                           Software Serial functions
+******************************************************************************************************************************************************/
+
+void FED3::setSerial(bool b) {
+  serialOn = b;
+}
+
+void FED3::sendJamAlert(){
+  char s[10];
+  sprintf(s, "%d,jam\0", FED);
+  serial.begin(serialSpeed);
+  serial.println(s);
+  serial.end();
+}
+
+void FED3::jamAlertUpdate(){
+  DateTime now = rtc.now();
+  uint32_t diff = now.secondstime() - jamTimer.secondstime();
+  if (diff >= jamAlertInterval){
+    sendJamAlert();
+    jamTimer = DateTime(now);
+  }
+}

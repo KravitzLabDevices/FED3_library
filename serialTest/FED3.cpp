@@ -150,7 +150,7 @@ void FED3::Feed() {
 	
     if (pelletDispensed == false) {
 	    pelletDispensed = RotateDisk(-300);
-	}
+    }
 
     pixelsOff();
 
@@ -166,12 +166,58 @@ void FED3::Feed() {
       while (digitalRead (PELLET_WELL) == LOW and retInterval < 60000) {  //After pellet is detected, hang here for up to 1 minute to detect when it is removed
         retInterval = (millis() - pelletTime);
         DisplayRetrievalInt();
-      }
+       
+        //Log pokes while pellet is present 
+        if (digitalRead(LEFT_POKE) == LOW) {             //If left poke is triggered
+          leftPokeTime = millis();
+          LeftCount ++;
+          leftInterval = 0.0;
+          while (digitalRead (LEFT_POKE) == LOW) {}  //Hang here until poke is clear
+          leftInterval = (millis()-leftPokeTime);
+          UpdateDisplay();
+          Event = "LeftWithPellet";
+          logdata();
+          }
 
+        if (digitalRead(RIGHT_POKE) == LOW) {            //If right poke is triggered
+          rightPokeTime = millis();
+          RightCount ++;
+           rightInterval = 0.0;
+          while (digitalRead (RIGHT_POKE) == LOW) {}  //Hang here until poke is clear
+          rightInterval = (millis()-rightPokeTime);
+          UpdateDisplay();
+          Event = "RightWithPellet";
+          logdata();       
+          }
+        } 
+      
       //after 60s has elapsed
       while (digitalRead (PELLET_WELL) == LOW) { //if pellet is not taken after 60 seconds, wait here and go to sleep
         run();
+        //Log pokes while pellet is present 
+        if (digitalRead(LEFT_POKE) == LOW) {             //If left poke is triggered
+          leftPokeTime = millis();
+          LeftCount ++;
+          leftInterval = 0.0;
+          while (digitalRead (LEFT_POKE) == LOW) {}  //Hang here until poke is clear
+          leftInterval = (millis()-leftPokeTime);
+          UpdateDisplay();
+          Event = "LeftWithPellet";
+          logdata();
+          }
+
+        if (digitalRead(RIGHT_POKE) == LOW) {            //If right poke is triggered
+          rightPokeTime = millis();
+          RightCount ++;
+           rightInterval = 0.0;
+          while (digitalRead (RIGHT_POKE) == LOW) {}  //Hang here until poke is clear
+          rightInterval = (millis()-rightPokeTime);
+          UpdateDisplay();
+          Event = "RightWithPellet";
+          logdata();       
+          }
       }
+
       digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
       PelletCount++;
       Left = false;
@@ -185,7 +231,6 @@ void FED3::Feed() {
      
       logdata();
       numMotorTurns = 0; //reset numMotorTurns
-      retInterval = 0;
       PelletAvailable = true;
       UpdateDisplay();
       if (timeout > 0) Timeout(timeout); //timeout after each pellet is dropped (you can edit this number)
@@ -779,6 +824,7 @@ void FED3::DisplayMouse() {
 **************************************************************************************************************************************************/
 // Create new files on uSD for FED3 settings
 void FED3::CreateFile() {
+  digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
   // see if the card is present and can be initialized:
   if (!SD.begin(cardSelect, SD_SCK_MHZ(4))) {
     error(2);
@@ -812,6 +858,7 @@ void FED3::CreateFile() {
 
 //Create a new datafile
 void FED3::CreateDataFile () {
+  digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
   getFilename(filename);
   logfile = SD.open(filename, FILE_WRITE);
   if ( ! logfile ) {
@@ -821,6 +868,7 @@ void FED3::CreateDataFile () {
 
 //Write the header to the datafile
 void FED3::writeHeader() {
+  digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
   // Write data header to file of microSD card
   logfile.println("MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
   logfile.close();
@@ -828,6 +876,7 @@ void FED3::writeHeader() {
 
 //write a configfile (this contains the FED device number)
 void FED3::writeConfigFile() {
+  digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
   configfile = SD.open("DeviceNumber.csv", FILE_WRITE);
   configfile.rewind();
   configfile.println(FED);
@@ -904,11 +953,10 @@ void FED3::writeDataString(char* s, DateTime now){
 
 //Write to SD card
 void FED3::logdata() {
-  DateTime now = rtc.now();
-
   //////////////////////////////////////////////////////
   //  Creating and sending string to software serial  //
   //////////////////////////////////////////////////////
+  DateTime now = rtc.now();
   if (serialOn) {
     const uint8_t ssize = 100;
     char s[ssize];
@@ -917,7 +965,7 @@ void FED3::logdata() {
     serial.println(s);
     serial.end();
   }
-
+  digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
   SD.begin(cardSelect, SD_SCK_MHZ(4));
   
   //fix filename (the .CSV extension can become corrupted) and open file
@@ -1071,12 +1119,16 @@ void FED3::logdata() {
     logfile.println(sqrt (-1)); // print NaN 
   }
 
-  else if (Left) {  // 
+  else if ((Event == "Left") or (Event == "LeftShort") or (Event == "LeftWithPellet")) {  // 
     logfile.println(leftInterval/1000.000); // print left poke timing
   }
 
-  else if (Right) {
+  else if ((Event == "Right") or (Event == "RightShort") or (Event == "RightWithPellet")) {  // 
     logfile.println(rightInterval/1000.000); // print left poke timing
+  }
+  
+  else {
+    logfile.println(sqrt (-1)); // print NaN 
   }
 
   /////////////////////////////////
@@ -1156,7 +1208,7 @@ void FED3::SetDeviceNumber() {
     delay (100);
     display.refresh();
 
-    display.setCursor(35, 135);
+    display.setCursor(38, 138);
     if (FED < 100 & FED >= 10) {
       display.print ("0");
     }

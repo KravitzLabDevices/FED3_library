@@ -22,7 +22,7 @@ This device includes hardware and code from:
   Copyright (c) 2019, 2020 Lex Kravitz
 */
 
-#define VER "1.8.1"
+#define VER "1.9.2"
 
 #ifndef FED3_H
 #define FED3_H
@@ -235,7 +235,7 @@ class FED3 {
         SoftwareSerial serial = SoftwareSerial(A0);
         void writeDataString(char* s, DateTime now);
         long serialSpeed = 57600;
-        bool serialOn = true;
+        bool serialOn = false;
         void setSerial(bool b);
 
         DateTime jamTimer = DateTime(0, 1, 1);

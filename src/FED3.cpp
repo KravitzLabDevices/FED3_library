@@ -74,8 +74,6 @@ void FED3::logLeftPoke(){
     leftInterval = 0.0;
     while (digitalRead (LEFT_POKE) == LOW) {}  //Hang here until poke is clear
     leftInterval = (millis()-leftPokeTime);
-    UpdateDisplay();
-    DisplayLeftInt();
     if (leftInterval < minPokeTime) {
       Event = "LeftShort";
     }
@@ -83,6 +81,8 @@ void FED3::logLeftPoke(){
       Event = "Left";
     }
     logdata();
+    UpdateDisplay();
+    DisplayLeftInt();
     Left = false;
   }
 }
@@ -95,8 +95,6 @@ void FED3::logRightPoke(){
     rightInterval = 0.0;
     while (digitalRead (RIGHT_POKE) == LOW) {} //Hang here until poke is clear
     rightInterval = (millis()-rightPokeTime);
-    UpdateDisplay();
-    DisplayRightInt();
     if (rightInterval < minPokeTime) {
       Event = "RightShort";
     }
@@ -104,6 +102,8 @@ void FED3::logRightPoke(){
       Event = "Right";
     }
     logdata();
+    UpdateDisplay();
+    DisplayRightInt();
     Right = false; 
   }
 }

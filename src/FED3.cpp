@@ -74,6 +74,8 @@ void FED3::logLeftPoke(){
     leftInterval = 0.0;
     while (digitalRead (LEFT_POKE) == LOW) {}  //Hang here until poke is clear
     leftInterval = (millis()-leftPokeTime);
+    UpdateDisplay();
+    DisplayLeftInt();
     if (leftInterval < minPokeTime) {
       Event = "LeftShort";
     }
@@ -81,8 +83,6 @@ void FED3::logLeftPoke(){
       Event = "Left";
     }
     logdata();
-    UpdateDisplay();
-    DisplayLeftInt();
     Left = false;
   }
 }
@@ -95,6 +95,8 @@ void FED3::logRightPoke(){
     rightInterval = 0.0;
     while (digitalRead (RIGHT_POKE) == LOW) {} //Hang here until poke is clear
     rightInterval = (millis()-rightPokeTime);
+    UpdateDisplay();
+    DisplayRightInt();
     if (rightInterval < minPokeTime) {
       Event = "RightShort";
     }
@@ -102,8 +104,6 @@ void FED3::logRightPoke(){
       Event = "Right";
     }
     logdata();
-    UpdateDisplay();
-    DisplayRightInt();
     Right = false; 
   }
 }
@@ -150,7 +150,7 @@ void FED3::Feed() {
 	
     if (pelletDispensed == false) {
 	    pelletDispensed = RotateDisk(-300);
-	}
+    }
 
     pixelsOff();
 
@@ -166,12 +166,58 @@ void FED3::Feed() {
       while (digitalRead (PELLET_WELL) == LOW and retInterval < 60000) {  //After pellet is detected, hang here for up to 1 minute to detect when it is removed
         retInterval = (millis() - pelletTime);
         DisplayRetrievalInt();
-      }
+       
+        //Log pokes while pellet is present 
+        if (digitalRead(LEFT_POKE) == LOW) {             //If left poke is triggered
+          leftPokeTime = millis();
+          LeftCount ++;
+          leftInterval = 0.0;
+          while (digitalRead (LEFT_POKE) == LOW) {}  //Hang here until poke is clear
+          leftInterval = (millis()-leftPokeTime);
+          UpdateDisplay();
+          Event = "LeftWithPellet";
+          logdata();
+          }
 
+        if (digitalRead(RIGHT_POKE) == LOW) {            //If right poke is triggered
+          rightPokeTime = millis();
+          RightCount ++;
+           rightInterval = 0.0;
+          while (digitalRead (RIGHT_POKE) == LOW) {}  //Hang here until poke is clear
+          rightInterval = (millis()-rightPokeTime);
+          UpdateDisplay();
+          Event = "RightWithPellet";
+          logdata();       
+          }
+        } 
+      
       //after 60s has elapsed
       while (digitalRead (PELLET_WELL) == LOW) { //if pellet is not taken after 60 seconds, wait here and go to sleep
         run();
+        //Log pokes while pellet is present 
+        if (digitalRead(LEFT_POKE) == LOW) {             //If left poke is triggered
+          leftPokeTime = millis();
+          LeftCount ++;
+          leftInterval = 0.0;
+          while (digitalRead (LEFT_POKE) == LOW) {}  //Hang here until poke is clear
+          leftInterval = (millis()-leftPokeTime);
+          UpdateDisplay();
+          Event = "LeftWithPellet";
+          logdata();
+          }
+
+        if (digitalRead(RIGHT_POKE) == LOW) {            //If right poke is triggered
+          rightPokeTime = millis();
+          RightCount ++;
+           rightInterval = 0.0;
+          while (digitalRead (RIGHT_POKE) == LOW) {}  //Hang here until poke is clear
+          rightInterval = (millis()-rightPokeTime);
+          UpdateDisplay();
+          Event = "RightWithPellet";
+          logdata();       
+          }
       }
+
       digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
       PelletCount++;
       Left = false;
@@ -245,9 +291,6 @@ bool FED3::VibrateJam() {
 //full rotation to clear jam
 bool FED3::ClearJam() {
     DisplayJamClear();
-    if (serialOn) {
-      jamAlertUpdate();
-    }
 	
 	if (dispenseTimer_ms(250)) {
 	  display.fillRect (5, 15, 120, 15, WHITE);  //erase the "Jam clear" text without clearing the entire screen by pasting a white box over it
@@ -778,6 +821,7 @@ void FED3::DisplayMouse() {
 **************************************************************************************************************************************************/
 // Create new files on uSD for FED3 settings
 void FED3::CreateFile() {
+  digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
   // see if the card is present and can be initialized:
   if (!SD.begin(cardSelect, SD_SCK_MHZ(4))) {
     error(2);
@@ -811,6 +855,7 @@ void FED3::CreateFile() {
 
 //Create a new datafile
 void FED3::CreateDataFile () {
+  digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
   getFilename(filename);
   logfile = SD.open(filename, FILE_WRITE);
   if ( ! logfile ) {
@@ -820,6 +865,7 @@ void FED3::CreateDataFile () {
 
 //Write the header to the datafile
 void FED3::writeHeader() {
+  digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
   // Write data header to file of microSD card
   logfile.println("MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
   logfile.close();
@@ -827,6 +873,7 @@ void FED3::writeHeader() {
 
 //write a configfile (this contains the FED device number)
 void FED3::writeConfigFile() {
+  digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
   configfile = SD.open("DeviceNumber.csv", FILE_WRITE);
   configfile.rewind();
   configfile.println(FED);
@@ -834,89 +881,9 @@ void FED3::writeConfigFile() {
   configfile.close();
 }
 
-//Format a string s (recommended size at least 100) for sending over serial or logging to sd card
-void FED3::writeDataString(char* s, DateTime now){
-  char activePokeStr[6];
-  if (activePoke == 0){
-    strcpy(activePokeStr, "Right");
-  } else {
-    strcpy(activePokeStr, "Left");
-  }
-  
-  char retIntervalStr[10];
-  if (Event != "Pellet"){
-    strcpy(retIntervalStr, "nan"); // print NaN if it's not a pellet Event
-  }
-  else if (retInterval < 60000 ) {  // only log retrieval intervals below 1 minute (FED should not record any longer than this)
-    sprintf(retIntervalStr, "%.2f", retInterval/1000.0); // print interval between pellet dispensing and being taken
-  }
-  else if (retInterval >= 60000) {
-    strcpy(retIntervalStr, "Timed_out"); // print "Timed_out" if retreival interval is >60s
-  }
-  else {
-    strcpy(retIntervalStr, "Error"); // print error if value is < 0 (this shouldn't ever happen)
-  }
-  
-  char interPelletIntervalStr[10];
-  if (Event != "Pellet" or PelletCount < 2){
-    strcpy(interPelletIntervalStr, "nan"); // print NaN if it's not a pellet Event
-  }
-  else {
-    sprintf(interPelletIntervalStr, "%d", interPelletInterval);
-  }
-      
-  char durationStr[10];
-  if (Event == "Pellet"){
-    strcpy(durationStr, "nan");
-  }
-  else if (Left) {  
-    sprintf(durationStr, "%.2f", leftInterval/1000.0);
-  }
-
-  else if (Right) {
-    sprintf(durationStr, "%.2f", rightInterval/1000.0);
-  }
-
-  int i = 0;
-  char VERchar[10];
-  for (i = 0; i < 5; i++) {
-    VERchar[i] = VER[i];
-  }
-  VERchar[i] = '\0';
-  
-  char sessionchar[sessiontype.length()];
-  for (i = 0; i < sessiontype.length(); i++) {
-    sessionchar[i] = sessiontype[i];
-  }
-  sessionchar[i] = '\0';
-  
-  char EventChar[Event.length()];
-  for (i = 0; i < Event.length(); i++) {
-    EventChar[i] = Event[i];
-  }
-  EventChar[i] = '\0';
-
-  sprintf(s, "%02d/%02d/%04d %02d:%02d:%02d,%s,%s,%d,%.2f,%d,%d,%s,%s,%d,%d,%d,%d,%s,%s,%s\0",
-    now.month(), now.day(), now.year(), now.hour(), now.minute(), now.second(), VERchar, sessionchar, FED, measuredvbat, numMotorTurns+1, FR, EventChar, activePokeStr,
-    LeftCount, RightCount, PelletCount, BlockPelletCount, retIntervalStr, interPelletIntervalStr, durationStr);
-}
-
 //Write to SD card
 void FED3::logdata() {
-  DateTime now = rtc.now();
-
-  //////////////////////////////////////////////////////
-  //  Creating and sending string to software serial  //
-  //////////////////////////////////////////////////////
-  if (serialOn) {
-    const uint8_t ssize = 100;
-    char s[ssize];
-    writeDataString(s, now);
-    serial.begin(serialSpeed);
-    serial.println(s);
-    serial.end();
-  }
-
+  digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
   SD.begin(cardSelect, SD_SCK_MHZ(4));
   
   //fix filename (the .CSV extension can become corrupted) and open file
@@ -951,6 +918,7 @@ void FED3::logdata() {
   /////////////////////////////////
   // Log data and time 
   /////////////////////////////////
+  DateTime now = rtc.now();
   logfile.print(now.month());
   logfile.print("/");
   logfile.print(now.day());
@@ -1070,11 +1038,11 @@ void FED3::logdata() {
     logfile.println(sqrt (-1)); // print NaN 
   }
 
-  else if (Left) {  // 
+  else if ((Event == "Left") or (Event == "LeftShort") or (Event == "LeftWithPellet")) {  // 
     logfile.println(leftInterval/1000.000); // print left poke timing
   }
 
-  else if (Right) {
+  else if ((Event == "Right") or (Event == "RightShort") or (Event == "RightWithPellet")) {  // 
     logfile.println(rightInterval/1000.000); // print left poke timing
   }
   
@@ -1159,7 +1127,7 @@ void FED3::SetDeviceNumber() {
     delay (100);
     display.refresh();
 
-    display.setCursor(35, 135);
+    display.setCursor(38, 138);
     if (FED < 100 & FED >= 10) {
       display.print ("0");
     }
@@ -1595,29 +1563,4 @@ void FED3::writeFEDmode() {
   stopfile.println(timedEnd);
   stopfile.flush();
   stopfile.close();
-}
-
-/******************************************************************************************************************************************************
-                                                                                           Software Serial functions
-******************************************************************************************************************************************************/
-
-void FED3::setSerial(bool b) {
-  serialOn = b;
-}
-
-void FED3::sendJamAlert(){
-  char s[10];
-  sprintf(s, "%d,jam\0", FED);
-  serial.begin(serialSpeed);
-  serial.println(s);
-  serial.end();
-}
-
-void FED3::jamAlertUpdate(){
-  DateTime now = rtc.now();
-  uint32_t diff = now.secondstime() - jamTimer.secondstime();
-  if (diff >= jamAlertInterval){
-    sendJamAlert();
-    jamTimer = DateTime(now);
-  }
 }

@@ -895,7 +895,7 @@ void FED3::writeDataString(char* s, DateTime now){
   
   char retIntervalStr[10];
   if (Event != "Pellet"){
-    strcpy(retIntervalStr, "nan"); // print NaN if it's not a pellet Event
+    strcpy(retIntervalStr, sqrt (-1)); // print NaN if it's not a pellet Event
   }
   else if (retInterval < 60000 ) {  // only log retrieval intervals below 1 minute (FED should not record any longer than this)
     sprintf(retIntervalStr, "%.2f", retInterval/1000.0); // print interval between pellet dispensing and being taken
@@ -909,7 +909,7 @@ void FED3::writeDataString(char* s, DateTime now){
   
   char interPelletIntervalStr[10];
   if (Event != "Pellet" or PelletCount < 2){
-    strcpy(interPelletIntervalStr, "nan"); // print NaN if it's not a pellet Event
+    strcpy(interPelletIntervalStr, sqrt (-1)); // print NaN if it's not a pellet Event
   }
   else {
     sprintf(interPelletIntervalStr, "%d", interPelletInterval);
@@ -917,7 +917,7 @@ void FED3::writeDataString(char* s, DateTime now){
       
   char durationStr[10];
   if (Event == "Pellet"){
-    strcpy(durationStr, "nan");
+    strcpy(durationStr, sqrt (-1));
   }
   else if (Left) {  
     sprintf(durationStr, "%.2f", leftInterval/1000.0);

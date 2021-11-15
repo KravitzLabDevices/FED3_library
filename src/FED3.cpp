@@ -867,7 +867,14 @@ void FED3::CreateDataFile () {
 void FED3::writeHeader() {
   digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
   // Write data header to file of microSD card
-  logfile.println("MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
+  if (tempSensor == false){
+    logfile.println("MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
+  }
+
+  if (tempSensor == true){
+    logfile.println("MM:DD:YYYY hh:mm:ss,Temp,Humidity,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
+  }
+
   logfile.close();
 }
 
@@ -935,6 +942,18 @@ void FED3::logdata() {
     logfile.print('0');      // Trick to add leading zero for formatting
   logfile.print(now.second());
   logfile.print(",");
+  
+  /////////////////////////////////
+  // Log temp and humidity
+  /////////////////////////////////
+  if (tempSensor == true){
+    sensors_event_t humidity, temp;
+    aht.getEvent(&humidity, &temp);// populate temp and humidity objects with fresh data
+    logfile.print (temp.temperature);
+    logfile.print(",");
+    logfile.print (humidity.relative_humidity);
+    logfile.print(",");
+  }
 
   /////////////////////////////////
   // Log library version and Sketch identifier text
@@ -1331,6 +1350,11 @@ void FED3::begin() {
   display.setRotation(3);
   display.setTextColor(BLACK);
   display.setTextSize(1);
+ 
+  //Is AHT20 temp humidity sensor present?
+  if (aht.begin()) {
+    tempSensor = true;
+  }
  
   // Initialize SD card and create the datafile
   SdFile::dateTimeCallback(dateTime);

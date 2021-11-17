@@ -647,6 +647,16 @@ void FED3::DisplayBattery(){
   display.print(measuredvbat, 1);
   display.setFont(&FreeSans9pt7b);
   display.setTextSize(1);
+  
+  //display temp/humidity sensor indicator if present
+  if (tempSensor == true){
+    display.setTextSize(1);
+    display.setFont(&Org_01);
+    display.setCursor(89, 18);
+    display.print("TH");
+    display.setFont(&FreeSans9pt7b);
+    display.setTextSize(1);
+  }
 }
 
 //Display "Check SD Card!" if there is a card error

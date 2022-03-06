@@ -57,6 +57,7 @@ void FED3::run() {
   }
   DateTime now = rtc.now();
   currentHour = now.hour(); //useful for timed feeding sessions
+  currentMinute = now.minutes(); //useful for timed feeding sessions
   unixtime  = now.unixtime();
   ReadBatteryLevel();
   UpdateDisplay();
@@ -74,6 +75,8 @@ void FED3::logLeftPoke(){
     leftInterval = 0.0;
     while (digitalRead (LEFT_POKE) == LOW) {}  //Hang here until poke is clear
     leftInterval = (millis()-leftPokeTime);
+    UpdateDisplay();
+    DisplayLeftInt();
     if (leftInterval < minPokeTime) {
       Event = "LeftShort";
     }
@@ -81,8 +84,6 @@ void FED3::logLeftPoke(){
       Event = "Left";
     }
     logdata();
-    UpdateDisplay();
-    DisplayLeftInt();
     Left = false;
   }
 }
@@ -95,6 +96,8 @@ void FED3::logRightPoke(){
     rightInterval = 0.0;
     while (digitalRead (RIGHT_POKE) == LOW) {} //Hang here until poke is clear
     rightInterval = (millis()-rightPokeTime);
+    UpdateDisplay();
+    DisplayRightInt();
     if (rightInterval < minPokeTime) {
       Event = "RightShort";
     }
@@ -102,8 +105,6 @@ void FED3::logRightPoke(){
       Event = "Right";
     }
     logdata();
-    UpdateDisplay();
-    DisplayRightInt();
     Right = false; 
   }
 }
@@ -291,9 +292,6 @@ bool FED3::VibrateJam() {
 //full rotation to clear jam
 bool FED3::ClearJam() {
     DisplayJamClear();
-    if (serialOn) {
-      jamAlertUpdate();
-    }
 	
 	if (dispenseTimer_ms(250)) {
 	  display.fillRect (5, 15, 120, 15, WHITE);  //erase the "Jam clear" text without clearing the entire screen by pasting a white box over it
@@ -483,11 +481,12 @@ void FED3::Blink(byte PIN, byte DELAY_MS, byte loops) {
 }
 
 //Short helper function for controlling the BNC port
-void FED3::BNC(byte DELAY_MS, byte loops) {
-  for (byte i = 0; i < loops; i++)  {
+void FED3::BNC(byte DELAY_MS, byte loops, byte TTL_duration) {
+  if (TTL_duration==0) TTL_duration=DELAY_MS;
+    for (byte i = 0; i < loops; i++) {
     digitalWrite(BNC_OUT, HIGH);
     digitalWrite(GREEN_LED, HIGH);
-    delay(DELAY_MS);
+    delay(TTL_duration);
     digitalWrite(BNC_OUT, LOW);
     digitalWrite(GREEN_LED, LOW);
     delay(DELAY_MS);
@@ -650,6 +649,16 @@ void FED3::DisplayBattery(){
   display.print(measuredvbat, 1);
   display.setFont(&FreeSans9pt7b);
   display.setTextSize(1);
+  
+  //display temp/humidity sensor indicator if present
+  if (tempSensor == true){
+    display.setTextSize(1);
+    display.setFont(&Org_01);
+    display.setCursor(89, 18);
+    display.print("TH");
+    display.setFont(&FreeSans9pt7b);
+    display.setTextSize(1);
+  }
 }
 
 //Display "Check SD Card!" if there is a card error
@@ -870,7 +879,14 @@ void FED3::CreateDataFile () {
 void FED3::writeHeader() {
   digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
   // Write data header to file of microSD card
-  logfile.println("MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
+  if (tempSensor == false){
+    logfile.println("MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
+  }
+
+  if (tempSensor == true){
+    logfile.println("MM:DD:YYYY hh:mm:ss,Temp,Humidity,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
+  }
+
   logfile.close();
 }
 
@@ -884,87 +900,8 @@ void FED3::writeConfigFile() {
   configfile.close();
 }
 
-//Format a string s (recommended size at least 100) for sending over serial or logging to sd card
-void FED3::writeDataString(char* s, DateTime now){
-  char activePokeStr[6];
-  if (activePoke == 0){
-    strcpy(activePokeStr, "Right");
-  } else {
-    strcpy(activePokeStr, "Left");
-  }
-  
-  char retIntervalStr[10];
-  if (Event != "Pellet"){
-    strcpy(retIntervalStr, "nan"); // print NaN if it's not a pellet Event
-  }
-  else if (retInterval < 60000 ) {  // only log retrieval intervals below 1 minute (FED should not record any longer than this)
-    sprintf(retIntervalStr, "%.2f", retInterval/1000.0); // print interval between pellet dispensing and being taken
-  }
-  else if (retInterval >= 60000) {
-    strcpy(retIntervalStr, "Timed_out"); // print "Timed_out" if retreival interval is >60s
-  }
-  else {
-    strcpy(retIntervalStr, "Error"); // print error if value is < 0 (this shouldn't ever happen)
-  }
-  
-  char interPelletIntervalStr[10];
-  if (Event != "Pellet" or PelletCount < 2){
-    strcpy(interPelletIntervalStr, "nan"); // print NaN if it's not a pellet Event
-  }
-  else {
-    sprintf(interPelletIntervalStr, "%d", interPelletInterval);
-  }
-      
-  char durationStr[10];
-  if (Event == "Pellet"){
-    strcpy(durationStr, "nan");
-  }
-  else if (Left) {  
-    sprintf(durationStr, "%.2f", leftInterval/1000.0);
-  }
-
-  else if (Right) {
-    sprintf(durationStr, "%.2f", rightInterval/1000.0);
-  }
-
-  int i = 0;
-  char VERchar[10];
-  for (i = 0; i < 5; i++) {
-    VERchar[i] = VER[i];
-  }
-  VERchar[i] = '\0';
-  
-  char sessionchar[sessiontype.length()];
-  for (i = 0; i < sessiontype.length(); i++) {
-    sessionchar[i] = sessiontype[i];
-  }
-  sessionchar[i] = '\0';
-  
-  char EventChar[Event.length()];
-  for (i = 0; i < Event.length(); i++) {
-    EventChar[i] = Event[i];
-  }
-  EventChar[i] = '\0';
-
-  sprintf(s, "%02d/%02d/%04d %02d:%02d:%02d,%s,%s,%d,%.2f,%d,%d,%s,%s,%d,%d,%d,%d,%s,%s,%s\0",
-    now.month(), now.day(), now.year(), now.hour(), now.minute(), now.second(), VERchar, sessionchar, FED, measuredvbat, numMotorTurns+1, FR, EventChar, activePokeStr,
-    LeftCount, RightCount, PelletCount, BlockPelletCount, retIntervalStr, interPelletIntervalStr, durationStr);
-}
-
 //Write to SD card
 void FED3::logdata() {
-  //////////////////////////////////////////////////////
-  //  Creating and sending string to software serial  //
-  //////////////////////////////////////////////////////
-  DateTime now = rtc.now();
-  if (serialOn) {
-    const uint8_t ssize = 100;
-    char s[ssize];
-    writeDataString(s, now);
-    serial.begin(serialSpeed);
-    serial.println(s);
-    serial.end();
-  }
   digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
   SD.begin(cardSelect, SD_SCK_MHZ(4));
   
@@ -1000,6 +937,7 @@ void FED3::logdata() {
   /////////////////////////////////
   // Log data and time 
   /////////////////////////////////
+  DateTime now = rtc.now();
   logfile.print(now.month());
   logfile.print("/");
   logfile.print(now.day());
@@ -1016,6 +954,18 @@ void FED3::logdata() {
     logfile.print('0');      // Trick to add leading zero for formatting
   logfile.print(now.second());
   logfile.print(",");
+  
+  /////////////////////////////////
+  // Log temp and humidity
+  /////////////////////////////////
+  if (tempSensor == true){
+    sensors_event_t humidity, temp;
+    aht.getEvent(&humidity, &temp);// populate temp and humidity objects with fresh data
+    logfile.print (temp.temperature);
+    logfile.print(",");
+    logfile.print (humidity.relative_humidity);
+    logfile.print(",");
+  }
 
   /////////////////////////////////
   // Log library version and Sketch identifier text
@@ -1045,9 +995,13 @@ void FED3::logdata() {
   /////////////////////////////////
   // Log motor turns
   /////////////////////////////////
-  logfile.print(numMotorTurns+1); // Print the number of attempts to dispense a pellet
-  logfile.print(",");
-
+  if (Event != "Pellet"){
+    logfile.print(sqrt (-1)); // print NaN if it's not a pellet Event
+  }
+  else {
+    logfile.print(numMotorTurns+1); // Print the number of attempts to dispense a pellet
+    logfile.print(",");
+  }
   /////////////////////////////////
   // Log FR ratio
   /////////////////////////////////
@@ -1413,6 +1367,11 @@ void FED3::begin() {
   display.setTextColor(BLACK);
   display.setTextSize(1);
  
+  //Is AHT20 temp humidity sensor present?
+  if (aht.begin()) {
+    tempSensor = true;
+  }
+ 
   // Initialize SD card and create the datafile
   SdFile::dateTimeCallback(dateTime);
   CreateFile();
@@ -1644,29 +1603,4 @@ void FED3::writeFEDmode() {
   stopfile.println(timedEnd);
   stopfile.flush();
   stopfile.close();
-}
-
-/******************************************************************************************************************************************************
-                                                                                           Software Serial functions
-******************************************************************************************************************************************************/
-
-void FED3::setSerial(bool b) {
-  serialOn = b;
-}
-
-void FED3::sendJamAlert(){
-  char s[10];
-  sprintf(s, "%d,jam\0", FED);
-  serial.begin(serialSpeed);
-  serial.println(s);
-  serial.end();
-}
-
-void FED3::jamAlertUpdate(){
-  DateTime now = rtc.now();
-  uint32_t diff = now.secondstime() - jamTimer.secondstime();
-  if (diff >= jamAlertInterval){
-    sendJamAlert();
-    jamTimer = DateTime(now);
-  }
 }

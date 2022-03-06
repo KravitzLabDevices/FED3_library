@@ -57,7 +57,7 @@ void FED3::run() {
   }
   DateTime now = rtc.now();
   currentHour = now.hour(); //useful for timed feeding sessions
-  currentMinute = now.minutes(); //useful for timed feeding sessions
+  currentMinute = now.minute(); //useful for timed feeding sessions
   unixtime  = now.unixtime();
   ReadBatteryLevel();
   UpdateDisplay();

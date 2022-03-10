@@ -492,7 +492,7 @@ void FED3::BNC(int DELAY_MS, int loops) {
   }
 }
 
-//More advanced function for controlling the BNC port
+//More advanced function for controlling pulse width and frequency for the BNC port
 void FED3::pulseGenerator(int pulse_width, int frequency, int repetitions){  // freq in Hz, width in ms, loops in number of times
   for (byte j = 0; j < repetitions; j++) {
     digitalWrite(BNC_OUT, HIGH);
@@ -500,8 +500,8 @@ void FED3::pulseGenerator(int pulse_width, int frequency, int repetitions){  // 
     delay(pulse_width);  //pulse high for width
     digitalWrite(BNC_OUT, LOW);
     digitalWrite(GREEN_LED, LOW);
-    unsigned long temp_delay = (1000 / frequency) - pulse_width;
-    if (temp_delay < 0) temp_delay = 0  //if temp delay <0 because parameters are set wrong, set it to 0 so FED3 doesn't crash O_o
+    long temp_delay = (1000 / frequency) - pulse_width;
+    if (temp_delay < 0) temp_delay = 0;  //if temp delay <0 because parameters are set wrong, set it to 0 so FED3 doesn't crash O_o
     delay(temp_delay); //pin low 
   }
 }

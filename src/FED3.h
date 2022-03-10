@@ -146,7 +146,9 @@ class FED3 {
         void ConditionedStimulus(int duration = 200);
         void Click();
         void Noise(int duration = 200);
-        void BNC(byte DELAY_MS, byte loops, byte TTL_duration = 0);
+        void BNC(int DELAY_MS, int loops);
+        void pulseGenerator(int pulse_width, int frequency, int repetitions);
+
         void Tone(int freq, int duration);
         
         // Pelet and poke functions

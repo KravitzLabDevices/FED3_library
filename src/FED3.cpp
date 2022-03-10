@@ -480,16 +480,29 @@ void FED3::Blink(byte PIN, byte DELAY_MS, byte loops) {
   }
 }
 
-//Short helper function for controlling the BNC port
-void FED3::BNC(byte DELAY_MS, byte loops, byte TTL_duration) {
-  if (TTL_duration==0) TTL_duration=DELAY_MS;
-    for (byte i = 0; i < loops; i++) {
+//Simple function for sending square wave pulses to the BNC port
+void FED3::BNC(int DELAY_MS, int loops) {
+  for (int i = 0; i < loops; i++)  {
     digitalWrite(BNC_OUT, HIGH);
     digitalWrite(GREEN_LED, HIGH);
-    delay(TTL_duration);
+    delay(DELAY_MS);
     digitalWrite(BNC_OUT, LOW);
     digitalWrite(GREEN_LED, LOW);
     delay(DELAY_MS);
+  }
+}
+
+//More advanced function for controlling the BNC port
+void FED3::pulseGenerator(int pulse_width, int frequency, int repetitions){  // freq in Hz, width in ms, loops in number of times
+  for (byte j = 0; j < repetitions; j++) {
+    digitalWrite(BNC_OUT, HIGH);
+    digitalWrite(GREEN_LED, HIGH);
+    delay(pulse_width);  //pulse high for width
+    digitalWrite(BNC_OUT, LOW);
+    digitalWrite(GREEN_LED, LOW);
+    unsigned long temp_delay = (1000 / frequency) - pulse_width;
+    if (temp_delay < 0) temp_delay = 0  //if temp delay <0 because parameters are set wrong, set it to 0 so FED3 doesn't crash O_o
+    delay(temp_delay); //pin low 
   }
 }
 

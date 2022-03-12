@@ -1010,6 +1010,7 @@ void FED3::logdata() {
   /////////////////////////////////
   if (Event != "Pellet"){
     logfile.print(sqrt (-1)); // print NaN if it's not a pellet Event
+    logfile.print(",");
   }
   else {
     logfile.print(numMotorTurns+1); // Print the number of attempts to dispense a pellet

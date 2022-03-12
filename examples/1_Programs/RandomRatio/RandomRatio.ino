@@ -15,7 +15,7 @@
 ////////////////////////////////////////////////////
 // Set the FR limits for the random ratio
 ////////////////////////////////////////////////////
-int FR = random(1, 21);                               //Set the min and max for the random ratio.  In this example this is set between 1 and 20.
+int FR = random(1, 11);                               //Set the min and max for the random ratio.  In this example this is set between 1 and 10.
 
 ////////////////////////////////////////////////////
 // Start FED3 library and make the fed3 object
@@ -26,6 +26,7 @@ FED3 fed3 (sketch);                                   //Start the FED3 object
 
 void setup() {
   fed3.begin();                                       //Setup the FED3 hardware
+  fed3.FR = FR;                                       //share starting FR ratio with the fed3 library for logging
 }
 
 void loop() {
@@ -35,11 +36,11 @@ void loop() {
   if (fed3.Left) {
     fed3.Click();                                     //click stimulus
     fed3.logLeftPoke();                               //Log left poke
-    if (fed3.LeftCount % FR == 0) {                 //if random ratio is  met
-      fed3.ConditionedStimulus();                   //deliver conditioned stimulus (tone and lights)
-      fed3.Feed();                                  //deliver pellet
-      FR = random(1, 21);                           //randomize the number of pokes required for next pellet
-      fed3.FR = FR;                                 //share this new ratio with the fed3 library for logging
+    if (fed3.LeftCount % FR == 0) {                   //if random ratio is  met
+      fed3.ConditionedStimulus();                     //deliver conditioned stimulus (tone and lights)
+      fed3.Feed();                                    //deliver pellet
+      FR = random(1, 11);                             //randomize the number of pokes required for next pellet
+      fed3.FR = FR;                                   //share this new ratio with the fed3 library for logging
     }
   }
 

@@ -94,7 +94,7 @@ class FED3 {
         void writeFEDmode();
         void error(uint8_t errno);
         void getFilename(char *filename);
-        bool supressSDerrors = false;  //set to true to supress SD card errors at startup 
+        bool suppressSDerrors = false;  //set to true to suppress SD card errors at startup 
 
         // Battery
         float measuredvbat = 1.0;

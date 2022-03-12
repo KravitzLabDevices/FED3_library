@@ -1112,7 +1112,7 @@ void FED3::logdata() {
 // will blink both LEDs on the Feather M0, turn the NeoPixel into red wipe pattern,
 // and display "Check SD Card" on the screen
 void FED3::error(uint8_t errno) {
-  if (supressSDerrors == false){
+  if (suppressSDerrors == false){
     DisplaySDError();
     while (1) {
       uint8_t i;

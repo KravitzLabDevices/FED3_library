@@ -19,8 +19,8 @@
 String sketch = "GoNoGo";                               //Unique identifier text for each sketch
 FED3 fed3 (sketch);                                     //Start the FED3 object
 int highOrLow = random(0, 2);                           //Set a random variable called highOrLow. 0 means low tone, 1 means high tone
-int gotime = 500;                                       //This is the duration which the mouse must remove from the poke on a go trial to get pellet
-int nogotime = 1000;                                    //This is the duration which the mouse must remain in the well on a nogo trial to get pellet
+int gotime = 200;                                       //This is the duration in ms which the mouse must remove from the poke on a go trial to get pellet
+int nogotime = 200;                                    //This is the duration in ms which the mouse must remain in the well on a nogo trial to get pellet
 
 void setup() {
   fed3.begin();                                         //Setup the FED3 hardware

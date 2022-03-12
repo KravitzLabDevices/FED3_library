@@ -21,7 +21,7 @@ int FR = random(1, 21);                               //Set the min and max for 
 // Start FED3 library and make the fed3 object
 ////////////////////////////////////////////////////
 #include <FED3.h>                                     //Include the FED3 library 
-String sketch = "RandRatio";                           //Unique identifier text for each sketch
+String sketch = "RndRatio";                           //Unique identifier text for each sketch
 FED3 fed3 (sketch);                                   //Start the FED3 object
 
 void setup() {

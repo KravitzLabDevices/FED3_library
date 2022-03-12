@@ -23,7 +23,7 @@ void loop() {
   if (fed3.Left) {                                      //If left poke is triggered
     fed3.logLeftPoke();                                 //Log left poke
     fed3.ConditionedStimulus();                         //Deliver conditioned stimulus (tone and lights for 200ms)
-    fed3.pulseGenerator(10,20,20);                      //Deliver a traing of 10ms pulses at 20Hz for 1 sec
+    fed3.pulseGenerator(10, 20, 20);                    //Deliver a traing of 10ms pulses at 20Hz for 1 sec
   }
 
   if (fed3.Right) {                                     //If right poke is triggered

@@ -1,6 +1,8 @@
 ## This library controls [FED3](https://github.com/KravitzLabDevices/FED3), a device for training mice. 
 <p>
-The files on this Github repository should be considered "beta", for the most recent stable release please install the FED3 library from the Arduino IDE as decribed below.  See the [Wiki](https://github.com/KravitzLabDevices/FED3_library/wiki) for documentation on how to use the library.   This library is in development, please report bugs using Issues. 
+The files on this Github repository should be considered "beta", for the most recent stable release please install the FED3 library from the Arduino IDE as decribed below.  See the [Wiki](https://github.com/KravitzLabDevices/FED3_library/wiki) for documentation on how to use the library.   This library is in development, please report bugs using Issues.
+
+This repository in addition includes the feature of transmitting the data from FED3 to other devices via UART interface. BNC support is removed in this version, as Pin A0 is configured as UART_Tx instead of BNC_OUT.
 
 ## Do you have custom FED3 code you want to add to the libary? <br>[Submit it here!](https://kravitzlab.com/submit-custom-fed3-code)
 

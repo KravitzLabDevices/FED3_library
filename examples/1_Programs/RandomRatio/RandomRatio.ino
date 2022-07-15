@@ -25,6 +25,7 @@ String sketch = "RndRatio";                           //Unique identifier text f
 FED3 fed3 (sketch);                                   //Start the FED3 object
 
 void setup() {
+  randomSeed(analogRead(0));
   fed3.begin();                                       //Setup the FED3 hardware
   fed3.FR = FR;                                       //share starting FR ratio with the fed3 library for logging
 }

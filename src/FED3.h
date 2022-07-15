@@ -22,7 +22,7 @@ This device includes hardware and code from:
   Copyright (c) 2019, 2020 Lex Kravitz
 */
 
-#define VER "1.12.0"
+#define VER "1.13.0"
 
 #ifndef FED3_H
 #define FED3_H
@@ -85,7 +85,7 @@ class FED3 {
         File configfile;    // Create another file object
         File startfile;     // Create another file object
         File stopfile;      // Create another file object
-        char filename[15];  // Array for file name data logged to named in setup
+        char filename[21];  // Array for file name data logged to named in setup
         void logdata();
         void CreateFile();
         void CreateDataFile ();
@@ -150,6 +150,7 @@ class FED3 {
         void pulseGenerator(int pulse_width, int frequency, int repetitions);
 
         void Tone(int freq, int duration);
+        void stopTone();
         
         // Pelet and poke functions
         void CheckRatio();

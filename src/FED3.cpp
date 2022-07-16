@@ -113,8 +113,6 @@ void FED3::randomizeActivePoke(int max){
   //Store last active side and randomize
   byte lastActive = activePoke;
   activePoke = random (0, 2);
-  Serial.print("ActivePoke: ");
-  Serial.println(activePoke);
 
   //Increment consecutive active pokes, or reset consecutive to zero
   if (activePoke == lastActive) {
@@ -126,7 +124,6 @@ void FED3::randomizeActivePoke(int max){
   
   //if consecutive pokes are too many, swap pokes
   if (consecutive >= max){
-    Serial.println("SWAPPING");
     if (activePoke == 0) {
       activePoke = 1;
     }
@@ -134,10 +131,7 @@ void FED3::randomizeActivePoke(int max){
       activePoke = 0;
     }
     consecutive = 0;
-    Serial.print("New ActivePoke: ");
-    Serial.println(activePoke);
     }
-  Serial.println();
 }
 
 /**************************************************************************************************************************************************
@@ -391,6 +385,11 @@ void FED3::Click() {
 void FED3::Tone(int freq, int duration){
   tone (BUZZER, freq, duration);
 }
+
+void FED3::stopTone(){
+  noTone (BUZZER);
+}
+
 
 void FED3::Noise(int duration) {
   // White noise to signal errors
@@ -1076,7 +1075,6 @@ void FED3::logdata() {
   }
   else {
     logfile.print (interPelletInterval);
-    Serial.println (interPelletInterval);
   }
   logfile.print(",");
       

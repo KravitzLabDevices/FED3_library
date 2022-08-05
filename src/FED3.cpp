@@ -58,7 +58,8 @@ void FED3::run() {
   DateTime now = rtc.now();
   currentHour = now.hour(); //useful for timed feeding sessions
   currentMinute = now.minute(); //useful for timed feeding sessions
-  unixtime  = now.unixtime();
+  currentSecond = now.second(); //useful for timed feeding sessions
+  unixtime = now.unixtime();
   ReadBatteryLevel();
   UpdateDisplay();
   goToSleep();
@@ -147,11 +148,13 @@ void FED3::Feed() {
 	    pelletDispensed = RotateDisk(-300);
     }
 
-    pixelsOff();
-
+    if (EnableSleep==true){
+      pixelsOff();
+    }
+    
     //If pellet is detected during or after this motion
     if (pelletDispensed == true) {
-      digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
+      ReleaseMotor ();
       pelletTime = millis();
       
       display.fillCircle(25, 99, 5, BLACK);
@@ -213,7 +216,7 @@ void FED3::Feed() {
           }
       }
 
-      digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
+      ReleaseMotor ();
       PelletCount++;
       Left = false;
       Right = false;
@@ -356,18 +359,49 @@ bool FED3::dispenseTimer_ms(int ms) {
 
 //Timeout function
 void FED3::Timeout(int seconds) {
-    for (int k = 0; k <= seconds; k++) {
-      delay (1000);
-      display.fillRect (5, 20, 200, 25,WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
+  DateTime now = rtc.now();
+  unixtime = now.unixtime();
+  unsigned long TimeoutStart = now.unixtime();
+  while (unixtime - TimeoutStart < seconds) {
+    //Log pokes while pellet is present
+    if (digitalRead(LEFT_POKE) == LOW) {             //If left poke is triggered
+      leftPokeTime = millis();
+      LeftCount ++;
+      leftInterval = 0.0;
+      while (digitalRead (LEFT_POKE) == LOW) {}  //Hang here until poke is clear
+      leftInterval = (millis() - leftPokeTime);
+      Event = "LeftinTimeout";
+      logdata();
+    }
+
+    if (digitalRead(RIGHT_POKE) == LOW) {            //If right poke is triggered
+      rightPokeTime = millis();
+      RightCount ++;
+      rightInterval = 0.0;
+      while (digitalRead (RIGHT_POKE) == LOW) {}  //Hang here until poke is clear
+      rightInterval = (millis() - rightPokeTime);
+      Event = "RightinTimeout";
+      logdata();
+    }
+    
+    DateTime now = rtc.now();
+    unixtime = now.unixtime();
+
+    delay (10);
+
+    if  (unixtime - displayupdate >= 1){
+      UpdateDisplay();
+      display.fillRect (5, 20, 200, 25, WHITE); //erase the data on screen without clearing the entire screen by pasting a white box over it
       display.setCursor(6, 36);
       display.print("Timeout: ");
-      display.print(seconds - k);
+      display.print(int(floor(seconds - (unixtime - TimeoutStart))));
       display.refresh();
+      displayupdate = now.unixtime();
     }
-    display.fillRect (5, 20, 100, 25, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
-    UpdateDisplay();
+    
     Left = false;
     Right = false;
+  }
 }
 
 /**************************************************************************************************************************************************
@@ -914,7 +948,9 @@ void FED3::writeConfigFile() {
 
 //Write to SD card
 void FED3::logdata() {
-  digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
+  if (EnableSleep==true){
+    digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
+  }
   SD.begin(cardSelect, SD_SCK_MHZ(4));
   
   //fix filename (the .CSV extension can become corrupted) and open file
@@ -1085,11 +1121,11 @@ void FED3::logdata() {
     logfile.println(sqrt (-1)); // print NaN 
   }
 
-  else if ((Event == "Left") or (Event == "LeftShort") or (Event == "LeftWithPellet")) {  // 
+  else if ((Event == "Left") or (Event == "LeftShort") or (Event == "LeftWithPellet") or (Event == "LeftinTimeout")) {  // 
     logfile.println(leftInterval/1000.000); // print left poke timing
   }
 
-  else if ((Event == "Right") or (Event == "RightShort") or (Event == "RightWithPellet")) {  // 
+  else if ((Event == "Right") or (Event == "RightShort") or (Event == "RightWithPellet") or (Event == "RightinTimeout")) {  // 
     logfile.println(rightInterval/1000.000); // print left poke timing
   }
   
@@ -1324,7 +1360,9 @@ void FED3::ReleaseMotor () {
   digitalWrite(A3, LOW);
   digitalWrite(A4, LOW);
   digitalWrite(A5, LOW);
-  digitalWrite(MOTOR_ENABLE, LOW);  //disable motor driver and neopixels
+  if (EnableSleep==true){
+    digitalWrite(MOTOR_ENABLE, LOW);  //disable motor driver and neopixels
+  }
 }
 
 /**************************************************************************************************************************************************

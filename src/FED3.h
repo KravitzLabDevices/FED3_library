@@ -22,7 +22,7 @@ This device includes hardware and code from:
   Copyright (c) 2019, 2020 Lex Kravitz
 */
 
-#define VER "1.13.2"
+#define VER "1.14.0"
 
 #ifndef FED3_H
 #define FED3_H
@@ -199,6 +199,8 @@ class FED3 {
         bool PelletAvailable = false;
         unsigned long currentHour;
         unsigned long currentMinute;
+        unsigned long currentSecond;
+        unsigned long displayupdate;
         String Event = "None";   //What kind of event just happened?
         
         // timing variables

@@ -319,7 +319,30 @@ bool FED3::ClearJam() {
 
 bool FED3::RotateDisk(int steps) {
   digitalWrite (MOTOR_ENABLE, HIGH);  //Enable motor driver
-  for (int i = 0; i < (steps>0?steps:-steps); i++) {	  
+  for (int i = 0; i < (steps>0?steps:-steps); i++) {	
+  
+    if (digitalRead(LEFT_POKE) == LOW) {             //If left poke is triggered
+       leftPokeTime = millis();
+       LeftCount ++;
+       leftInterval = 0.0;
+       while (digitalRead (LEFT_POKE) == LOW) {}  //Hang here until poke is clear
+       leftInterval = (millis() - leftPokeTime);
+       UpdateDisplay();
+       Event = "LeftDuringDispense";
+       logdata();
+     }
+
+     if (digitalRead(RIGHT_POKE) == LOW) {            //If right poke is triggered
+       rightPokeTime = millis();
+       RightCount ++;
+       rightInterval = 0.0;
+       while (digitalRead (RIGHT_POKE) == LOW) {}  //Hang here until poke is clear
+       rightInterval = (millis() - rightPokeTime);
+       UpdateDisplay();
+       Event = "RightDuringDispense";
+       logdata();
+     }
+    
 	  if (steps > 0)
 		  stepper.step(1);
 	  else
@@ -359,18 +382,26 @@ bool FED3::dispenseTimer_ms(int ms) {
 
 //Timeout function
 void FED3::Timeout(int seconds) {
-  DateTime now = rtc.now();
-  unixtime = now.unixtime();
-  unsigned long TimeoutStart = now.unixtime();
-  while (unixtime - TimeoutStart < seconds) {
-    //Log pokes while pellet is present
+  int timeoutStart = millis();
+  while ((millis() - timeoutStart) < (seconds*1000)) {
+    delay (1);
+    int displayUpdated = millis();
+    if (millis() - displayUpdated < 1000) {
+      display.fillRect (5, 20, 200, 25, WHITE); //erase the data on screen without clearing the entire screen by pasting a white box over it
+      display.setCursor(6, 36);
+      display.print("Timeout: ");
+      display.print(round(seconds - ((millis() - timeoutStart)) / 1000));
+      display.refresh();
+    }
+
     if (digitalRead(LEFT_POKE) == LOW) {             //If left poke is triggered
       leftPokeTime = millis();
       LeftCount ++;
       leftInterval = 0.0;
       while (digitalRead (LEFT_POKE) == LOW) {}  //Hang here until poke is clear
       leftInterval = (millis() - leftPokeTime);
-      Event = "LeftinTimeout";
+      UpdateDisplay();
+      Event = "LefinTimeOut";
       logdata();
     }
 
@@ -380,29 +411,17 @@ void FED3::Timeout(int seconds) {
       rightInterval = 0.0;
       while (digitalRead (RIGHT_POKE) == LOW) {}  //Hang here until poke is clear
       rightInterval = (millis() - rightPokeTime);
+      UpdateDisplay();
       Event = "RightinTimeout";
       logdata();
     }
-    
-    DateTime now = rtc.now();
-    unixtime = now.unixtime();
-
-    delay (10);
-
-    if  (unixtime - displayupdate >= 1){
-      UpdateDisplay();
-      display.fillRect (5, 20, 200, 25, WHITE); //erase the data on screen without clearing the entire screen by pasting a white box over it
-      display.setCursor(6, 36);
-      display.print("Timeout: ");
-      display.print(int(floor(seconds - (unixtime - TimeoutStart))));
-      display.refresh();
-      displayupdate = now.unixtime();
-    }
-    
-    Left = false;
-    Right = false;
   }
-}
+
+  display.fillRect (5, 20, 100, 25, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
+  UpdateDisplay();
+  Left = false;
+  Right = false;
+} 
 
 /**************************************************************************************************************************************************
                                                                                        Audio and neopixel stimuli
@@ -1121,11 +1140,11 @@ void FED3::logdata() {
     logfile.println(sqrt (-1)); // print NaN 
   }
 
-  else if ((Event == "Left") or (Event == "LeftShort") or (Event == "LeftWithPellet") or (Event == "LeftinTimeout")) {  // 
+  else if ((Event == "Left") or (Event == "LeftShort") or (Event == "LeftWithPellet") or (Event == "LeftinTimeout") or (Event == "LeftDuringDispense")) {  // 
     logfile.println(leftInterval/1000.000); // print left poke timing
   }
 
-  else if ((Event == "Right") or (Event == "RightShort") or (Event == "RightWithPellet") or (Event == "RightinTimeout")) {  // 
+  else if ((Event == "Right") or (Event == "RightShort") or (Event == "RightWithPellet") or (Event == "RightinTimeout") or (Event == "RightDuringDispense")) {  // 
     logfile.println(rightInterval/1000.000); // print left poke timing
   }
   

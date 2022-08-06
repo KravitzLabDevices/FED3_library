@@ -22,7 +22,7 @@ This device includes hardware and code from:
   Copyright (c) 2019, 2020 Lex Kravitz
 */
 
-#define VER "1.14.1"
+#define VER "1.16.0"
 
 #ifndef FED3_H
 #define FED3_H
@@ -129,6 +129,7 @@ class FED3 {
         void ClassicMenu();
         void StartScreen();
         void FED3MenuScreen();
+        void SetClock();
         
         //BNC input/output
 		void ReadBNC(bool blinkGreen);
@@ -156,7 +157,7 @@ class FED3 {
         void CheckRatio();
         void logLeftPoke();
         void logRightPoke();
-        void Feed();
+        void Feed(int pulse = 0, bool pixelsoff = true);
         bool dispenseTimer_ms(int ms);
         void pelletTrigger();
         void leftTrigger();

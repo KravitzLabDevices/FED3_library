@@ -138,7 +138,7 @@ void FED3::randomizeActivePoke(int max){
 /**************************************************************************************************************************************************
                                                                                                 Feeding functions
 **************************************************************************************************************************************************/
-void FED3::Feed() {
+void FED3::Feed(int pulse, bool pixelsoff) {
   //Run this loop repeatedly until statement below is false
   bool pelletDispensed = false;
   
@@ -148,12 +148,12 @@ void FED3::Feed() {
 	    pelletDispensed = RotateDisk(-300);
     }
 
-    if (EnableSleep==true){
+    if (pixelsoff==true){
       pixelsOff();
     }
     
     //If pellet is detected during or after this motion
-    if (pelletDispensed == true) {
+    if (pelletDispensed == true) {    
       ReleaseMotor ();
       pelletTime = millis();
       
@@ -218,11 +218,17 @@ void FED3::Feed() {
 
       ReleaseMotor ();
       PelletCount++;
+      
+      // If pulse duration is specified, send pulse from BNC port      
+      if (pulse > 0){
+        BNC (pulse, 1);  
+      }
+      
       Left = false;
       Right = false;
       Event = "Pellet";
       
-      //calcualte IntetPelletInterval
+      //calculate IntetPelletInterval
       DateTime now = rtc.now();
       interPelletInterval = now.unixtime() - lastPellet;  //calculate time in seconds since last pellet logged
       lastPellet  = now.unixtime();
@@ -231,7 +237,7 @@ void FED3::Feed() {
       numMotorTurns = 0; //reset numMotorTurns
       PelletAvailable = true;
       UpdateDisplay();
-      if (timeout > 0) Timeout(timeout); //timeout after each pellet is dropped (you can edit this number)
+      
       break;
     }
 
@@ -240,21 +246,21 @@ void FED3::Feed() {
         numMotorTurns++;
 
         //Jam clearing movements
-		if (pelletDispensed == false) {
+        if (pelletDispensed == false) {
           if (numMotorTurns % 5 == 0) {
             pelletDispensed = MinorJam();
           }
-		}
+	   }
         if (pelletDispensed == false) {
           if (numMotorTurns % 10 == 0 and numMotorTurns % 20 != 0) {
             pelletDispensed = VibrateJam();
           }
-		}
+	   }
         if (pelletDispensed == false) {
           if (numMotorTurns % 20 == 0) {
             pelletDispensed = ClearJam();
           }
-		}
+        }
     }
   } while (PelletAvailable == false);
 }
@@ -944,13 +950,17 @@ void FED3::CreateDataFile () {
 void FED3::writeHeader() {
   digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
   // Write data header to file of microSD card
+
+
   if (tempSensor == false){
     logfile.println("MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
   }
 
+
   if (tempSensor == true){
     logfile.println("MM:DD:YYYY hh:mm:ss,Temp,Humidity,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
   }
+
 
   logfile.close();
 }
@@ -1021,7 +1031,7 @@ void FED3::logdata() {
     logfile.print('0');      // Trick to add leading zero for formatting
   logfile.print(now.second());
   logfile.print(",");
-  
+    
   /////////////////////////////////
   // Log temp and humidity
   /////////////////////////////////
@@ -1243,6 +1253,7 @@ void FED3::SetDeviceNumber() {
 
     if (digitalRead(RIGHT_POKE) == LOW) {
       FED += 1;
+      Click();
       EndTime = millis();
       if (FED > 700) {
         FED = 700;
@@ -1251,6 +1262,7 @@ void FED3::SetDeviceNumber() {
 
     if (digitalRead(LEFT_POKE) == LOW) {
       FED -= 1;
+      Click();
       EndTime = millis();
       if (FED < 1) {
         FED = 0;
@@ -1260,10 +1272,26 @@ void FED3::SetDeviceNumber() {
       SetFED = false;
       display.setCursor(5, 70);
       display.println("...Set!");
-      delay (500);
       display.refresh();
+      delay (1000);
       EndTime = millis();
+      display.clearDisplay();
+      display.refresh();
+            
+      ///////////////////////////////////
+      //////////  ADJUST CLOCK //////////
+      while (millis() - EndTime < 3000) { 
+        SetClock();
+        delay (10);
+      }
 
+      display.setCursor(5, 105);
+      display.println("...Clock is set!");
+      display.refresh();
+      delay (1000);
+
+      ///////////////////////////////////
+      
       while (setTimed == true) {
         // set timed feeding start and stop
         display.fillRect (5, 56, 120, 18, WHITE);
@@ -1314,6 +1342,58 @@ void FED3::SetDeviceNumber() {
       writeConfigFile();
       NVIC_SystemReset();      // processor software reset
     }
+  }
+}
+
+//set clock
+void FED3::SetClock(){
+ 
+  DateTime now = rtc.now();
+  unixtime = now.unixtime();
+
+  /********************************************************
+       Display date and time of RTC
+     ********************************************************/
+  display.setCursor(1, 40);
+  display.print ("RTC set to:");
+  display.setCursor(1, 40);
+  display.print ("RTC set to:");
+
+  display.fillRoundRect (0, 45, 400, 25, 1, WHITE);
+  //display.refresh();
+  display.setCursor(1, 60);
+  if (now.month() < 10)
+    display.print('0');      // Trick to add leading zero for formatting
+  display.print(now.month(), DEC);
+  display.print("/");
+  if (now.day() < 10)
+    display.print('0');      // Trick to add leading zero for formatting
+  display.print(now.day(), DEC);
+  display.print("/");
+  display.print(now.year(), DEC);
+  display.print(" ");
+  display.print(now.hour(), DEC);
+  display.print(":");
+  if (now.minute() < 10)
+    display.print('0');      // Trick to add leading zero for formatting
+  display.print(now.minute(), DEC);
+  display.print(":");
+  if (now.second() < 10)
+    display.print('0');      // Trick to add leading zero for formatting
+  display.println(now.second(), DEC);
+  display.drawFastHLine(30, 80, 100, BLACK);
+  display.refresh();
+
+  if (digitalRead(LEFT_POKE) == LOW) {
+    tone (BUZZER, 800, 1);
+    rtc.adjust(DateTime(unixtime - 60));
+    EndTime = millis();
+  }
+  
+  if (digitalRead(RIGHT_POKE) == LOW) {
+    tone (BUZZER, 800, 1);
+    rtc.adjust(DateTime(unixtime + 60));
+    EndTime = millis();
   }
 }
 

@@ -56,7 +56,6 @@ This device includes hardware and code from:
 #define BUZZER          0
 #define VBATPIN         A7
 #define cardSelect      4
-#define BNC_OUT         A0
 #define SHARP_SCK       12
 #define SHARP_MOSI      11
 #define SHARP_SS        10
@@ -70,6 +69,7 @@ extern bool Left;
 class FED3 {
     // Members
     public:
+        FED3(void);
         FED3(String sketch);
         String sketch = "undef";
         String sessiontype = "undef";
@@ -131,10 +131,6 @@ class FED3 {
         void FED3MenuScreen();
         void SetClock();
         
-        //BNC input/output
-		void ReadBNC(bool blinkGreen);
-        bool BNCinput = false;
-        
         // Motor
         void ReleaseMotor();
         int numMotorTurns = 0;
@@ -147,8 +143,6 @@ class FED3 {
         void ConditionedStimulus(int duration = 200);
         void Click();
         void Noise(int duration = 200);
-        void BNC(int DELAY_MS, int loops);
-        void pulseGenerator(int pulse_width, int frequency, int repetitions);
 
         void Tone(int freq, int duration);
         void stopTone();

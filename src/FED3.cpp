@@ -407,7 +407,7 @@ void FED3::Timeout(int seconds) {
       while (digitalRead (LEFT_POKE) == LOW) {}  //Hang here until poke is clear
       leftInterval = (millis() - leftPokeTime);
       UpdateDisplay();
-      Event = "LefinTimeOut";
+      Event = "LeftinTimeOut";
       logdata();
     }
 

@@ -47,7 +47,7 @@ void loop() {
   if (fed3.FEDmode == 0) {
     fed3.sessiontype = "Free_feed";                     //The text in "sessiontype" will appear on the screen and in the logfile
     fed3.DisplayPokes = false;                          //Turn off poke indicators for free feeding mode
-    fed3.UpdateDisplay();                               //Update display for free feeding session to remove poke displayt (they are on by default)
+    fed3.UpdateDisplay();                               //Update display for free feeding session to remove poke display (they are on by default)
     fed3.Feed();
   }
 
@@ -64,6 +64,7 @@ void loop() {
       if (fed3.LeftCount % fed3.FR == 0) {              //if fixed ratio is  met
         fed3.ConditionedStimulus();                     //deliver conditioned stimulus (tone and lights)
         fed3.Feed();                                    //deliver pellet
+        fed3.Timeout(5);                                //5s timeout
       }
     }
     if (fed3.Right) {                                    //If right poke is triggered
@@ -235,6 +236,7 @@ void loop() {
     fed3.UpdateDisplay();
     if (fed3.currentHour >= fed3.timedStart && fed3.currentHour < fed3.timedEnd) {
       fed3.Feed();
+      fed3.Timeout(5);                                  //5s timeout
     }
   }
 

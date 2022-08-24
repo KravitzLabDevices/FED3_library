@@ -1446,7 +1446,6 @@ void FED3::rightTrigger() {
 void FED3::goToSleep() {
   if (EnableSleep==true){
     ReleaseMotor();
-    pixelsOff();
     delay (2); //let things settle
     LowPower.sleep(5000);  //Wake up every 5 sec to check the pellet well
   }

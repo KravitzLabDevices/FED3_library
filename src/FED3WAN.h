@@ -60,7 +60,7 @@ class FED3WAN:FED3 {
     uint8_t u8BufferSize;
     uint16_t u16OutCnt;
 
-    void setup(void);
+    void begin(void);
     void run(FED3 *fed3);
     
     private:
@@ -145,7 +145,7 @@ void FED3WAN::sendTxBuffer()
     u16OutCnt++;
     }
 
-void FED3WAN::setup()
+void FED3WAN::begin()
     {
     mySerial.begin(115200);
     u16OutCnt = 0;

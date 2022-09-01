@@ -22,7 +22,7 @@ This device includes hardware and code from:
   Copyright (c) 2019, 2020 Lex Kravitz
 */
 
-#define VER "1.16.3"
+#define VER "1.17.0"
 
 #ifndef FED3_H
 #define FED3_H
@@ -130,6 +130,11 @@ class FED3 {
         void StartScreen();
         void FED3MenuScreen();
         void SetClock();
+
+        //BNC input/output
+        uint8_t BNC_Out;
+        void ReadBNC(bool blinkGreen);
+        bool BNCinput = false;
         
         // Motor
         void ReleaseMotor();
@@ -217,6 +222,7 @@ class FED3 {
         bool ClassicFED3 = false;
         bool FED3Menu = false;
         bool tempSensor = false;
+        bool LoRaTransmit = false;
         
         int EndTime = 0;
         int ratio = 1;

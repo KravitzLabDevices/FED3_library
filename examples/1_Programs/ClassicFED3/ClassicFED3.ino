@@ -37,6 +37,7 @@ int pokes_required = 1;                                // increase the number of
 
 void setup() {
   fed3.ClassicFED3 = true;
+  fed3.LoRaTransmit = true;                            //set 'true' to send data to LoRa, if using BNC set 'false'
   fed3.begin();                                        //Setup the FED3 hardware
 }
 

@@ -975,8 +975,140 @@ void FED3::writeConfigFile() {
   configfile.close();
 }
 
+//Reset Experiment Variables
+void FED3::rest_vars(){
+  LeftCount = 0;
+  RightCount = 0;
+  PelletCount = 0;
+  BlockPelletCount = 0;
+  retInterval = 0;
+  leftInterval = 0;
+  rightInterval = 0;
+  leftPokeTime = 0;
+  rightPokeTime = 0;
+  pelletTime = 0;
+  lastPellet = 0;
+  unixtime = 0;
+  interPelletInterval = 0;
+}
+// Log Data to Serial Connection
+void FED3::logserial(){
+    DateTime now = rtc.now();
+
+    Serial.print(now.month());
+    Serial.print("/");
+    Serial.print(now.day());
+    Serial.print("/");
+    Serial.print(now.year());
+    Serial.print(" ");
+    Serial.print(now.hour());
+    Serial.print(":");
+    if (now.minute() < 10)
+      Serial.print('0');      // Trick to add leading zero for formatting
+    Serial.print(now.minute());
+    Serial.print(":");
+    if (now.second() < 10)
+      Serial.print('0');      // Trick to add leading zero for formatting
+    Serial.print(now.second());
+  Serial.print(",");
+
+  if(tempSensor == true) {
+    sensors_event_t humidity, temp;
+    aht.getEvent(&humidity, &temp);// populate temp and humidity objects with fresh data
+    Serial.print (temp.temperature);
+    Serial.print(",");
+    Serial.print (humidity.relative_humidity);
+    Serial.print(",");
+  }
+
+  Serial.print(VER); // Print library version
+  Serial.print(",");
+
+  Serial.print(sessiontype);  //print Sketch identifier
+  Serial.print(",");
+
+  Serial.print(FED); // 
+  Serial.print(",");
+
+  Serial.print(measuredvbat); // 
+  Serial.print(",");
+
+  if (Event != "Pellet"){
+    Serial.print(sqrt (-1)); // print NaN if it's not a pellet Event
+    Serial.print(",");    
+  }
+  else {
+    Serial.print(numMotorTurns+1); // Print the number of attempts to dispense a pellet
+    Serial.print(",");
+  }
+
+  Serial.print(FR);
+  Serial.print(",");
+
+  Serial.print(Event); 
+  Serial.print(",");
+
+  if (activePoke == 0)  Serial.print("Right"); //
+  if (activePoke == 1)  Serial.print("Left"); //
+  Serial.print(",");
+
+  Serial.print(LeftCount); // Print Left poke count
+  Serial.print(",");
+    
+  Serial.print(RightCount); // Print Right poke count
+  Serial.print(",");
+
+  Serial.print(PelletCount); // print Pellet counts
+  Serial.print(",");
+
+  Serial.print(BlockPelletCount); // print Block Pellet counts
+  Serial.print(",");
+
+  if (Event != "Pellet"){
+    Serial.print(sqrt (-1)); // print NaN if it's not a pellet Event
+  }
+  else if (retInterval < 60000 ) {  // only log retrieval intervals below 1 minute (FED should not record any longer than this)
+    Serial.print(retInterval/1000.000); // print interval between pellet dispensing and being taken
+  }
+  else if (retInterval >= 60000) {
+    Serial.print("Timed_out"); // print "Timed_out" if retreival interval is >60s
+  }
+  else {
+    Serial.print("Error"); // print error if value is < 0 (this shouldn't ever happen)
+  }
+  Serial.print(",");
+  
+  if ((Event != "Pellet") or (PelletCount < 2)){
+    Serial.print(sqrt (-1)); // print NaN if it's not a pellet Event
+  }
+  else {
+    Serial.print (interPelletInterval);
+  }
+  Serial.print(",");
+
+  if (Event == "Pellet"){
+    Serial.println(sqrt (-1)); // print NaN 
+  }
+
+  else if ((Event == "Left") or (Event == "LeftShort") or (Event == "LeftWithPellet") or (Event == "LeftinTimeout") or (Event == "LeftDuringDispense")) {  // 
+    Serial.println(leftInterval/1000.000); // print left poke timing
+  }
+
+  else if ((Event == "Right") or (Event == "RightShort") or (Event == "RightWithPellet") or (Event == "RightinTimeout") or (Event == "RightDuringDispense")) {  // 
+    Serial.println(rightInterval/1000.000); // print left poke timing
+  }
+  
+  else {
+    Serial.println(sqrt (-1)); // print NaN 
+  }
+  Serial.print('\0');
+}
+
 //Write to SD card
 void FED3::logdata() {
+  
+  if(SerialLogging == true) logserial(); //preform a Serial Log if enabled
+
   if (EnableSleep==true){
     digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
   }

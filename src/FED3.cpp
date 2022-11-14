@@ -965,6 +965,19 @@ void FED3::writeHeader() {
   logfile.close();
 }
 
+void FED3::sendHeader() {
+  digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
+  // Write data header to file of microSD card
+
+
+  if (tempSensor == false){
+    Serial.println("MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
+  } else {
+    Serial.println("MM:DD:YYYY hh:mm:ss,Temp,Humidity,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
+  }
+  Serial.print('\0');
+}
+
 //write a configfile (this contains the FED device number)
 void FED3::writeConfigFile() {
   digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
@@ -1106,7 +1119,7 @@ void FED3::logserial(){
 
 //Write to SD card
 void FED3::logdata() {
-  
+
   if(SerialLogging == true) logserial(); //preform a Serial Log if enabled
 
   if (EnableSleep==true){

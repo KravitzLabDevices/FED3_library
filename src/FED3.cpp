@@ -965,17 +965,27 @@ void FED3::writeHeader() {
   logfile.close();
 }
 
-void FED3::sendHeader() {
+void FED3::sendHeaders() {
   digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
   // Write data header to file of microSD card
 
 
   if (tempSensor == false){
-    Serial.println("MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
+    Serial.print("Unix Time(s),Library_Version,Session_type,Device_Number,");
+    Serial.print("Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,");
+    Serial.write('\0');
+    delay(200);
+    Serial.print("Left_Poke_Count,Right_Poke_Count,Pellet_Count,");
+    Serial.print("Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
   } else {
-    Serial.println("MM:DD:YYYY hh:mm:ss,Temp,Humidity,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
+    Serial.print("Unix Time(s),Temp,Humidity,Library_Version,Session_type,Device_Number,");
+    Serial.print("Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,");
+    Serial.write('\0');
+    delay(200);
+    Serial.print("Left_Poke_Count,Right_Poke_Count,Pellet_Count,");
+    Serial.print("Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
   }
-  Serial.print('\0');
+  Serial.write('\0');
 }
 
 //write a configfile (this contains the FED device number)

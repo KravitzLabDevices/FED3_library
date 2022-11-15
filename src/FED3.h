@@ -88,9 +88,11 @@ class FED3 {
         File stopfile;      // Create another file object
         char filename[21];  // Array for file name data logged to named in setup
         void logdata();
+        void logserial();
         void CreateFile();
         void CreateDataFile ();
         void writeHeader();
+        void sendHeaders();
         void writeConfigFile();
         void writeFEDmode();
         void error(uint8_t errno);

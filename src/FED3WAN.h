@@ -20,14 +20,18 @@ Author:
 
 #include "FED3.h"                                       //Include the FED3 library
 #include <SoftwareSerial.h>                             //Include SoftwareSerial library
+#include "RTClib.h"                                     //Include RTC library
 #include <stdint.h>
 
 #define HEADER_LENGTH   0x4
 
+// real-tiem clock
+extern RTC_PCF8523 rtc;
+
 // set A0 pin of 4610 as Serial RX pin
 SoftwareSerial mySerial(-1, A0); // RX, TX
 
-static constexpr unsigned kT35 = 5;    
+static constexpr unsigned kT35 = 5;
 
 class FED3WAN:FED3 {
     public:
@@ -52,13 +56,16 @@ class FED3WAN:FED3 {
         BYTE_CNT    = int(SerialMessageOffset::BYTE_CNT),     //!< Index of byte counter
         };
 
-    uint8_t buf[32];    // this sets the largest buffer size
+    uint8_t buf[42];    // this sets the largest buffer size
     uint8_t *p;
     uint16_t u16timeOut;
     uint32_t u32time, u32timeOut;
-    uint8_t au8Buffer[32];
+    uint8_t au8Buffer[42];
     uint8_t u8BufferSize;
     uint16_t u16OutCnt;
+
+    // save fed3 lib version
+    uint8_t sw_version[8];
 
     void begin(void);
     void run(FED3 *fed3);
@@ -75,6 +82,10 @@ class FED3WAN:FED3 {
     void put4u(uint32_t v);
     void putV(float V);
 
+    void getVersion(uint8_t c, uint8_t nIndex);
+    bool CharIsPunctuation(uint8_t c);
+    uint8_t sessionType(String fed3_session);
+
     uint8_t *getp(void)
         {
         return this->p;
@@ -90,6 +101,24 @@ class FED3WAN:FED3 {
         return this->buf;
         }
     };
+
+// check whether c is a decimal digit
+bool FED3WAN::CharIsPunctuation(
+    uint8_t c
+    )
+    {
+    return (c == '.');
+    }
+
+// save version
+void FED3WAN::getVersion(
+    uint8_t c,
+    uint8_t nIndex
+    )
+    {
+    uint8_t ver = c - 48;
+    sw_version[nIndex] = (sw_version[nIndex] * 10) + ver;
+    }
 
 uint16_t FED3WAN::calcCRC(uint8_t u8length)
     {
@@ -226,9 +255,79 @@ void FED3WAN::putV(float V)
     this->put2sf(V * 4096.0f + 0.5f);
     }
 
+uint8_t FED3WAN::sessionType(String fed3_session)
+    {
+    uint8_t sessionIndex;
+
+    if (fed3_session == "ClassicFED3")
+        sessionIndex = 1;
+    else if (fed3_session == "ClosedEconomy_PR1")
+        sessionIndex = 2;
+    else if (fed3_session == "Dispenser")
+        sessionIndex = 3;
+    else if (fed3_session == "Extinction")
+        sessionIndex = 4;
+    else if (fed3_session == "FixedRatio1")
+        sessionIndex = 5;
+    else if (fed3_session == "FR_Customizable")
+        sessionIndex = 6;
+    else if (fed3_session == "FreeFeeding")
+        sessionIndex = 7;
+    else if (fed3_session == "MenuExample")
+        sessionIndex = 8;
+    else if (fed3_session == "Optogenetic_Self_Stim")
+        sessionIndex = 9;
+    else if (fed3_session == "Pavlovian")
+        sessionIndex = 10;
+    else if (fed3_session == "ProbReversalTask")
+        sessionIndex = 11;
+    else if (fed3_session == "ProgressiveRatio")
+        sessionIndex = 12;
+    else if (fed3_session == "RandomRatio")
+        sessionIndex = 13;
+    else
+        sessionIndex = 0;
+
+    return sessionIndex;
+    }
+
 void FED3WAN::run(FED3 *fed3)
     {
     this->p = this->buf;
+
+    // get timestamp and insert to buffer
+    DateTime now = rtc.now();
+    this->put4u((uint32_t)now.unixtime());
+
+    // library version
+    uint8_t len = sizeof(VER);
+    uint8_t j = 0;
+
+    for (uint8_t i = 0; i < len; i++)
+        {
+        if (VER[i] == 0)
+            break;
+
+        if (! CharIsPunctuation(VER[i]))
+            {
+            this->getVersion(VER[i], j);
+            }
+        else
+            j++;
+        }
+
+    for (uint8_t nIndex = 0; nIndex < 3; nIndex++) {
+        put(sw_version[nIndex]);
+        sw_version[nIndex] = 0;
+        }
+
+    // device number
+    uint16_t device_number = fed3->FED;
+    this->put2u(device_number);
+
+    // session type
+    uint8_t session_type = this->sessionType(fed3->sessiontype);
+    put(session_type);
 
     this->putV(fed3->measuredvbat);
     this->put4u(fed3->numMotorTurns+1);

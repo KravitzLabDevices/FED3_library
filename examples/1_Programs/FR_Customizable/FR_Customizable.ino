@@ -26,6 +26,7 @@ String sketch = "FRCustom";                           //Unique identifier text f
 FED3 fed3 (sketch);                                   //Start the FED3 object
 
 void setup() {
+  fed3.LoRaTransmit = true;                           //set 'true' to send data to LoRa, if using BNC set 'false'
   fed3.begin();                                       //Setup the FED3 hardware
   fed3.FR = FR;                                       //Share the FR ratio with the fed3 library so it is logged on the SD card and displayed on the screen
   if (LeftActive == false) {

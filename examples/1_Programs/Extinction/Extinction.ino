@@ -15,6 +15,7 @@ String sketch = "Ext";                                  //Unique identifier text
 FED3 fed3 (sketch);                                     //Start the FED3 object
 
 void setup() {
+  fed3.LoRaTransmit = false;                            //set 'true' to send data to LoRa, if using BNC set 'false'
   fed3.begin();                                         //Setup the FED3 hardware
 }
 

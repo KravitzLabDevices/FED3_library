@@ -65,6 +65,7 @@ This device includes hardware and code from:
 #define STEPS 2038
 
 extern bool Left;
+extern RTC_PCF8523 rtc;
 
 class FED3 {
     // Members
@@ -87,9 +88,11 @@ class FED3 {
         File stopfile;      // Create another file object
         char filename[21];  // Array for file name data logged to named in setup
         void logdata();
+        void logserial();
         void CreateFile();
         void CreateDataFile ();
         void writeHeader();
+        void sendHeaders();
         void writeConfigFile();
         void writeFEDmode();
         void error(uint8_t errno);
@@ -143,6 +146,9 @@ class FED3 {
         // Set FED
         void SelectMode();
         void SetDeviceNumber();
+
+        //Experement Wipe
+        void rest_vars();
 
         // Stimuli
         void ConditionedStimulus(int duration = 200);
@@ -205,6 +211,7 @@ class FED3 {
         unsigned long displayupdate;
         String Event = "None";   //What kind of event just happened?
         
+        
         // timing variables
         int retInterval = 0;
         int leftInterval = 0;
@@ -221,6 +228,7 @@ class FED3 {
         bool EnableSleep = true;
         void disableSleep();
         void enableSleep();
+        bool SerialLogging = false;
         bool ClassicFED3 = false;
         bool FED3Menu = false;
         bool tempSensor = false;

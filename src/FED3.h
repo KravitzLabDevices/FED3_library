@@ -164,7 +164,7 @@ class FED3 {
         void leftTrigger();
         void rightTrigger();
         void goToSleep();
-        void Timeout(int timeout);
+        void Timeout(int timeout, bool reset, bool whitenoise);
         int minPokeTime = 0;
         void randomizeActivePoke(int max);
         int consecutive = 0;

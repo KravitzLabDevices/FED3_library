@@ -980,17 +980,22 @@ void FED3::writeHeader() {
   digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
   // Write data header to file of microSD card
 
-
-  if (tempSensor == false){
-    logfile.println("MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
-  }
-
   if (sessiontype == "Bandit") {
-    logfile.println("MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,PelletsToSwitch,Prob_left,Prob_right,Event,High_prob_poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
+    if (tempSensor == false) {
+      logfile.println("MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,PelletsToSwitch,Prob_left,Prob_right,Event,High_prob_poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
+    }
+    else if (tempSensor == true) {
+      logfile.println("MM:DD:YYYY hh:mm:ss,Temp,Humidity,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,PelletsToSwitch,Prob_left,Prob_right,Event,High_prob_poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
+    }
   }
 
-  if (tempSensor == true){
-    logfile.println("MM:DD:YYYY hh:mm:ss,Temp,Humidity,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
+  else if (sessiontype != "Bandit") {
+    if (tempSensor == false){
+      logfile.println("MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
+    }
+    if (tempSensor == true){
+      logfile.println("MM:DD:YYYY hh:mm:ss,Temp,Humidity,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
+    }
   }
 
 
@@ -1115,27 +1120,17 @@ void FED3::logdata() {
   /////////////////////////////////////////////////////////////
   // Log FR ratio (or pellets to switch block in bandit task)
   /////////////////////////////////////////////////////////////
-  if (sessiontype != "Bandit") {
+  if (sessiontype == "Bandit") {
     logfile.print(pelletsToSwitch);
+    logfile.print(",");
+    logfile.print(prob_left);
+    logfile.print(",");
+    logfile.print(prob_right);
+    logfile.print(",");
   }
   else {
     logfile.print(FR);
-  }
-  
-  logfile.print(",");
-
-  ////////////////////////////////////////////////
-  /// Log left poke probability for bandit tasks
-  ////////////////////////////////////////////////
-  if (sessiontype != "Bandit") {
-    logfile.print(prob_left)
-  }
-
-  ////////////////////////////////////////////////
-  /// Log right poke probability for bandit tasks
-  ////////////////////////////////////////////////
-  if (sessiontype != "Bandit") {
-    logfile.print(prob_right)
+    logfile.print(",");
   }
 
   /////////////////////////////////

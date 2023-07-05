@@ -54,15 +54,15 @@ void loop() {
     pellet_counter = 0;
     new_prob = probs[random(0,2)];
     if (! fed3.allowBlockRepeat) {
-      while (new_prob == prob_left) {
+      while (new_prob == fed3.prob_left) {
         new_prob = probs[random(0,2)];
       }
-      prob_left = new_prob;
-      prob_right = 100 - prob_left;
+      fed3.prob_left = new_prob;
+      fed3.prob_right = 100 - fed3.prob_left;
     }
     else {
-      prob_left = new_prob;
-      prob_right = 100 - prob_left;
+      fed3.prob_left = new_prob;
+      fed3.prob_right = 100 - fed3.prob_left;
     }
   }
   
@@ -75,7 +75,7 @@ void loop() {
     fed3.BlockPelletCount = pellet_counter;
     fed3.logLeftPoke();                                   //Log left poke
     delay(1000);
-    if (random(100) < prob_left) {                        //Select a random number between 0-100 and ask if it is between 0-80 (80% of the time).  If so:
+    if (random(100) < fed3.prob_left) {                        //Select a random number between 0-100 and ask if it is between 0-80 (80% of the time).  If so:
       fed3.ConditionedStimulus();                         //Deliver conditioned stimulus (tone and lights)
       fed3.Feed();                                        //Deliver pellet
       pellet_counter ++;                                  //Increase pellet counter by one
@@ -94,7 +94,7 @@ void loop() {
     fed3.BlockPelletCount = pellet_counter;
     fed3.logRightPoke();                                  //Log Right poke
     delay(1000);
-    if (random(100) < prob_right) {                       //Select a random number between 0-100 and ask if it is between 80-100 (20% of the time).  If so:
+    if (random(100) < fed3.prob_right) {                       //Select a random number between 0-100 and ask if it is between 80-100 (20% of the time).  If so:
       fed3.ConditionedStimulus();                         //Deliver conditioned stimulus (tone and lights)
       fed3.Feed();                                        //Deliver pellet
       pellet_counter ++;                                  //Increase pellet counter by one

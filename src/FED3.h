@@ -164,7 +164,7 @@ class FED3 {
         void leftTrigger();
         void rightTrigger();
         void goToSleep();
-        void Timeout(int timeout);
+        void Timeout(int timeout, bool reset, bool whitenoise);
         int minPokeTime = 0;
         void randomizeActivePoke(int max);
         int consecutive = 0;
@@ -193,6 +193,7 @@ class FED3 {
         int PelletCount = 0;
         int BlockPelletCount = 0;
         int timeout = 0;
+        bool countAllPokes = true;
         
         // state variables
         bool activePoke = 1;  // 0 for right, 1 for left, defaults to left poke active
@@ -204,7 +205,14 @@ class FED3 {
         unsigned long currentSecond;
         unsigned long displayupdate;
         String Event = "None";   //What kind of event just happened?
-        
+    
+
+        // task variables
+        int prob_left = 0;
+        int prob_right = 0;
+        int pelletsToSwitch = 0;
+        bool allowBlockRepeat = false;
+
         // timing variables
         int retInterval = 0;
         int leftInterval = 0;

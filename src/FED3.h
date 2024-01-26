@@ -22,7 +22,7 @@ This device includes hardware and code from:
   Copyright (c) 2019, 2020 Lex Kravitz
 */
 
-#define VER "1.17.0"
+#define VER "1.16.3"
 
 #ifndef FED3_H
 #define FED3_H
@@ -56,6 +56,7 @@ This device includes hardware and code from:
 #define BUZZER          0
 #define VBATPIN         A7
 #define cardSelect      4
+#define BNC_OUT         A0
 #define SHARP_SCK       12
 #define SHARP_MOSI      11
 #define SHARP_SS        10
@@ -69,7 +70,6 @@ extern bool Left;
 class FED3 {
     // Members
     public:
-        FED3(void);
         FED3(String sketch);
         String sketch = "undef";
         String sessiontype = "undef";
@@ -130,10 +130,9 @@ class FED3 {
         void StartScreen();
         void FED3MenuScreen();
         void SetClock();
-
+        
         //BNC input/output
-        uint8_t BNC_Out;
-        void ReadBNC(bool blinkGreen);
+		void ReadBNC(bool blinkGreen);
         bool BNCinput = false;
         
         // Motor
@@ -224,7 +223,6 @@ class FED3 {
         bool ClassicFED3 = false;
         bool FED3Menu = false;
         bool tempSensor = false;
-        bool LoRaTransmit = false;
         
         int EndTime = 0;
         int ratio = 1;

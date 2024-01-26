@@ -1,8 +1,6 @@
 ## This library controls [FED3](https://github.com/KravitzLabDevices/FED3), a device for training mice. 
 <p>
-The files on this Github repository should be considered "beta", for the most recent stable release please install the FED3 library from the Arduino IDE as decribed below.  See the [Wiki](https://github.com/KravitzLabDevices/FED3_library/wiki) for documentation on how to use the library.   This library is in development, please report bugs using Issues.
-
-This repository in addition includes the feature of transmitting the data from FED3 to other devices via UART interface. BNC support is removed in this version, as Pin A0 is configured as UART_Tx instead of BNC_OUT.
+The files on this Github repository should be considered "beta", for the most recent stable release please install the FED3 library from the Arduino IDE as decribed below.  See the [Wiki](https://github.com/KravitzLabDevices/FED3_library/wiki) for documentation on how to use the library.   This library is in development, please report bugs using Issues. 
 
 ## Do you have custom FED3 code you want to add to the libary? <br>[Submit it here!](https://kravitzlab.com/submit-custom-fed3-code)
 
@@ -39,14 +37,5 @@ Open the "SetClock" example sketch in the Arduino IDE and flash this code to the
 Check out the example FED3 programs by clicking File > Examples > FED3 <br>
 ![FED3 examples](https://raw.githubusercontent.com/KravitzLabDevices/FED3/main/photos/FED3example2.png)
 
-### 7. Send data to LoRaWAN network
-Set flag `LoRaTransmit` in the sketch to transmit FED3 data over the network. Refer below from the example `ClassicFED3`:
-
-  ```
-  fed3.LoRaTransmit = true;                         //set 'true' to send data to network, if using BNC set 'false'
-  ```
-
-**NOTE:** The application can either use BNC (or) LoRa feature at a time.
-
-### 8. Start coding!
+### 7. Start coding!
 Check out the [functions](https://github.com/KravitzLabDevices/FED3_library/wiki/3.-Functions) and [variables](https://github.com/KravitzLabDevices/FED3_library/wiki/2.-Variables) of the FED3 library to start making custom programs.

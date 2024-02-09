@@ -71,19 +71,9 @@ void FED3::run() {
 //log left poke
 void FED3::logLeftPoke(){
   if (PelletAvailable == false){
-    leftPokeTime = millis();
     LeftCount ++;
-    leftInterval = 0.0;
-    while (digitalRead (LEFT_POKE) == LOW) {}  //Hang here until poke is clear
-    leftInterval = (millis()-leftPokeTime);
     UpdateDisplay();
-    DisplayLeftInt();
-    if (leftInterval < minPokeTime) {
-      Event = "LeftShort";
-    }
-    else{
-      Event = "Left";
-    }
+    Event = "Left";
     logdata();
     Left = false;
   }
@@ -92,19 +82,9 @@ void FED3::logLeftPoke(){
 //log right poke
 void FED3::logRightPoke(){
   if (PelletAvailable == false){
-    rightPokeTime = millis();
     RightCount ++;
-    rightInterval = 0.0;
-    while (digitalRead (RIGHT_POKE) == LOW) {} //Hang here until poke is clear
-    rightInterval = (millis()-rightPokeTime);
     UpdateDisplay();
-    DisplayRightInt();
-    if (rightInterval < minPokeTime) {
-      Event = "RightShort";
-    }
-    else{
-      Event = "Right";
-    }
+    Event = "Right";
     logdata();
     Right = false; 
   }
@@ -953,9 +933,14 @@ void FED3::writeHeader() {
 
 
   if (tempSensor == false){
-    logfile.println("MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
+    logfile.print("MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
+    for (int i=0; i<360; i++){
+      logfile.print(",");
+      logfile.print(i);
+    }
+    logfile.print(",");
+    logfile.println("ProxTime");
   }
-
 
   if (tempSensor == true){
     logfile.println("MM:DD:YYYY hh:mm:ss,Temp,Humidity,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
@@ -1147,20 +1132,47 @@ void FED3::logdata() {
   // Poke duration
   /////////////////////////////////
   if (Event == "Pellet"){
-    logfile.println(sqrt (-1)); // print NaN 
+    logfile.print(sqrt (-1)); // print NaN 
   }
 
   else if ((Event == "Left") or (Event == "LeftShort") or (Event == "LeftWithPellet") or (Event == "LeftinTimeout") or (Event == "LeftDuringDispense")) {  // 
-    logfile.println(leftInterval/1000.000); // print left poke timing
+    logfile.print(leftInterval); // print left poke timing
   }
 
   else if ((Event == "Right") or (Event == "RightShort") or (Event == "RightWithPellet") or (Event == "RightinTimeout") or (Event == "RightDuringDispense")) {  // 
-    logfile.println(rightInterval/1000.000); // print left poke timing
+    logfile.print(rightInterval); // print left poke timing
   }
   
   else {
-    logfile.println(sqrt (-1)); // print NaN 
+    logfile.print(sqrt (-1)); // print NaN 
   }
+  logfile.print(",");
+
+  /////////////////////////////////
+  // Record proximity sensor
+  /////////////////////////////////
+  unsigned long ProxTime = millis();
+  for (int i=0; i<360; i++){
+    digitalWrite (8, HIGH);
+    uint8_t range = vl.readRange();
+    uint8_t status = vl.readRangeStatus();
+
+    if (status == VL6180X_ERROR_NONE) {
+      logfile.print(range);
+    }
+   
+    else {
+       logfile.print(200); // print 200 if no reading
+    }
+
+    logfile.print(",");
+    delay (18);
+    delayMicroseconds(135);
+    digitalWrite (8, LOW);
+//    delay (21);
+  }
+  
+  logfile.println(millis()-ProxTime);
 
   /////////////////////////////////
   // logfile.flush write to the SD card
@@ -1499,6 +1511,9 @@ void FED3::begin() {
 
   // Initialize RTC
   rtc.begin();
+  
+  //Start prox sensor
+  vl.begin();
 
   // Initialize Neopixels
   strip.begin();

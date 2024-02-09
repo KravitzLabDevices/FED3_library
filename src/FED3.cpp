@@ -1153,6 +1153,7 @@ void FED3::logdata() {
   /////////////////////////////////
   unsigned long ProxTime = millis();
   for (int i=0; i<360; i++){
+    unsigned long startreading = millis();
     digitalWrite (8, HIGH);
     uint8_t range = vl.readRange();
     uint8_t status = vl.readRangeStatus();
@@ -1166,8 +1167,7 @@ void FED3::logdata() {
     }
 
     logfile.print(",");
-    delay (18);
-    delayMicroseconds(135);
+    delay (50-(millis()-startreading));
     digitalWrite (8, LOW);
 //    delay (21);
   }

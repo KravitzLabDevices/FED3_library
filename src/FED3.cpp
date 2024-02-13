@@ -32,7 +32,8 @@
 
 //  Start FED3 and RTC objects
 FED3 *pointerToFED3;
-RTC_PCF8523 rtc; 
+RTC_PCF8523 rtc;
+
 
 //  Interrupt handlers
 static void outsidePelletTriggerHandler(void) {
@@ -84,6 +85,7 @@ void FED3::logLeftPoke(){
     else{
       Event = "Left";
     }
+
     logdata();
     Left = false;
   }
@@ -105,6 +107,7 @@ void FED3::logRightPoke(){
     else{
       Event = "Right";
     }
+
     logdata();
     Right = false; 
   }
@@ -168,12 +171,13 @@ void FED3::Feed(int pulse, bool pixelsoff) {
         //Log pokes while pellet is present 
         if (digitalRead(LEFT_POKE) == LOW) {             //If left poke is triggered
           leftPokeTime = millis();
-          LeftCount ++;
+          if (countAllPokes) LeftCount ++;
           leftInterval = 0.0;
           while (digitalRead (LEFT_POKE) == LOW) {}  //Hang here until poke is clear
           leftInterval = (millis()-leftPokeTime);
           UpdateDisplay();
           Event = "LeftWithPellet";
+
           logdata();
           }
 
@@ -185,7 +189,8 @@ void FED3::Feed(int pulse, bool pixelsoff) {
           rightInterval = (millis()-rightPokeTime);
           UpdateDisplay();
           Event = "RightWithPellet";
-          logdata();       
+
+          logdata();
           }
         } 
       
@@ -195,24 +200,26 @@ void FED3::Feed(int pulse, bool pixelsoff) {
         //Log pokes while pellet is present 
         if (digitalRead(LEFT_POKE) == LOW) {             //If left poke is triggered
           leftPokeTime = millis();
-          LeftCount ++;
+          if (countAllPokes) LeftCount ++;
           leftInterval = 0.0;
           while (digitalRead (LEFT_POKE) == LOW) {}  //Hang here until poke is clear
           leftInterval = (millis()-leftPokeTime);
           UpdateDisplay();
           Event = "LeftWithPellet";
+
           logdata();
           }
 
         if (digitalRead(RIGHT_POKE) == LOW) {            //If right poke is triggered
           rightPokeTime = millis();
-          RightCount ++;
+          if (countAllPokes) RightCount ++;
            rightInterval = 0.0;
           while (digitalRead (RIGHT_POKE) == LOW) {}  //Hang here until poke is clear
           rightInterval = (millis()-rightPokeTime);
           UpdateDisplay();
           Event = "RightWithPellet";
-          logdata();       
+
+          logdata();
           }
       }
 
@@ -232,7 +239,7 @@ void FED3::Feed(int pulse, bool pixelsoff) {
       DateTime now = rtc.now();
       interPelletInterval = now.unixtime() - lastPellet;  //calculate time in seconds since last pellet logged
       lastPellet  = now.unixtime();
-     
+
       logdata();
       numMotorTurns = 0; //reset numMotorTurns
       PelletAvailable = true;
@@ -329,23 +336,25 @@ bool FED3::RotateDisk(int steps) {
   
     if (digitalRead(LEFT_POKE) == LOW) {             //If left poke is triggered
        leftPokeTime = millis();
-       LeftCount ++;
+       if (countAllPokes) LeftCount ++;
        leftInterval = 0.0;
        while (digitalRead (LEFT_POKE) == LOW) {}  //Hang here until poke is clear
        leftInterval = (millis() - leftPokeTime);
        UpdateDisplay();
        Event = "LeftDuringDispense";
+
        logdata();
      }
 
      if (digitalRead(RIGHT_POKE) == LOW) {            //If right poke is triggered
        rightPokeTime = millis();
-       RightCount ++;
+       if (countAllPokes) RightCount ++;
        rightInterval = 0.0;
        while (digitalRead (RIGHT_POKE) == LOW) {}  //Hang here until poke is clear
        rightInterval = (millis() - rightPokeTime);
        UpdateDisplay();
        Event = "RightDuringDispense";
+
        logdata();
      }
     
@@ -387,12 +396,21 @@ bool FED3::dispenseTimer_ms(int ms) {
 }
 
 //Timeout function
-void FED3::Timeout(int seconds) {
+void FED3::Timeout(int seconds, bool reset, bool whitenoise) {
   int timeoutStart = millis();
+
   while ((millis() - timeoutStart) < (seconds*1000)) {
+    
     delay (1);
     int displayUpdated = millis();
-    if (millis() - displayUpdated < 1000) {
+    
+    if (whitenoise) {
+      int freq = random(50,250);
+      tone(BUZZER, freq, 10);
+      delay (10);
+    }
+    
+    else (millis() - displayUpdated < 1000) {
       display.fillRect (5, 20, 200, 25, WHITE); //erase the data on screen without clearing the entire screen by pasting a white box over it
       display.setCursor(6, 36);
       display.print("Timeout: ");
@@ -401,33 +419,57 @@ void FED3::Timeout(int seconds) {
     }
 
     if (digitalRead(LEFT_POKE) == LOW) {             //If left poke is triggered
+      if (reset) {
+        timeoutStart = millis();
+      }
       leftPokeTime = millis();
-      LeftCount ++;
-      leftInterval = 0.0;
-      while (digitalRead (LEFT_POKE) == LOW) {}  //Hang here until poke is clear
+      if (countAllPokes) {
+        LeftCount ++;
+      }
+      leftInterval = 0.0;      
+      while (digitalRead (LEFT_POKE) == LOW) {
+        if (whitenoise) {
+          int freq = random(50,250);
+          tone(BUZZER, freq, 10);
+        }
+      }  
       leftInterval = (millis() - leftPokeTime);
       UpdateDisplay();
       Event = "LeftinTimeOut";
+      if (LoRaTransmit) {
+        fed3wan.run(pointerToFED3);
+      }
+         //Tx data via uart
       logdata();
     }
 
-    if (digitalRead(RIGHT_POKE) == LOW) {            //If right poke is triggered
+    if (digitalRead(RIGHT_POKE) == LOW) {        //If right poke is triggered
+      if (reset) {
+        timeoutStart = millis();
+      }
+      if (countAllPokes) {
+        RightCount ++;
+      }
       rightPokeTime = millis();
-      RightCount ++;
-      rightInterval = 0.0;
-      while (digitalRead (RIGHT_POKE) == LOW) {}  //Hang here until poke is clear
-      rightInterval = (millis() - rightPokeTime);
-      UpdateDisplay();
-      Event = "RightinTimeout";
-      logdata();
-    }
-  }
+      rightInterval = 0.0;  
+      while (digitalRead (LEFT_POKE) == LOW) {
+        if (whitenoise) {
+          int freq = random(50,250);
+          tone(BUZZER, freq, 10);
+        }   
+        rightInterval = (millis() - rightPokeTime);
+        UpdateDisplay();
+        Event = "RightinTimeout";
 
+        logdata();
+      }
+    }
   display.fillRect (5, 20, 100, 25, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
   UpdateDisplay();
   Left = false;
   Right = false;
-} 
+  }
+}
 
 /**************************************************************************************************************************************************
                                                                                        Audio and neopixel stimuli
@@ -560,29 +602,28 @@ void FED3::pulseGenerator(int pulse_width, int frequency, int repetitions){  // 
     digitalWrite(GREEN_LED, LOW);
     long temp_delay = (1000 / frequency) - pulse_width;
     if (temp_delay < 0) temp_delay = 0;  //if temp delay <0 because parameters are set wrong, set it to 0 so FED3 doesn't crash O_o
-    delay(temp_delay); //pin low 
+    delay(temp_delay); //pin low
   }
 }
 
 void FED3::ReadBNC(bool blinkGreen){
-    pinMode(BNC_OUT, INPUT_PULLDOWN);
+    pinMode(BNC_Out, INPUT_PULLDOWN);
     BNCinput=false;
-    if (digitalRead(BNC_OUT) == HIGH)
-	{
-	  delay (1);
-	  if (digitalRead(BNC_OUT) == HIGH)
-	  {
-		if (blinkGreen == true)
-		{
-		  digitalWrite(GREEN_LED, HIGH);
-		  delay (25);
-		  digitalWrite(GREEN_LED, LOW);
-		}		  
-	     BNCinput=true;
-	  }
+    if (digitalRead(BNC_Out) == HIGH)
+    {
+      delay (1);
+      if (digitalRead(BNC_Out) == HIGH)
+      {
+        if (blinkGreen == true)
+        {
+          digitalWrite(GREEN_LED, HIGH);
+          delay (25);
+          digitalWrite(GREEN_LED, LOW);
+        }
+        BNCinput=true;
+      }
     }
 }
-    
 
 /**************************************************************************************************************************************************
                                                                                                Display functions
@@ -951,14 +992,22 @@ void FED3::writeHeader() {
   digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
   // Write data header to file of microSD card
 
-
-  if (tempSensor == false){
-    logfile.println("MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
+  if (sessiontype == "Bandit") {
+    if (tempSensor == false) {
+      logfile.println("MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,PelletsToSwitch,Prob_left,Prob_right,Event,High_prob_poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
+    }
+    else if (tempSensor == true) {
+      logfile.println("MM:DD:YYYY hh:mm:ss,Temp,Humidity,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,PelletsToSwitch,Prob_left,Prob_right,Event,High_prob_poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
+    }
   }
 
-
-  if (tempSensor == true){
-    logfile.println("MM:DD:YYYY hh:mm:ss,Temp,Humidity,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
+  else if (sessiontype != "Bandit") {
+    if (tempSensor == false){
+      logfile.println("MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
+    }
+    if (tempSensor == true){
+      logfile.println("MM:DD:YYYY hh:mm:ss,Temp,Humidity,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
+    }
   }
 
 
@@ -1083,9 +1132,18 @@ void FED3::logdata() {
   /////////////////////////////////
   // Log FR ratio
   /////////////////////////////////
-  logfile.print(FR);
-  logfile.print(",");
-
+  if (sessiontype == "Bandit") {
+    logfile.print(pelletsToSwitch);
+    logfile.print(",");
+    logfile.print(prob_left);
+    logfile.print(",");
+    logfile.print(prob_right);
+    logfile.print(",");
+  }
+  else {
+    logfile.print(FR);
+    logfile.print(",");
+  }
   /////////////////////////////////
   // Log event type (pellet, right, left)
   /////////////////////////////////
@@ -1095,12 +1153,22 @@ void FED3::logdata() {
   /////////////////////////////////
   // Log Active poke side (left, right)
   /////////////////////////////////
-  if (activePoke == 0)  logfile.print("Right"); //
-  if (activePoke == 1)  logfile.print("Left"); //
+  if (sessiontype == "Bandit") {
+    if (prob_left > prob_right) logfile.print("Left");
+    else if (prob_left < prob_right) logfile.print("Right");
+    else if (prob_left == prob_right) logfile.print("nan");
+  }
+  
+  else {
+    if (activePoke == 0)  logfile.print("Right"); //
+    if (activePoke == 1)  logfile.print("Left"); //
+  }
+
   logfile.print(",");
 
+
   /////////////////////////////////
-  // Log data (leftCount, RightCount, Pellets
+  // Log data (leftCount, RightCount, Pellets)
   /////////////////////////////////
   logfile.print(LeftCount); // Print Left poke count
   logfile.print(",");
@@ -1466,6 +1534,9 @@ void FED3::ReleaseMotor () {
 /**************************************************************************************************************************************************
                                                                                                Startup Functions
 **************************************************************************************************************************************************/
+//Constructor
+FED3::FED3(void) {};
+
 //Import Sketch variable from the Arduino script
 FED3::FED3(String sketch) {
   sessiontype = sketch;

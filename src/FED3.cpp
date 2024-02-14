@@ -934,7 +934,7 @@ void FED3::writeHeader() {
 
   if (tempSensor == false){
     logfile.print("MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
-    for (int i=0; i<360; i++){
+    for (int i=0; i<180; i++){
       logfile.print(",");
       logfile.print(i);
     }
@@ -1152,24 +1152,31 @@ void FED3::logdata() {
   // Record proximity sensor
   /////////////////////////////////
   unsigned long ProxTime = millis();
-  for (int i=0; i<360; i++){
+  Serial.println("prox starting...");
+  for (int i=0; i<180; i++){
     unsigned long startreading = millis();
     digitalWrite (8, HIGH);
     uint8_t range = vl.readRange();
+    delay (5);
     uint8_t status = vl.readRangeStatus();
+    delay (5);
 
     if (status == VL6180X_ERROR_NONE) {
       logfile.print(range);
+      Serial.println(range);
     }
    
     else {
+       Serial.println("No reading");
        logfile.print(200); // print 200 if no reading
     }
 
-    logfile.print(",");
-    delay (50-(millis()-startreading));
     digitalWrite (8, LOW);
-//    delay (21);
+    logfile.print(",");
+    int sampletime = 100 - (millis()-startreading);
+    if (sampletime > 0){
+      delay (sampletime);
+    }
   }
   
   logfile.println(millis()-ProxTime);

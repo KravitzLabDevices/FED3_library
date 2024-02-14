@@ -14,10 +14,11 @@
 #include <FED3.h>                                       //Include the FED3 library 
 String sketch = "FR1_Prox";                             //Unique identifier text for each sketch
 FED3 fed3 (sketch);                                     //Start the FED3 object
-float minPokeTime = 300;                                //How long does poke need to be broken to count (in ms)?
+float minPokeTime = 200;                                //How long does poke need to be broken to count (in ms)?
 
 void setup() {
   fed3.begin();                                         //Setup the FED3 hardware
+ // fed3.disableSleep();
 }
 
 void loop() {
@@ -29,6 +30,7 @@ void loop() {
     fed3.leftInterval = (millis() - leftPokeTime);
     if (fed3.leftInterval < (minPokeTime)) {
       fed3.Click();
+      fed3.Left = false;
     }
     else {
       fed3.ConditionedStimulus();                       //Deliver conditioned stimulus (tone and lights)
@@ -43,7 +45,8 @@ void loop() {
     fed3.rightInterval = (millis() - rightPokeTime);
     if (fed3.rightInterval < (minPokeTime)) {
       fed3.Click();
-    }
+      fed3.Right = false;
+     }
     else {
       fed3.logRightPoke();
     }

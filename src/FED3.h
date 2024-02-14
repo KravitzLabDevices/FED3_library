@@ -80,7 +80,7 @@ class FED3 {
         void run();
         
         // SD logging
-        SdFat SD;xx
+        SdFat SD;
         File logfile;       // Create file object
         File ratiofile;     // Create another file object
         File configfile;    // Create another file object

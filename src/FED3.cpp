@@ -398,24 +398,12 @@ bool FED3::dispenseTimer_ms(int ms) {
 //Timeout function
 void FED3::Timeout(int seconds, bool reset, bool whitenoise) {
   int timeoutStart = millis();
-
-  while ((millis() - timeoutStart) < (seconds*1000)) {
-    
-    delay (1);
+  while ((millis() - timeoutStart) < (seconds * 1000)) {
     int displayUpdated = millis();
-    
     if (whitenoise) {
-      int freq = random(50,250);
+      int freq = random(50, 250);
       tone(BUZZER, freq, 10);
       delay (10);
-    }
-    
-    else (millis() - displayUpdated < 1000) {
-      display.fillRect (5, 20, 200, 25, WHITE); //erase the data on screen without clearing the entire screen by pasting a white box over it
-      display.setCursor(6, 36);
-      display.print("Timeout: ");
-      display.print(round(seconds - ((millis() - timeoutStart)) / 1000));
-      display.refresh();
     }
 
     if (digitalRead(LEFT_POKE) == LOW) {             //If left poke is triggered
@@ -426,20 +414,17 @@ void FED3::Timeout(int seconds, bool reset, bool whitenoise) {
       if (countAllPokes) {
         LeftCount ++;
       }
-      leftInterval = 0.0;      
+      leftInterval = 0.0;
+
       while (digitalRead (LEFT_POKE) == LOW) {
         if (whitenoise) {
-          int freq = random(50,250);
+          int freq = random(50, 250);
           tone(BUZZER, freq, 10);
         }
-      }  
-      leftInterval = (millis() - leftPokeTime);
-      UpdateDisplay();
-      Event = "LeftinTimeOut";
-      if (LoRaTransmit) {
-        fed3wan.run(pointerToFED3);
       }
-         //Tx data via uart
+
+      leftInterval = (millis() - leftPokeTime);
+      Event = "LeftinTimeOut";
       logdata();
     }
 
@@ -451,24 +436,25 @@ void FED3::Timeout(int seconds, bool reset, bool whitenoise) {
         RightCount ++;
       }
       rightPokeTime = millis();
-      rightInterval = 0.0;  
+      rightInterval = 0.0;
       while (digitalRead (LEFT_POKE) == LOW) {
         if (whitenoise) {
-          int freq = random(50,250);
+          int freq = random(50, 250);
           tone(BUZZER, freq, 10);
-        }   
+        }
         rightInterval = (millis() - rightPokeTime);
-        UpdateDisplay();
+        //UpdateDisplay();
         Event = "RightinTimeout";
 
         logdata();
       }
     }
+  }
+
   display.fillRect (5, 20, 100, 25, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
   UpdateDisplay();
   Left = false;
   Right = false;
-  }
 }
 
 /**************************************************************************************************************************************************
@@ -607,12 +593,12 @@ void FED3::pulseGenerator(int pulse_width, int frequency, int repetitions){  // 
 }
 
 void FED3::ReadBNC(bool blinkGreen){
-    pinMode(BNC_Out, INPUT_PULLDOWN);
+    pinMode(BNC_OUT, INPUT_PULLDOWN);
     BNCinput=false;
-    if (digitalRead(BNC_Out) == HIGH)
+    if (digitalRead(BNC_OUT) == HIGH)
     {
       delay (1);
-      if (digitalRead(BNC_Out) == HIGH)
+      if (digitalRead(BNC_OUT) == HIGH)
       {
         if (blinkGreen == true)
         {

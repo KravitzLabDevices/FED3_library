@@ -46,6 +46,8 @@ This device includes hardware and code from:
 #include <Adafruit_NeoPixel.h>
 #include <Adafruit_AHTX0.h>
 #include "Adafruit_VL6180X.h"
+#include <Adafruit_VCNL4040.h>
+
 
 // Pin definitions
 #define NEOPIXEL        A1
@@ -235,6 +237,8 @@ class FED3 {
         
         //VL6180
         Adafruit_VL6180X vl = Adafruit_VL6180X();
+        //VCNL4040
+        Adafruit_VCNL4040 vcnl4040 = Adafruit_VCNL4040();
         // Neopixel strip
         Adafruit_NeoPixel strip = Adafruit_NeoPixel(10, NEOPIXEL, NEO_GRBW + NEO_KHZ800);
         // Display

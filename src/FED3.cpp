@@ -937,6 +937,8 @@ void FED3::writeHeader() {
     for (int i=0; i<180; i++){
       logfile.print(",");
       logfile.print(i);
+      logfile.print(",");
+      logfile.print(i+180);
     }
     logfile.print(",");
     logfile.println("ProxTime");
@@ -1168,11 +1170,16 @@ void FED3::logdata() {
    
     else {
        Serial.println("No reading");
-       logfile.print(200); // print 200 if no reading
     }
 
     digitalWrite (8, LOW);
     logfile.print(",");
+
+    //Get proximity from VCNL4040 chip
+    int vcnprox = vcnl4040.getProximity();
+    logfile.print (vcnprox);
+    logfile.print(",");
+
     int sampletime = 100 - (millis()-startreading);
     if (sampletime > 0){
       delay (sampletime);
@@ -1519,8 +1526,16 @@ void FED3::begin() {
   // Initialize RTC
   rtc.begin();
   
-  //Start prox sensor
+  //Start prox sensor VL6180
   vl.begin();
+  
+  //Start prox sensor VCNL4040
+  vcnl4040.begin();
+  vcnl4040.setProximityLEDCurrent(VCNL4040_LED_CURRENT_200MA);
+  vcnl4040.setProximityLEDDutyCycle(VCNL4040_LED_DUTY_1_40);
+  vcnl4040.setAmbientIntegrationTime(VCNL4040_AMBIENT_INTEGRATION_TIME_80MS);
+  vcnl4040.setProximityIntegrationTime(VCNL4040_PROXIMITY_INTEGRATION_TIME_8T);
+  vcnl4040.setProximityHighResolution(true);
 
   // Initialize Neopixels
   strip.begin();

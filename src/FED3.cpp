@@ -396,12 +396,13 @@ bool FED3::dispenseTimer_ms(int ms) {
 }
 
 //Timeout function
-void FED3::Timeout(int seconds, bool reset, bool whitenoise) {
+
+void FED3::Timeout(int seconds, bool reset=false, bool whitenoise=false) {
   int timeoutStart = millis();
-  while ((millis() - timeoutStart) < (seconds * 1000)) {
-    int displayUpdated = millis();
+
+  while ((millis() - timeoutStart) < (seconds*1000)) {
     if (whitenoise) {
-      int freq = random(50, 250);
+      int freq = random(50,250);
       tone(BUZZER, freq, 10);
       delay (10);
     }
@@ -414,14 +415,14 @@ void FED3::Timeout(int seconds, bool reset, bool whitenoise) {
       if (countAllPokes) {
         LeftCount ++;
       }
-      leftInterval = 0.0;
 
+      leftInterval = 0.0;      
       while (digitalRead (LEFT_POKE) == LOW) {
         if (whitenoise) {
-          int freq = random(50, 250);
+          int freq = random(50,250);
           tone(BUZZER, freq, 10);
         }
-      }
+      }  
 
       leftInterval = (millis() - leftPokeTime);
       Event = "LeftinTimeOut";
@@ -436,21 +437,21 @@ void FED3::Timeout(int seconds, bool reset, bool whitenoise) {
         RightCount ++;
       }
       rightPokeTime = millis();
-      rightInterval = 0.0;
+
+      rightInterval = 0.0;  
       while (digitalRead (LEFT_POKE) == LOW) {
         if (whitenoise) {
-          int freq = random(50, 250);
+          int freq = random(50,250);
           tone(BUZZER, freq, 10);
         }
-        rightInterval = (millis() - rightPokeTime);
-        //UpdateDisplay();
-        Event = "RightinTimeout";
+      }   
+      rightInterval = (millis() - rightPokeTime);
+      UpdateDisplay();
+      Event = "RightinTimeout";
+      logdata();
 
-        logdata();
-      }
     }
   }
-
   display.fillRect (5, 20, 100, 25, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
   UpdateDisplay();
   Left = false;
@@ -1115,9 +1116,10 @@ void FED3::logdata() {
     logfile.print(numMotorTurns+1); // Print the number of attempts to dispense a pellet
     logfile.print(",");
   }
-  /////////////////////////////////
-  // Log FR ratio
-  /////////////////////////////////
+
+  /////////////////////////////////////////////////////////////
+  // Log FR ratio (or pellets to switch block in bandit task)
+
   if (sessiontype == "Bandit") {
     logfile.print(pelletsToSwitch);
     logfile.print(",");
@@ -1130,6 +1132,7 @@ void FED3::logdata() {
     logfile.print(FR);
     logfile.print(",");
   }
+
   /////////////////////////////////
   // Log event type (pellet, right, left)
   /////////////////////////////////

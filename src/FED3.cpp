@@ -30,14 +30,10 @@
 #include "Arduino.h"
 #include "FED3.h"
 
-#include "FED3WAN.h"
-
 //  Start FED3 and RTC objects
 FED3 *pointerToFED3;
 RTC_PCF8523 rtc;
 
-//  Start the FED3WAN object
-FED3WAN fed3wan;
 
 //  Interrupt handlers
 static void outsidePelletTriggerHandler(void) {
@@ -89,8 +85,6 @@ void FED3::logLeftPoke(){
     else{
       Event = "Left";
     }
-    if (LoRaTransmit)
-      fed3wan.run(pointerToFED3); //Tx data via uart
 
     logdata();
     Left = false;
@@ -113,8 +107,6 @@ void FED3::logRightPoke(){
     else{
       Event = "Right";
     }
-    if (LoRaTransmit)
-      fed3wan.run(pointerToFED3); //Tx data via uart
 
     logdata();
     Right = false; 
@@ -185,6 +177,7 @@ void FED3::Feed(int pulse, bool pixelsoff) {
           leftInterval = (millis()-leftPokeTime);
           UpdateDisplay();
           Event = "LeftWithPellet";
+
           logdata();
           }
 
@@ -196,7 +189,8 @@ void FED3::Feed(int pulse, bool pixelsoff) {
           rightInterval = (millis()-rightPokeTime);
           UpdateDisplay();
           Event = "RightWithPellet";
-          logdata();       
+
+          logdata();
           }
         } 
       
@@ -212,6 +206,7 @@ void FED3::Feed(int pulse, bool pixelsoff) {
           leftInterval = (millis()-leftPokeTime);
           UpdateDisplay();
           Event = "LeftWithPellet";
+
           logdata();
           }
 
@@ -223,7 +218,8 @@ void FED3::Feed(int pulse, bool pixelsoff) {
           rightInterval = (millis()-rightPokeTime);
           UpdateDisplay();
           Event = "RightWithPellet";
-          logdata();       
+
+          logdata();
           }
       }
 
@@ -243,9 +239,6 @@ void FED3::Feed(int pulse, bool pixelsoff) {
       DateTime now = rtc.now();
       interPelletInterval = now.unixtime() - lastPellet;  //calculate time in seconds since last pellet logged
       lastPellet  = now.unixtime();
-
-      if (LoRaTransmit)
-        fed3wan.run(pointerToFED3); //Tx data via uart
 
       logdata();
       numMotorTurns = 0; //reset numMotorTurns
@@ -349,6 +342,7 @@ bool FED3::RotateDisk(int steps) {
        leftInterval = (millis() - leftPokeTime);
        UpdateDisplay();
        Event = "LeftDuringDispense";
+
        logdata();
      }
 
@@ -360,6 +354,7 @@ bool FED3::RotateDisk(int steps) {
        rightInterval = (millis() - rightPokeTime);
        UpdateDisplay();
        Event = "RightDuringDispense";
+
        logdata();
      }
     
@@ -401,6 +396,7 @@ bool FED3::dispenseTimer_ms(int ms) {
 }
 
 //Timeout function
+
 void FED3::Timeout(int seconds, bool reset=false, bool whitenoise=false) {
   int timeoutStart = millis();
 
@@ -419,6 +415,7 @@ void FED3::Timeout(int seconds, bool reset=false, bool whitenoise=false) {
       if (countAllPokes) {
         LeftCount ++;
       }
+
       leftInterval = 0.0;      
       while (digitalRead (LEFT_POKE) == LOW) {
         if (whitenoise) {
@@ -426,8 +423,8 @@ void FED3::Timeout(int seconds, bool reset=false, bool whitenoise=false) {
           tone(BUZZER, freq, 10);
         }
       }  
+
       leftInterval = (millis() - leftPokeTime);
-      UpdateDisplay();
       Event = "LeftinTimeOut";
       logdata();
     }
@@ -440,6 +437,7 @@ void FED3::Timeout(int seconds, bool reset=false, bool whitenoise=false) {
         RightCount ++;
       }
       rightPokeTime = millis();
+
       rightInterval = 0.0;  
       while (digitalRead (LEFT_POKE) == LOW) {
         if (whitenoise) {
@@ -451,6 +449,7 @@ void FED3::Timeout(int seconds, bool reset=false, bool whitenoise=false) {
       UpdateDisplay();
       Event = "RightinTimeout";
       logdata();
+
     }
   }
   display.fillRect (5, 20, 100, 25, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
@@ -571,10 +570,10 @@ void FED3::Blink(byte PIN, byte DELAY_MS, byte loops) {
 //Simple function for sending square wave pulses to the BNC port
 void FED3::BNC(int DELAY_MS, int loops) {
   for (int i = 0; i < loops; i++)  {
-    digitalWrite(BNC_Out, HIGH);
+    digitalWrite(BNC_OUT, HIGH);
     digitalWrite(GREEN_LED, HIGH);
     delay(DELAY_MS);
-    digitalWrite(BNC_Out, LOW);
+    digitalWrite(BNC_OUT, LOW);
     digitalWrite(GREEN_LED, LOW);
     delay(DELAY_MS);
   }
@@ -583,10 +582,10 @@ void FED3::BNC(int DELAY_MS, int loops) {
 //More advanced function for controlling pulse width and frequency for the BNC port
 void FED3::pulseGenerator(int pulse_width, int frequency, int repetitions){  // freq in Hz, width in ms, loops in number of times
   for (byte j = 0; j < repetitions; j++) {
-    digitalWrite(BNC_Out, HIGH);
+    digitalWrite(BNC_OUT, HIGH);
     digitalWrite(GREEN_LED, HIGH);
     delay(pulse_width);  //pulse high for width
-    digitalWrite(BNC_Out, LOW);
+    digitalWrite(BNC_OUT, LOW);
     digitalWrite(GREEN_LED, LOW);
     long temp_delay = (1000 / frequency) - pulse_width;
     if (temp_delay < 0) temp_delay = 0;  //if temp delay <0 because parameters are set wrong, set it to 0 so FED3 doesn't crash O_o
@@ -595,12 +594,12 @@ void FED3::pulseGenerator(int pulse_width, int frequency, int repetitions){  // 
 }
 
 void FED3::ReadBNC(bool blinkGreen){
-    pinMode(BNC_Out, INPUT_PULLDOWN);
+    pinMode(BNC_OUT, INPUT_PULLDOWN);
     BNCinput=false;
-    if (digitalRead(BNC_Out) == HIGH)
+    if (digitalRead(BNC_OUT) == HIGH)
     {
       delay (1);
-      if (digitalRead(BNC_Out) == HIGH)
+      if (digitalRead(BNC_OUT) == HIGH)
       {
         if (blinkGreen == true)
         {
@@ -825,7 +824,7 @@ void FED3::StartScreen(){
     display.setCursor(2, 138);
     display.print(filename);
 
-    //Display FED verison number at startup
+    //Display FED version number at startup
     display.setCursor(2, 120);
     display.print("v: ");
     display.print(VER);
@@ -908,7 +907,7 @@ void FED3::DisplayMouse() {
     previousFED = FED;
     
     // If one poke is pushed change mode
-    if (FED3Menu == true or ClassicFED3 == true){
+    if (FED3Menu == true or ClassicFED3 == true or psygene){
       if (digitalRead (LEFT_POKE) == LOW | digitalRead (RIGHT_POKE) == LOW) SelectMode();
     }
     
@@ -1117,9 +1116,10 @@ void FED3::logdata() {
     logfile.print(numMotorTurns+1); // Print the number of attempts to dispense a pellet
     logfile.print(",");
   }
+
   /////////////////////////////////////////////////////////////
   // Log FR ratio (or pellets to switch block in bandit task)
-  /////////////////////////////////////////////////////////////
+
   if (sessiontype == "Bandit") {
     logfile.print(pelletsToSwitch);
     logfile.print(",");
@@ -1154,6 +1154,7 @@ void FED3::logdata() {
   }
 
   logfile.print(",");
+
 
   /////////////////////////////////
   // Log data (leftCount, RightCount, Pellets)
@@ -1554,14 +1555,7 @@ void FED3::begin() {
   pinMode(A3, OUTPUT);
   pinMode(A4, OUTPUT);
   pinMode(A5, OUTPUT);
-
-  if (LoRaTransmit)
-    fed3wan.begin();
-  else
-    {
-    BNC_Out = A0;
-    pinMode(BNC_Out, OUTPUT);
-    }
+  pinMode(BNC_OUT, OUTPUT);
 
   // Initialize RTC
   rtc.begin();
@@ -1608,9 +1602,14 @@ void FED3::begin() {
   if (ClassicFED3 == true){
     ClassicMenu();
   }
-  if (FED3Menu == true){
+  else if (FED3Menu == true){
     FED3MenuScreen();
   }
+
+  else if (psygene) {
+    psygeneMenu();
+  }
+
   else {
     StartScreen();
   }
@@ -1668,7 +1667,14 @@ void FED3::SelectMode() {
     tone (BUZZER, 2500, 200);
     colorWipe(strip.Color(2, 0, 2), 40); // Color wipe
     colorWipe(strip.Color(0, 0, 0), 20); // OFF
-    if (FEDmode == -1) FEDmode = 11;
+    
+    if (psygene) {
+      if (FEDmode == -1) FEDmode = 3;
+    }
+    else {
+      if (FEDmode == -1) FEDmode = 11;
+    }
+    
   }
 
   //If Right Poke is activated
@@ -1678,11 +1684,26 @@ void FED3::SelectMode() {
     tone (BUZZER, 2500, 200);
     colorWipe(strip.Color(2, 2, 0), 40); // Color wipe
     colorWipe(strip.Color(0, 0, 0), 20); // OFF
-    if (FEDmode == 12) FEDmode = 0;
+
+    if (psygene) {
+      if (FEDmode == 4) FEDmode = 0; 
+    }
+
+    else {
+      if (FEDmode == 12) FEDmode = 0;
+    }
   }
 
-  if (FEDmode < 0) FEDmode = 0;
-  if (FEDmode > 11) FEDmode = 11;
+  //Double check that modes never go over
+  if (psygene) {
+    if (FEDmode < 0) FEDmode = 0;
+    if (FEDmode > 3) FEDmode = 3;
+  }
+
+  else {
+    if (FEDmode < 0) FEDmode = 0;
+    if (FEDmode > 11) FEDmode = 11;
+  }
 
   display.fillRect (10, 48, 200, 50, WHITE);  //erase the selected program text
   display.setCursor(10, 60);  //Display selected program
@@ -1701,6 +1722,14 @@ void FED3::SelectMode() {
     if (FEDmode == 9) display.print("Self-Stim");
     if (FEDmode == 10) display.print("Self-Stim (Rev)");
     if (FEDmode == 11) display.print("Timed feeding");
+    display.refresh();
+  }
+
+  else if (psygene) {
+    if (FEDmode == 0) display.print("Bandit");
+    if (FEDmode == 1) display.print("FR1");
+    if (FEDmode == 2) display.print("PR1");
+    if (FEDmode == 3) display.print("Extinction");
     display.refresh();
   }
   
@@ -1817,4 +1846,46 @@ void FED3::writeFEDmode() {
   stopfile.println(timedEnd);
   stopfile.flush();
   stopfile.close();
+}
+
+/******************************************************************************************************************************************************
+                                                                                           psygeneMenu
+******************************************************************************************************************************************************/
+
+//  Classic menu display
+void FED3::psygeneMenu () {
+  //  0 Bandit
+  //  1 FR1
+  //  2 PR1
+  //  3 Extinction
+
+  // Set FR based on FEDmode
+  if (FEDmode == 0) FR = 1;  // Bandit
+  if (FEDmode == 1) FR = 1;  // FR1
+  if (FEDmode == 2) FR = 99;  // Progressive Ratio
+  if (FEDmode == 3) { // Extinction
+    FR = 1;
+    ReleaseMotor ();
+    digitalWrite (MOTOR_ENABLE, LOW);  //disable motor driver and neopixels
+    delay(2); //let things settle
+  }
+
+  display.clearDisplay();
+  display.setCursor(1, 135);
+  display.print(filename);
+
+  display.fillRect(0, 30, 160, 80, WHITE);
+  display.setCursor(10, 40);
+  display.print("Select Program:");
+  
+  display.setCursor(10, 60);
+  //Text to display selected FR ratio
+  if (FEDmode == 0) display.print("Bandit");
+  if (FEDmode == 1) display.print("FR1");
+  if (FEDmode == 2) display.print("PR1");
+  if (FEDmode == 3) display.print("Extinction");
+  
+  DisplayMouse();
+  display.clearDisplay();
+  display.refresh();
 }

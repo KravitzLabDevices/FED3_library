@@ -56,6 +56,7 @@ This device includes hardware and code from:
 #define BUZZER          0
 #define VBATPIN         A7
 #define cardSelect      4
+#define BNC_OUT         A0
 #define SHARP_SCK       12
 #define SHARP_MOSI      11
 #define SHARP_SS        10
@@ -129,11 +130,11 @@ class FED3 {
         void ClassicMenu();
         void StartScreen();
         void FED3MenuScreen();
+        void psygeneMenu();
         void SetClock();
-
+        
         //BNC input/output
-        uint8_t BNC_Out;
-        void ReadBNC(bool blinkGreen);
+		void ReadBNC(bool blinkGreen);
         bool BNCinput = false;
         
         // Motor
@@ -164,7 +165,10 @@ class FED3 {
         void leftTrigger();
         void rightTrigger();
         void goToSleep();
-        void Timeout(int timeout, bool reset, bool whitenoise);
+
+        void Timeout(int timeout, bool reset = false, bool whitenoise = false);
+
+
         int minPokeTime = 0;
         void randomizeActivePoke(int max);
         int consecutive = 0;
@@ -193,6 +197,7 @@ class FED3 {
         int PelletCount = 0;
         int BlockPelletCount = 0;
         int timeout = 0;
+
         bool countAllPokes = true;
         
         // state variables
@@ -205,7 +210,6 @@ class FED3 {
         unsigned long currentSecond;
         unsigned long displayupdate;
         String Event = "None";   //What kind of event just happened?
-    
 
         // task variables
         int prob_left = 0;
@@ -231,8 +235,8 @@ class FED3 {
         void enableSleep();
         bool ClassicFED3 = false;
         bool FED3Menu = false;
+        bool psygene = false;
         bool tempSensor = false;
-        bool LoRaTransmit = false;
         
         int EndTime = 0;
         int ratio = 1;

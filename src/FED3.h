@@ -130,6 +130,7 @@ class FED3 {
         void ClassicMenu();
         void StartScreen();
         void FED3MenuScreen();
+        void psygeneMenu();
         void SetClock();
         
         //BNC input/output
@@ -231,6 +232,7 @@ class FED3 {
         void enableSleep();
         bool ClassicFED3 = false;
         bool FED3Menu = false;
+        bool psygene = false;
         bool tempSensor = false;
         
         int EndTime = 0;

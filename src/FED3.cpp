@@ -823,7 +823,7 @@ void FED3::StartScreen(){
     display.setCursor(2, 138);
     display.print(filename);
 
-    //Display FED verison number at startup
+    //Display FED version number at startup
     display.setCursor(2, 120);
     display.print("v: ");
     display.print(VER);
@@ -906,7 +906,7 @@ void FED3::DisplayMouse() {
     previousFED = FED;
     
     // If one poke is pushed change mode
-    if (FED3Menu == true or ClassicFED3 == true){
+    if (FED3Menu == true or ClassicFED3 == true or psygene){
       if (digitalRead (LEFT_POKE) == LOW | digitalRead (RIGHT_POKE) == LOW) SelectMode();
     }
     
@@ -1599,9 +1599,14 @@ void FED3::begin() {
   if (ClassicFED3 == true){
     ClassicMenu();
   }
-  if (FED3Menu == true){
+  else if (FED3Menu == true){
     FED3MenuScreen();
   }
+
+  else if (psygene) {
+    psygeneMenu();
+  }
+
   else {
     StartScreen();
   }
@@ -1659,7 +1664,14 @@ void FED3::SelectMode() {
     tone (BUZZER, 2500, 200);
     colorWipe(strip.Color(2, 0, 2), 40); // Color wipe
     colorWipe(strip.Color(0, 0, 0), 20); // OFF
-    if (FEDmode == -1) FEDmode = 11;
+    
+    if (psygene) {
+      if (FEDmode == -1) FEDmode = 3;
+    }
+    else {
+      if (FEDmode == -1) FEDmode = 11;
+    }
+    
   }
 
   //If Right Poke is activated
@@ -1669,11 +1681,26 @@ void FED3::SelectMode() {
     tone (BUZZER, 2500, 200);
     colorWipe(strip.Color(2, 2, 0), 40); // Color wipe
     colorWipe(strip.Color(0, 0, 0), 20); // OFF
-    if (FEDmode == 12) FEDmode = 0;
+
+    if (psygene) {
+      if (FEDmode == 4) FEDmode = 0; 
+    }
+
+    else {
+      if (FEDmode == 12) FEDmode = 0;
+    }
   }
 
-  if (FEDmode < 0) FEDmode = 0;
-  if (FEDmode > 11) FEDmode = 11;
+  //Double check that modes never go over
+  if (psygene) {
+    if (FEDmode < 0) FEDmode = 0;
+    if (FEDmode > 3) FEDmode = 3;
+  }
+
+  else {
+    if (FEDmode < 0) FEDmode = 0;
+    if (FEDmode > 11) FEDmode = 11;
+  }
 
   display.fillRect (10, 48, 200, 50, WHITE);  //erase the selected program text
   display.setCursor(10, 60);  //Display selected program
@@ -1692,6 +1719,14 @@ void FED3::SelectMode() {
     if (FEDmode == 9) display.print("Self-Stim");
     if (FEDmode == 10) display.print("Self-Stim (Rev)");
     if (FEDmode == 11) display.print("Timed feeding");
+    display.refresh();
+  }
+
+  else if (psygene) {
+    if (FEDmode == 0) display.print("Bandit");
+    if (FEDmode == 1) display.print("FR1");
+    if (FEDmode == 2) display.print("PR1");
+    if (FEDmode == 3) display.print("Extinction");
     display.refresh();
   }
   
@@ -1808,4 +1843,46 @@ void FED3::writeFEDmode() {
   stopfile.println(timedEnd);
   stopfile.flush();
   stopfile.close();
+}
+
+/******************************************************************************************************************************************************
+                                                                                           psygeneMenu
+******************************************************************************************************************************************************/
+
+//  Classic menu display
+void FED3::psygeneMenu () {
+  //  0 Bandit
+  //  1 FR1
+  //  2 PR1
+  //  3 Extinction
+
+  // Set FR based on FEDmode
+  if (FEDmode == 0) FR = 1;  // Bandit
+  if (FEDmode == 1) FR = 1;  // FR1
+  if (FEDmode == 2) FR = 99;  // Progressive Ratio
+  if (FEDmode == 3) { // Extinction
+    FR = 1;
+    ReleaseMotor ();
+    digitalWrite (MOTOR_ENABLE, LOW);  //disable motor driver and neopixels
+    delay(2); //let things settle
+  }
+
+  display.clearDisplay();
+  display.setCursor(1, 135);
+  display.print(filename);
+
+  display.fillRect(0, 30, 160, 80, WHITE);
+  display.setCursor(10, 40);
+  display.print("Select Program:");
+  
+  display.setCursor(10, 60);
+  //Text to display selected FR ratio
+  if (FEDmode == 0) display.print("Bandit");
+  if (FEDmode == 1) display.print("FR1");
+  if (FEDmode == 2) display.print("PR1");
+  if (FEDmode == 3) display.print("Extinction");
+  
+  DisplayMouse();
+  display.clearDisplay();
+  display.refresh();
 }

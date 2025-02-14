@@ -397,7 +397,7 @@ bool FED3::dispenseTimer_ms(int ms) {
 
 //Timeout function
 
-void FED3::Timeout(int seconds, bool reset=false, bool whitenoise=false) {
+void FED3::Timeout(int seconds, bool reset, bool whitenoise) {
   int timeoutStart = millis();
 
   while ((millis() - timeoutStart) < (seconds*1000)) {

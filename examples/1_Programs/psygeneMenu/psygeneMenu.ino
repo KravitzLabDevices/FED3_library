@@ -42,20 +42,34 @@ void setup() {
 
 void loop() {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  //                                                                     Mode 0: Bandit
+  //                                                                     Mode 0: Bandit 100-0, Mode 2: Bandit 80-20
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  if (fed3.FEDmode == 0) {
+  if ((fed3.FEDmode == 0) or (fed3.FEDmode == 2)) {
+    fed3.prob_left = 0;                                // Initial reward probability of left poke
+    fed3.prob_right = 100;                               // Initial reward probability of right poke
+    int probs[2] = {100,0};
+    
+    if (fed3.FEDmode == 0) {
+      fed3.prob_left = 0;                                // Initial reward probability of left poke
+      fed3.prob_right = 100;                               // Initial reward probability of right poke
+    }
+
+    else if (fed3.FEDmode == 2) {
+      fed3.prob_left = 20;                                // Initial reward probability of left poke
+      fed3.prob_right = 80;                               // Initial reward probability of right poke
+      probs[0] = 80;
+      probs[1] = 20;
+    }
+
+    
     int pellet_counter = 0;                               //pellet counter variable
     int timeoutIncorrect = 10;                            //timeout duration in seconds, set to 0 to remove the timeout
-    int probs[2] = {100, 0};                               //Reward probability options
     int new_prob = 0;                
     String last_poke = "";
     int random_n = 0;
     fed3.sessiontype = "Bandit";                     //The text in "sessiontype" will appear on the screen and in the logfile
     fed3.countAllPokes = false;
     fed3.pelletsToSwitch = 20;                          // Number of pellets required to finish the block and change reward probabilities
-    fed3.prob_left = 0;                                // Initial reward probability of left poke
-    fed3.prob_right = 100;                               // Initial reward probability of right poke
     fed3.allowBlockRepeat = false;                      // Whether the same probabilities can be used for two blocks in a row
     fed3.begin();                                       // Setup the FED3 hardware, all pinmode screen etc, initialize SD card
     randomSeed(12);
@@ -142,6 +156,7 @@ void loop() {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   if (fed3.FEDmode == 1) {
+    fed3.sessiontype = "FR1";
     if (fed3.Left) {
       fed3.logLeftPoke();                               //Log left poke
       fed3.ConditionedStimulus();                     //deliver conditioned stimulus (tone and lights)
@@ -153,10 +168,10 @@ void loop() {
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  //                                                                     Mode 2: Progressive Ratio
+  //                                                                     Mode 3: Progressive Ratio
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  if (fed3.FEDmode == 2) {
-    fed3.sessiontype = "ProgRatio";                      //The text in "sessiontype" will appear on the screen and in the logfile
+  if (fed3.FEDmode == 3) {
+    fed3.sessiontype = "PR1";                      //The text in "sessiontype" will appear on the screen and in the logfile
     if (fed3.Left) {                                     //If left poke is triggered and pellet is not in the well
       fed3.logLeftPoke();                                //Log left poke
       fed3.Click();                                      //Click
@@ -173,21 +188,3 @@ void loop() {
       fed3.logRightPoke();
     }
   }
-
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  //                                                                     Mode 3: Extinction
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  if (fed3.FEDmode == 3) {
-    fed3.sessiontype = "Extinct";                        //The text in "sessiontype" will appear on the screen and in the logfile
-    if (fed3.Left) {
-      fed3.logLeftPoke();                                //Log left poke
-      fed3.ConditionedStimulus();                        //deliver conditioned stimulus (tone and lights)
-    }
-
-    if (fed3.Right) {                                    //If right poke is triggered
-      fed3.logRightPoke();
-    }
-  }
-
-  fed3.run();
-}

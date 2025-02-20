@@ -1880,10 +1880,10 @@ void FED3::psygeneMenu () {
   
   display.setCursor(10, 60);
   //Text to display selected FR ratio
-  if (FEDmode == 0) display.print("Bandit");
+  if (FEDmode == 0) display.print("Bandit_100_0");
   if (FEDmode == 1) display.print("FR1");
-  if (FEDmode == 2) display.print("PR1");
-  if (FEDmode == 3) display.print("Extinction");
+  if (FEDmode == 2) display.print("Bandit_80_20");
+  if (FEDmode == 3) display.print("PR1");
   
   DisplayMouse();
   display.clearDisplay();

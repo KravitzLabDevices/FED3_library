@@ -268,6 +268,13 @@ void FED3::Feed(int pulse, bool pixelsoff) {
             pelletDispensed = ClearJam();
           }
         }
+
+        if (pelletDispensed == false) {
+          if (numMotorTurns > 100) {
+            DisplayJammed();
+          }
+        }
+
     }
   } while (PelletAvailable == false);
 }
@@ -778,6 +785,20 @@ void FED3::DisplayJamClear() {
   display.refresh();
 }
 
+//Display text when FED is clearing a jam
+void FED3::DisplayJammed() {
+  display.clearDisplay();
+  display.fillRect (6, 20, 200, 22, WHITE);  //erase the data on screen without clearing the entire screen by pasting a white box over it
+  display.setCursor(6, 36);
+  display.print("JAMMED...");
+  display.print("PLEASE CHECK");
+  display.refresh();
+  ReleaseMotor();
+  delay (2); //let things settle
+  LowPower.sleep(); 
+  DisplayJammed();
+}
+
 //Display pellet retrieval interval
 void FED3::DisplayRetrievalInt() {
   display.fillRect (85, 22, 70, 15, WHITE); 
@@ -979,7 +1000,7 @@ void FED3::writeHeader() {
   digitalWrite (MOTOR_ENABLE, LOW);  //Disable motor driver and neopixel
   // Write data header to file of microSD card
 
-  if (sessiontype == "Bandit") {
+  if ((sessiontype == "Bandit") or (sessiontype == "Bandit80") or (sessiontype == "Bandit100")){
     if (tempSensor == false) {
       logfile.println("MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,PelletsToSwitch,Prob_left,Prob_right,Event,High_prob_poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
     }
@@ -988,7 +1009,7 @@ void FED3::writeHeader() {
     }
   }
 
-  else if (sessiontype != "Bandit") {
+  else {
     if (tempSensor == false){
       logfile.println("MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
     }
@@ -1120,7 +1141,7 @@ void FED3::logdata() {
   /////////////////////////////////////////////////////////////
   // Log FR ratio (or pellets to switch block in bandit task)
 
-  if (sessiontype == "Bandit") {
+  if ((sessiontype == "Bandit") or (sessiontype == "Bandit80") or (sessiontype == "Bandit100")) {
     logfile.print(pelletsToSwitch);
     logfile.print(",");
     logfile.print(prob_left);
@@ -1142,7 +1163,7 @@ void FED3::logdata() {
   /////////////////////////////////
   // Log Active poke side (left, right)
   /////////////////////////////////
-  if (sessiontype == "Bandit") {
+  if ((sessiontype == "Bandit") or (sessiontype == "Bandit80") or (sessiontype == "Bandit100")) {
     if (prob_left > prob_right) logfile.print("Left");
     else if (prob_left < prob_right) logfile.print("Right");
     else if (prob_left == prob_right) logfile.print("nan");
@@ -1248,13 +1269,12 @@ void FED3::error(uint8_t errno) {
   }
 }
 
-
 // This function creates a unique filename for each file that
 // starts with the letters: "FED_" 
 // then the date in MMDDYY followed by "_"
 // then an incrementing number for each new file created on the same date
 void FED3::getFilename(char *filename) {
-  DateTime now = rtc.now();
+   DateTime now = rtc.now();
 
   filename[3] = FED / 100 + '0';
   filename[4] = FED / 10 + '0';
@@ -1269,11 +1289,34 @@ void FED3::getFilename(char *filename) {
   filename[17] = 'C';
   filename[18] = 'S';
   filename[19] = 'V';
+
   for (uint8_t i = 0; i < 100; i++) {
     filename[14] = '0' + i / 10;
     filename[15] = '0' + i % 10;
 
-    if (! SD.exists(filename)) {
+    if (SD.exists(filename)) {
+      // Open the file to check its length
+      File file = SD.open(filename, FILE_READ);
+      if (file) {
+        int lineCount = 0;
+        while (file.available()) {
+          if (file.read() == '\n') {
+            lineCount++;
+          }
+        }
+        file.close();
+
+        // If the file has less than 3 lines, delete it
+        if (lineCount < 3) {
+          SD.remove(filename);
+          break;
+        }
+      } else {
+        // If the file cannot be opened, log an error
+        Serial.println("Error opening file for reading.");
+      }
+    } else {
+      // If the file does not exist, use this filename
       break;
     }
   }
@@ -1726,10 +1769,10 @@ void FED3::SelectMode() {
   }
 
   else if (psygene) {
-    if (FEDmode == 0) display.print("Bandit");
+    if (FEDmode == 0) display.print("Bandit_100_0");
     if (FEDmode == 1) display.print("FR1");
-    if (FEDmode == 2) display.print("PR1");
-    if (FEDmode == 3) display.print("Extinction");
+    if (FEDmode == 2) display.print("Bandit_80_20");
+    if (FEDmode == 3) display.print("PR1");
     display.refresh();
   }
   
@@ -1858,17 +1901,6 @@ void FED3::psygeneMenu () {
   //  1 FR1
   //  2 PR1
   //  3 Extinction
-
-  // Set FR based on FEDmode
-  if (FEDmode == 0) FR = 1;  // Bandit
-  if (FEDmode == 1) FR = 1;  // FR1
-  if (FEDmode == 2) FR = 99;  // Progressive Ratio
-  if (FEDmode == 3) { // Extinction
-    FR = 1;
-    ReleaseMotor ();
-    digitalWrite (MOTOR_ENABLE, LOW);  //disable motor driver and neopixels
-    delay(2); //let things settle
-  }
 
   display.clearDisplay();
   display.setCursor(1, 135);

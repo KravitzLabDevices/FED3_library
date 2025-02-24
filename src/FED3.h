@@ -115,6 +115,7 @@ class FED3 {
         void UpdateDisplay();
         void DisplaySDError();
         void DisplayJamClear();
+        void DisplayJammed();
         void DisplayRetrievalInt();
         void DisplayLeftInt();
         void DisplayRightInt();

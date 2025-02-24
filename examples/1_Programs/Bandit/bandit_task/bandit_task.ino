@@ -6,8 +6,8 @@
   always add 100, and change simultaneously. Thus, this is a special case of the 2-armed bandit task 
   that is equivalent to a probabilistic reversal task. 
 
-  Code written by alegariamacal@wustl.edu
-  Feb, 2024
+  Code written by alexxai@wustl.edu and meaghan.creed@wustl.edu and alegariamacal@wustl.edu
+  June, 2023
 
   This project is released under the terms of the Creative Commons - Attribution - ShareAlike 3.0 license:
   human readable: https://creativecommons.org/licenses/by-sa/3.0/
@@ -21,19 +21,19 @@ FED3 fed3 (sketch);                                   //Start the FED3 object - 
 
 int pellet_counter = 0;                               //pellet counter variable
 int timeoutIncorrect = 10;                            //timeout duration in seconds, set to 0 to remove the timeout
-int probs[2] = {100,0};                               //Reward probability options
+int probs[2] = {80,20};                               //Reward probability options
 int new_prob = 0;                
 String last_poke = "";
-int random_n = 0;
+
 
 void setup() {
   fed3.countAllPokes = false;
+  fed3.LoRaTransmit = true;
   fed3.pelletsToSwitch = 30;                          // Number of pellets required to finish the block and change reward probabilities
-  fed3.prob_left = 100;                                // Initial reward probability of left poke
-  fed3.prob_right =  0;                               // Initial reward probability of right poke
+  fed3.prob_left = 80;                                // Initial reward probability of left poke
+  fed3.prob_right = 20;                               // Initial reward probability of right poke
   fed3.allowBlockRepeat = false;                      // Whether the same probabilities can be used for two blocks in a row
   fed3.begin();                                       // Setup the FED3 hardware, all pinmode screen etc, initialize SD card
-  randomSeed(12);
 }
 
 void loop() {
@@ -74,13 +74,14 @@ void loop() {
   if (fed3.Left) {
     fed3.BlockPelletCount = pellet_counter;
     fed3.logLeftPoke();                                   //Log left poke
-    random_n = random(100);
+    delay(1000);
     if (random(100) < fed3.prob_left) {                        //Select a random number between 0-100 and ask if it is between 0-80 (80% of the time).  If so:
       fed3.ConditionedStimulus();                         //Deliver conditioned stimulus (tone and lights)
       fed3.Feed();                                        //Deliver pellet
       pellet_counter ++;                                  //Increase pellet counter by one
     }
     else {                                                //If random number is between 81-100 (20% of the time)
+      fed3.Tone(300, 600);                               //Play the error tone
       fed3.Timeout(timeoutIncorrect, true, true);
     } 
     last_poke = "Left";
@@ -92,12 +93,14 @@ void loop() {
   if (fed3.Right) {
     fed3.BlockPelletCount = pellet_counter;
     fed3.logRightPoke();                                  //Log Right poke
+    delay(1000);
     if (random(100) < fed3.prob_right) {                       //Select a random number between 0-100 and ask if it is between 80-100 (20% of the time).  If so:
       fed3.ConditionedStimulus();                         //Deliver conditioned stimulus (tone and lights)
       fed3.Feed();                                        //Deliver pellet
       pellet_counter ++;                                  //Increase pellet counter by one
     }
     else {                                                //If random number is between 0-80 (80% of the time)
+      fed3.Tone(300, 600);                               //Play the error tone
       fed3.Timeout(timeoutIncorrect, true, true);
     }
     last_poke = "Right";

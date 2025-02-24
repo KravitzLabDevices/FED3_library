@@ -115,7 +115,6 @@ void loop() {
       // Notice that in this example the behavior after a right poke is exactly the
       // same as the the behvaior after a left poke.
       if (fed3.Right) {
-        //fed3.BNC(50,2);
         fed3.BlockPelletCount = pellet_counter;
         fed3.logRightPoke();                  //Log Right poke
         if (random(100) < fed3.prob_right) {  //Select a random number between 0-100 and ask if it is between 80-100 (20% of the time).  If so:
@@ -137,6 +136,7 @@ void loop() {
 
   if (fed3.FEDmode == 1) {
     fed3.sessiontype = "FR1";
+    fed3.run(); 
     if (fed3.Left) {
       fed3.logLeftPoke();          //Log left poke
       fed3.ConditionedStimulus();  //deliver conditioned stimulus (tone and lights)

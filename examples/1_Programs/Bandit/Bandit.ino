@@ -1,3 +1,4 @@
+
 /*
   Feeding experimentation device 3 (FED3)
   Bandit task
@@ -28,7 +29,6 @@ String last_poke = "";
 
 void setup() {
   fed3.countAllPokes = false;
-  fed3.LoRaTransmit = true;
   fed3.pelletsToSwitch = 30;                          // Number of pellets required to finish the block and change reward probabilities
   fed3.prob_left = 80;                                // Initial reward probability of left poke
   fed3.prob_right = 20;                               // Initial reward probability of right poke

@@ -47,7 +47,6 @@ void loop() {
       probs[1] = 20;
     }
 
-
     int pellet_counter = 0;     //pellet counter variable
     int timeoutIncorrect = 10;  //timeout duration in seconds, set to 0 to remove the timeout
     int new_prob = 0;
@@ -57,6 +56,7 @@ void loop() {
     fed3.pelletsToSwitch = 20;      // Number of pellets required to finish the block and change reward probabilities
     fed3.allowBlockRepeat = false;  // Whether the same probabilities can be used for two blocks in a row
     randomSeed(12);
+    fed3.writeHeader();
 
     while (true) {
       //////////////////////////////////////////////////////////////////////////////////

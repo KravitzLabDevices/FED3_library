@@ -1001,6 +1001,17 @@ void FED3::writeHeader() {
   // Write data header to file of microSD card
 
   if ((sessiontype == "Bandit") or (sessiontype == "Bandit80") or (sessiontype == "Bandit100")){
+    // Delete existing file to remove any previous content including headers
+    if (SD.exists(filename)) {
+      SD.remove(filename);
+    }
+
+    // Create new file and write header
+    logfile = SD.open(filename, FILE_WRITE);
+    if (!logfile) {
+      error(3);
+    }
+
     if (tempSensor == false) {
       logfile.println("MM:DD:YYYY hh:mm:ss,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,PelletsToSwitch,Prob_left,Prob_right,Event,High_prob_poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
     }
@@ -1017,7 +1028,6 @@ void FED3::writeHeader() {
       logfile.println("MM:DD:YYYY hh:mm:ss,Temp,Humidity,Library_Version,Session_type,Device_Number,Battery_Voltage,Motor_Turns,FR,Event,Active_Poke,Left_Poke_Count,Right_Poke_Count,Pellet_Count,Block_Pellet_Count,Retrieval_Time,InterPelletInterval,Poke_Time");
     }
   }
-
 
   logfile.close();
 }

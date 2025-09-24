@@ -1,7 +1,7 @@
 ## Example Data Provided
 
 ### ZIP File
-- Contains **19 examples** of FED3 **FR1** data.  
+- Contains **19 examples** of FED3 **PR1** data.  
 - Data collected from **C57 animals before high-fat diet**.  
 - Packaged as a `.zip` archive for compatibility with the **Kravitz Lab analysis notebooks**.  
 

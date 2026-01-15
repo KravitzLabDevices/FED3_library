@@ -922,7 +922,14 @@ void FED3::DisplayMouse() {
       display.fillRoundRect (i + 8, 97, 8, 6, 3, BLACK);     //back foot
     }
     display.refresh();
-    delay (80);
+    
+    if (psygene) {
+      delay (1);//make mouse run faster for psygene menu
+    }
+    else {
+      delay (80);  //make mouse run slower for classic menu
+    }
+
     display.fillRect (i-25, 73, 95, 33, WHITE);
     previousFEDmode = FEDmode;
     previousFED = FED;
@@ -968,6 +975,15 @@ void FED3::CreateFile() {
   ratiofile = SD.open("FEDmode.csv", FILE_WRITE);
   ratiofile = SD.open("FEDmode.csv", FILE_READ);
   FEDmode = ratiofile.parseInt();
+
+  if (psygene) {
+    FEDmode = FEDmode + 1;
+    if (FEDmode > 3) {
+      FEDmode = 0;
+    }
+    writeFEDmode();
+  }
+  
   ratiofile.close();
 
   startfile = SD.open("start.csv", FILE_WRITE);
